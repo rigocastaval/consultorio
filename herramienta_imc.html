@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de IMC | Dr. Ramses Castañeda</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{--azul:#1346a0;--azul-med:#1a5cc8;--acento:#0ea5e9;--gris:#4a5568;--gris-oscuro:#1e2a3a;--borde:#dce6f7;--pale:#f4f7fe;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;color:var(--gris-oscuro);background:#f0f4fb;min-height:100vh;}
+.topbar{background:linear-gradient(135deg,#0c2d6e,#1346a0);padding:16px 5%;display:flex;align-items:center;justify-content:space-between;}
+.topbar a{color:rgba(255,255,255,0.8);text-decoration:none;font-size:0.85rem;display:flex;align-items:center;gap:6px;}
+.topbar a:hover{color:#fff;}
+.topbar .logo{font-family:'Playfair Display',serif;font-size:1rem;color:#fff;font-weight:700;}
+.hero{background:linear-gradient(135deg,#0c2d6e,#1346a0);padding:48px 5% 56px;text-align:center;color:white;}
+.hero-emoji{font-size:3.5rem;display:block;margin-bottom:14px;}
+.cat-badge{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:5px 16px;font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:900;margin-bottom:10px;}
+.hero p{font-size:0.95rem;opacity:0.85;max-width:480px;margin:0 auto;line-height:1.6;}
+.calc-wrap{max-width:560px;margin:-32px auto 0;padding:0 18px 60px;position:relative;z-index:1;}
+.card{background:white;border-radius:24px;padding:32px 28px;box-shadow:0 8px 32px rgba(19,70,160,0.15);margin-bottom:20px;}
+.form-group{margin-bottom:18px;}
+.form-label{display:block;font-size:0.85rem;font-weight:600;color:var(--gris);margin-bottom:8px;}
+.input-row{display:flex;gap:10px;align-items:center;}
+.form-input{flex:1;padding:13px 16px;border:2px solid var(--borde);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;color:var(--gris-oscuro);background:var(--pale);outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--azul);background:white;}
+.unidad{font-size:0.88rem;color:var(--gris);font-weight:600;white-space:nowrap;}
+.btn-calc{width:100%;padding:16px;background:linear-gradient(135deg,var(--azul),var(--azul-med));color:white;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px;transition:transform 0.15s,box-shadow 0.15s;}
+.btn-calc:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(19,70,160,0.3);}
+.btn-calc:active{transform:translateY(0);}
+.resultado{display:none;text-align:center;}
+.resultado.visible{display:block;}
+.imc-numero{font-family:'Playfair Display',serif;font-size:4rem;font-weight:900;line-height:1;margin-bottom:6px;}
+.imc-categoria{font-size:1.1rem;font-weight:700;margin-bottom:16px;}
+.imc-barra-wrap{background:#f0f4f8;border-radius:20px;height:14px;margin:16px 0;overflow:hidden;position:relative;}
+.imc-barra-fill{height:100%;border-radius:20px;transition:width 0.8s ease;}
+.imc-marcador{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--gris);margin-top:4px;}
+.imc-detalle{background:var(--pale);border-radius:14px;padding:16px;margin-top:16px;font-size:0.88rem;color:var(--gris);line-height:1.7;text-align:left;}
+.imc-detalle strong{color:var(--gris-oscuro);}
+.tabla-imc{width:100%;border-collapse:collapse;margin-top:8px;}
+.tabla-imc th{background:var(--azul);color:white;padding:10px 12px;font-size:0.8rem;text-align:left;}
+.tabla-imc td{padding:10px 12px;font-size:0.85rem;border-bottom:1px solid var(--borde);}
+.tabla-imc tr:nth-child(even) td{background:var(--pale);}
+.tabla-imc .activa td{font-weight:700;background:#fff3cd!important;}
+.chip{display:inline-block;border-radius:8px;padding:3px 10px;font-size:0.75rem;font-weight:700;}
+.chip-bajo{background:#e0f2fe;color:#0369a1;}
+.chip-normal{background:#e4f7ef;color:#2e9e6b;}
+.chip-sobrepeso{background:#fef3e8;color:#e67e22;}
+.chip-obesidad1{background:#fdecea;color:#c0392b;}
+.chip-obesidad2{background:#fde8e8;color:#9b1c1c;}
+.chip-obesidad3{background:#f0e4f7;color:#7c3aed;}
+.cta-box{background:linear-gradient(135deg,#0c2d6e,#1346a0);color:#fff;border-radius:20px;padding:28px;text-align:center;}
+.cta-box h3{font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:8px;}
+.cta-box p{opacity:0.85;font-size:0.88rem;margin-bottom:18px;line-height:1.5;}
+.cta-btn{display:inline-block;background:#fff;color:var(--azul);padding:11px 26px;border-radius:25px;font-weight:700;text-decoration:none;font-size:0.88rem;}
+footer{background:#07183d;color:rgba(255,255,255,0.6);padding:20px 5%;text-align:center;font-size:0.8rem;}
+footer a{color:#7dd3fc;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="index.html">← Regresar al inicio</a><span class="logo">Dr. Ramses Castañeda</span></div>
+<div class="hero">
+  <span class="hero-emoji">⚖️</span>
+  <div class="cat-badge">Herramienta · Nutrición</div>
+  <h1>Calculadora de Índice de Masa Corporal</h1>
+  <p>Calcule su IMC e interprete su resultado con recomendaciones personalizadas.</p>
+</div>
+<div class="calc-wrap">
+  <div class="card">
+    <div class="form-group">
+      <label class="form-label">Peso</label>
+      <div class="input-row"><input class="form-input" type="number" id="peso" placeholder="70" min="20" max="300"><span class="unidad">kilogramos</span></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Estatura</label>
+      <div class="input-row"><input class="form-input" type="number" id="estatura" placeholder="170" min="100" max="250"><span class="unidad">centímetros</span></div>
+    </div>
+    <button class="btn-calc" onclick="calcularIMC()">Calcular mi IMC →</button>
+  </div>
+
+  <div class="card resultado" id="resultado">
+    <div class="imc-numero" id="imcNumero">—</div>
+    <div class="imc-categoria" id="imcCategoria"></div>
+    <div class="imc-barra-wrap"><div class="imc-barra-fill" id="imcBarra"></div></div>
+    <div class="imc-marcador"><span>Bajo peso</span><span>Normal</span><span>Sobrepeso</span><span>Obesidad</span></div>
+    <div class="imc-detalle" id="imcDetalle"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:14px;color:var(--gris-oscuro);">Tabla de referencia de IMC</h3>
+    <table class="tabla-imc" id="tablaIMC">
+      <thead><tr><th>Categoría</th><th>IMC</th><th>Riesgo</th></tr></thead>
+      <tbody>
+        <tr id="fBajo"><td>Bajo peso</td><td>&lt; 18.5</td><td><span class="chip chip-bajo">Bajo</span></td></tr>
+        <tr id="fNormal"><td>Peso normal</td><td>18.5 – 24.9</td><td><span class="chip chip-normal">Mínimo</span></td></tr>
+        <tr id="fSobrepeso"><td>Sobrepeso</td><td>25.0 – 29.9</td><td><span class="chip chip-sobrepeso">Aumentado</span></td></tr>
+        <tr id="fOb1"><td>Obesidad grado I</td><td>30.0 – 34.9</td><td><span class="chip chip-obesidad1">Alto</span></td></tr>
+        <tr id="fOb2"><td>Obesidad grado II</td><td>35.0 – 39.9</td><td><span class="chip chip-obesidad2">Muy alto</span></td></tr>
+        <tr id="fOb3"><td>Obesidad grado III</td><td>≥ 40.0</td><td><span class="chip chip-obesidad3">Extremo</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cta-box">
+    <h3>¿Le preocupa su peso o riesgo metabólico?</h3>
+    <p>El IMC es solo una parte del cuadro clínico. Agende una consulta para una evaluación integral.</p>
+    <a href="index.html#contacto" class="cta-btn">📅 Agendar cita</a>
+  </div>
+</div>
+<footer>© Dr. Ramses Castañeda · Colima · <a href="index.html">Inicio</a> · Herramienta de referencia, no sustituye valoración médica</footer>
+<script>
+function calcularIMC(){
+  const peso=parseFloat(document.getElementById('peso').value);
+  const estatura=parseFloat(document.getElementById('estatura').value)/100;
+  if(!peso||!estatura||peso<20||estatura<1){alert('Por favor ingrese valores válidos.');return;}
+  const imc=peso/(estatura*estatura);
+  const imcR=Math.round(imc*10)/10;
+  let cat,color,detalle,filaId,pct;
+  if(imc<18.5){cat='Bajo peso';color='#0369a1';filaId='fBajo';pct=15;detalle='Su peso está por debajo de lo recomendado. Esto puede asociarse con déficit nutricional y menor resistencia a enfermedades. Se recomienda valoración nutricional.';}
+  else if(imc<25){cat='Peso normal ✅';color='#2e9e6b';filaId='fNormal';pct=35;detalle='¡Felicidades! Su IMC está dentro del rango saludable. Continúe con sus hábitos de alimentación equilibrada y actividad física regular.';}
+  else if(imc<30){cat='Sobrepeso';color='#e67e22';filaId='fSobrepeso';pct=58;detalle='Su peso está ligeramente por encima del rango saludable. El sobrepeso aumenta el riesgo de diabetes tipo 2, hipertensión y enfermedad cardiovascular. Se recomienda consulta médica.';}
+  else if(imc<35){cat='Obesidad Grado I';color='#c0392b';filaId='fOb1';pct=72;detalle='La obesidad grado I implica riesgo alto de diabetes tipo 2, enfermedad cardiovascular, apnea del sueño y otras complicaciones. Se recomienda atención médica y plan de reducción de peso.';}
+  else if(imc<40){cat='Obesidad Grado II';color='#9b1c1c';filaId='fOb2';pct=85;detalle='Obesidad de alto riesgo. Las complicaciones metabólicas y cardiovasculares son muy probables. Es importante iniciar un plan de tratamiento médico supervisado.';}
+  else{cat='Obesidad Grado III';color='#7c3aed';filaId='fOb3';pct=97;detalle='Obesidad mórbida. Requiere atención médica especializada urgente. El riesgo de complicaciones graves es extremadamente alto.';}
+  document.getElementById('imcNumero').textContent=imcR;
+  document.getElementById('imcNumero').style.color=color;
+  document.getElementById('imcCategoria').textContent=cat;
+  document.getElementById('imcCategoria').style.color=color;
+  document.getElementById('imcBarra').style.width=pct+'%';
+  document.getElementById('imcBarra').style.background=color;
+  document.getElementById('imcDetalle').innerHTML='<strong>Interpretación:</strong> '+detalle+'<br><br><strong>Su peso ideal aproximado:</strong> entre '+(18.5*estatura*estatura).toFixed(1)+' y '+(24.9*estatura*estatura).toFixed(1)+' kg para su estatura.';
+  ['fBajo','fNormal','fSobrepeso','fOb1','fOb2','fOb3'].forEach(id=>{document.getElementById(id).className='';});
+  document.getElementById(filaId).className='activa';
+  document.getElementById('resultado').classList.add('visible');
+  document.getElementById('resultado').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body></html>

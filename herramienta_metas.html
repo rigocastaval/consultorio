@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis Metas de Control | Dr. Ramses Castañeda</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{--verde:#2e9e6b;--azul:#1346a0;--azul-med:#1a5cc8;--gris:#4a5568;--gris-oscuro:#1e2a3a;--borde:#dce6f7;--pale:#f4f7fe;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;color:var(--gris-oscuro);background:#f0f4fb;min-height:100vh;}
+.topbar{background:linear-gradient(135deg,#0c2d6e,#1346a0);padding:16px 5%;display:flex;align-items:center;justify-content:space-between;}
+.topbar a{color:rgba(255,255,255,0.8);text-decoration:none;font-size:0.85rem;}
+.topbar .logo{font-family:'Playfair Display',serif;font-size:1rem;color:#fff;font-weight:700;}
+.hero{background:linear-gradient(135deg,#e4f7ef,#b6edda);padding:48px 5% 56px;text-align:center;}
+.hero-emoji{font-size:3.5rem;display:block;margin-bottom:14px;}
+.cat-badge{display:inline-block;background:var(--verde);color:#fff;border-radius:20px;padding:5px 16px;font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:900;color:var(--gris-oscuro);margin-bottom:10px;}
+.hero p{font-size:0.95rem;color:var(--gris);max-width:500px;margin:0 auto;line-height:1.6;}
+.content{max-width:680px;margin:-32px auto 0;padding:0 18px 60px;}
+.card{background:white;border-radius:24px;padding:28px;box-shadow:0 8px 32px rgba(19,70,160,0.12);margin-bottom:16px;}
+.meta-card{border-radius:20px;padding:22px;margin-bottom:14px;border:2px solid transparent;transition:all 0.3s;}
+.meta-header{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.meta-icono{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+.meta-titulo{flex:1;}
+.meta-titulo strong{display:block;font-size:1rem;font-weight:700;color:var(--gris-oscuro);}
+.meta-titulo span{font-size:0.78rem;color:var(--gris);}
+.meta-valor-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.meta-rango{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;}
+.meta-unidad{font-size:0.82rem;color:var(--gris);font-weight:600;}
+.input-mi-valor{width:110px;padding:10px 12px;border:2px solid var(--borde);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--gris-oscuro);background:var(--pale);outline:none;text-align:center;}
+.input-mi-valor:focus{border-color:var(--azul);}
+.semaforo-indicator{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.meta-explicacion{font-size:0.82rem;color:var(--gris);line-height:1.6;margin-top:10px;padding-top:10px;border-top:1px solid #f0f4f8;}
+.meta-azul{background:#e8f0fd;border-color:#c7d9f8;}
+.meta-azul .meta-icono{background:#c7d9f8;}
+.meta-azul .meta-rango{color:var(--azul);}
+.meta-verde{background:#e4f7ef;border-color:#b6edda;}
+.meta-verde .meta-icono{background:#b6edda;}
+.meta-verde .meta-rango{color:var(--verde);}
+.meta-naranja{background:#fef3e8;border-color:#fddab5;}
+.meta-naranja .meta-icono{background:#fddab5;}
+.meta-naranja .meta-rango{color:#e67e22;}
+.meta-rojo{background:#fdecea;border-color:#f9c0bc;}
+.meta-rojo .meta-icono{background:#f9c0bc;}
+.meta-rojo .meta-rango{color:#c0392b;}
+.btn-evaluar{width:100%;padding:15px;background:linear-gradient(135deg,var(--verde),#27ae60);color:white;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px;transition:transform 0.15s;}
+.btn-evaluar:hover{transform:translateY(-2px);}
+.resumen{display:none;background:linear-gradient(135deg,var(--azul),var(--azul-med));color:white;border-radius:20px;padding:28px;margin-top:16px;text-align:center;}
+.resumen.visible{display:block;}
+.res-titulo{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:16px;}
+.metas-estado{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.estado-item{background:rgba(255,255,255,0.12);border-radius:12px;padding:12px;text-align:center;font-size:0.82rem;}
+.estado-item strong{display:block;font-size:1.2rem;font-weight:900;margin-bottom:2px;}
+.cta-box{background:linear-gradient(135deg,#0c2d6e,#1346a0);color:#fff;border-radius:20px;padding:28px;text-align:center;margin-top:16px;}
+.cta-box h3{font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:8px;}
+.cta-box p{opacity:0.85;font-size:0.88rem;margin-bottom:18px;line-height:1.5;}
+.cta-btn{display:inline-block;background:#fff;color:var(--azul);padding:11px 26px;border-radius:25px;font-weight:700;text-decoration:none;font-size:0.88rem;}
+footer{background:#07183d;color:rgba(255,255,255,0.6);padding:20px 5%;text-align:center;font-size:0.8rem;}
+footer a{color:#7dd3fc;text-decoration:none;}
+@media(max-width:520px){.metas-estado{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="index.html">← Regresar al inicio</a><span class="logo">Dr. Ramses Castañeda</span></div>
+<div class="hero">
+  <span class="hero-emoji">🎯</span>
+  <div class="cat-badge">Herramienta · Control</div>
+  <h1>Mis Metas de Control Metabólico</h1>
+  <p>Compare sus resultados de laboratorio con las metas recomendadas e identifique qué parámetros necesitan atención.</p>
+</div>
+<div class="content">
+  <div class="card">
+    <p style="font-size:0.88rem;color:var(--gris);margin-bottom:20px;line-height:1.6;">Ingrese sus últimos resultados de laboratorio en los campos azules. Si no tiene algún dato, déjelo vacío.</p>
+
+    <div class="meta-card meta-azul">
+      <div class="meta-header">
+        <div class="meta-icono">🔬</div>
+        <div class="meta-titulo"><strong>HbA1c (Hemoglobina Glucosilada)</strong><span>Control glucémico de los últimos 3 meses</span></div>
+      </div>
+      <div class="meta-valor-wrap">
+        <div><div class="meta-rango">&lt; 7.0%</div><div class="meta-unidad">Meta general ADA 2026</div></div>
+        <span style="color:#94a3b8;font-size:1.2rem;">→</span>
+        <input class="input-mi-valor" type="number" id="v_hba1c" placeholder="Mi valor" step="0.1" min="4" max="20">
+        <div class="meta-unidad">%</div>
+        <div class="semaforo-indicator" id="s_hba1c" style="background:#e2e8f0;"></div>
+      </div>
+      <div class="meta-explicacion">El principal indicador de control en diabetes. Una HbA1c &lt;7% se asocia con menor riesgo de complicaciones. La meta puede individualizarse según edad y condiciones.</div>
+    </div>
+
+    <div class="meta-card meta-verde">
+      <div class="meta-header">
+        <div class="meta-icono">🩸</div>
+        <div class="meta-titulo"><strong>Glucosa en ayuno</strong><span>Muestra la glucosa antes de comer</span></div>
+      </div>
+      <div class="meta-valor-wrap">
+        <div><div class="meta-rango">80–130 mg/dL</div><div class="meta-unidad">Meta preprandial</div></div>
+        <span style="color:#94a3b8;font-size:1.2rem;">→</span>
+        <input class="input-mi-valor" type="number" id="v_gluc" placeholder="Mi valor" min="50" max="500">
+        <div class="meta-unidad">mg/dL</div>
+        <div class="semaforo-indicator" id="s_gluc" style="background:#e2e8f0;"></div>
+      </div>
+      <div class="meta-explicacion">La glucosa en ayuno ideal para diabéticos es entre 80-130 mg/dL. Por encima de 130 sugiere ajuste de tratamiento.</div>
+    </div>
+
+    <div class="meta-card meta-naranja">
+      <div class="meta-header">
+        <div class="meta-icono">💊</div>
+        <div class="meta-titulo"><strong>Presión arterial sistólica</strong><span>El número de arriba en la medición</span></div>
+      </div>
+      <div class="meta-valor-wrap">
+        <div><div class="meta-rango">&lt; 130 mmHg</div><div class="meta-unidad">Meta en diabetes</div></div>
+        <span style="color:#94a3b8;font-size:1.2rem;">→</span>
+        <input class="input-mi-valor" type="number" id="v_pas" placeholder="Mi valor" min="80" max="220">
+        <div class="meta-unidad">mmHg</div>
+        <div class="semaforo-indicator" id="s_pas" style="background:#e2e8f0;"></div>
+      </div>
+      <div class="meta-explicacion">En personas con diabetes, mantener la presión &lt;130/80 mmHg reduce el riesgo de infarto, accidente vascular y nefropatía.</div>
+    </div>
+
+    <div class="meta-card meta-azul">
+      <div class="meta-header">
+        <div class="meta-icono">🧪</div>
+        <div class="meta-titulo"><strong>Colesterol LDL</strong><span>"Colesterol malo" — el más importante</span></div>
+      </div>
+      <div class="meta-valor-wrap">
+        <div><div class="meta-rango">&lt; 100 mg/dL</div><div class="meta-unidad">Meta en diabetes</div></div>
+        <span style="color:#94a3b8;font-size:1.2rem;">→</span>
+        <input class="input-mi-valor" type="number" id="v_ldl" placeholder="Mi valor" min="30" max="400">
+        <div class="meta-unidad">mg/dL</div>
+        <div class="semaforo-indicator" id="s_ldl" style="background:#e2e8f0;"></div>
+      </div>
+      <div class="meta-explicacion">El LDL &lt;100 mg/dL es la meta para diabéticos. Si tiene enfermedad cardiovascular, la meta es &lt;70 mg/dL. La mayoría de diabéticos requiere estatinas.</div>
+    </div>
+
+    <div class="meta-card meta-verde">
+      <div class="meta-header">
+        <div class="meta-icono">⚖️</div>
+        <div class="meta-titulo"><strong>IMC (Índice de Masa Corporal)</strong><span>Relación peso/estatura</span></div>
+      </div>
+      <div class="meta-valor-wrap">
+        <div><div class="meta-rango">18.5–24.9</div><div class="meta-unidad">Rango saludable</div></div>
+        <span style="color:#94a3b8;font-size:1.2rem;">→</span>
+        <input class="input-mi-valor" type="number" id="v_imc" placeholder="Mi valor" step="0.1" min="14" max="60">
+        <div class="meta-unidad">kg/m²</div>
+        <div class="semaforo-indicator" id="s_imc" style="background:#e2e8f0;"></div>
+      </div>
+      <div class="meta-explicacion">Calcule su IMC en la herramienta dedicada. Un peso saludable mejora el control glucémico y reduce la dosis de medicamentos necesaria.</div>
+    </div>
+
+    <button class="btn-evaluar" onclick="evaluarMetas()">Ver mi resumen de control →</button>
+  </div>
+
+  <div class="resumen" id="resumen">
+    <div class="res-titulo">Tu resumen de control metabólico</div>
+    <div class="metas-estado" id="estadoGrid"></div>
+    <div id="resTexto" style="font-size:0.88rem;opacity:0.9;line-height:1.7;text-align:left;"></div>
+  </div>
+
+  <div class="cta-box">
+    <h3>¿Alguna meta fuera de rango?</h3>
+    <p>Juntos podemos ajustar su tratamiento para alcanzar sus metas. Recuerde que pequeñas mejoras tienen gran impacto a largo plazo.</p>
+    <a href="index.html#contacto" class="cta-btn">📅 Agendar cita</a>
+  </div>
+</div>
+<footer>© Dr. Ramses Castañeda · Colima · <a href="index.html">Inicio</a> · Metas basadas en ADA Standards of Care 2026</footer>
+<script>
+const metas=[
+  {id:'hba1c',label:'HbA1c',ok:v=>v<7,warn:v=>v<8,fmt:v=>v+'%'},
+  {id:'gluc',label:'Glucosa ayuno',ok:v=>v>=80&&v<=130,warn:v=>v<=160,fmt:v=>v+' mg/dL'},
+  {id:'pas',label:'Presión sistólica',ok:v=>v<130,warn:v=>v<140,fmt:v=>v+' mmHg'},
+  {id:'ldl',label:'Colesterol LDL',ok:v=>v<100,warn:v=>v<130,fmt:v=>v+' mg/dL'},
+  {id:'imc',label:'IMC',ok:v=>v>=18.5&&v<25,warn:v=>v<30,fmt:v=>v+' kg/m²'},
+];
+function evaluarMetas(){
+  let enMeta=0,cuidado=0,fuera=0,sinDato=0;
+  const grid=[];
+  metas.forEach(m=>{
+    const raw=document.getElementById('v_'+m.id).value;
+    const val=parseFloat(raw);
+    const ind=document.getElementById('s_'+m.id);
+    if(!raw||isNaN(val)){sinDato++;ind.style.background='#e2e8f0';grid.push({label:m.label,val:'—',color:'#94a3b8',bg:'rgba(255,255,255,0.08)'});return;}
+    if(m.ok(val)){enMeta++;ind.style.background='#2e9e6b';grid.push({label:m.label,val:m.fmt(val),color:'#4ade80',bg:'rgba(74,222,128,0.15)'});}
+    else if(m.warn(val)){cuidado++;ind.style.background='#e67e22';grid.push({label:m.label,val:m.fmt(val),color:'#fb923c',bg:'rgba(251,146,60,0.15)'});}
+    else{fuera++;ind.style.background='#c0392b';grid.push({label:m.label,val:m.fmt(val),color:'#f87171',bg:'rgba(248,113,113,0.15)'});}
+  });
+  const gridHTML=grid.map(g=>`<div class="estado-item" style="background:${g.bg}"><strong style="color:${g.color}">${g.val}</strong>${g.label}</div>`).join('');
+  document.getElementById('estadoGrid').innerHTML=gridHTML;
+  let texto='';
+  if(enMeta>0)texto+=`✅ <strong>${enMeta} parámetro(s) en meta</strong> — ¡Excelente trabajo, continúe así!<br>`;
+  if(cuidado>0)texto+=`⚠️ <strong>${cuidado} parámetro(s) por mejorar</strong> — Están cerca de la meta pero requieren atención.<br>`;
+  if(fuera>0)texto+=`🚨 <strong>${fuera} parámetro(s) fuera de meta</strong> — Se recomienda consulta médica para ajustar el tratamiento.<br>`;
+  if(sinDato>0)texto+=`📋 <strong>${sinDato} dato(s) sin ingresar</strong> — Solicite estos estudios en su próxima consulta.`;
+  document.getElementById('resTexto').innerHTML=texto;
+  const res=document.getElementById('resumen');
+  res.classList.add('visible');
+  res.scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body></html>

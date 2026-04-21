@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Síntomas de Neuropatía | Dr. Ramses Castañeda</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{--naranja:#e67e22;--naranja-claro:#fef3e8;--azul:#1346a0;--gris:#4a5568;--gris-oscuro:#1e2a3a;--borde:#dce6f7;--pale:#f4f7fe;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;color:var(--gris-oscuro);background:#f0f4fb;min-height:100vh;}
+.topbar{background:linear-gradient(135deg,#0c2d6e,#1346a0);padding:16px 5%;display:flex;align-items:center;justify-content:space-between;}
+.topbar a{color:rgba(255,255,255,0.8);text-decoration:none;font-size:0.85rem;}
+.topbar .logo{font-family:'Playfair Display',serif;font-size:1rem;color:#fff;font-weight:700;}
+.hero{background:linear-gradient(135deg,#fef3e8,#fddab5);padding:48px 5% 56px;text-align:center;}
+.hero-emoji{font-size:3.5rem;display:block;margin-bottom:14px;}
+.cat-badge{display:inline-block;background:var(--naranja);color:#fff;border-radius:20px;padding:5px 16px;font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:900;color:var(--gris-oscuro);margin-bottom:10px;}
+.hero p{font-size:0.95rem;color:var(--gris);max-width:500px;margin:0 auto;line-height:1.6;}
+.quiz-wrap{max-width:620px;margin:-32px auto 0;padding:0 18px 60px;}
+.card{background:white;border-radius:24px;padding:32px 28px;box-shadow:0 8px 32px rgba(19,70,160,0.12);margin-bottom:20px;}
+.intro-box{background:var(--naranja-claro);border-left:4px solid var(--naranja);border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:24px;font-size:0.9rem;color:#7a3e00;line-height:1.6;}
+.pregunta-check{display:flex;gap:14px;align-items:flex-start;padding:14px;border:2px solid var(--borde);border-radius:14px;margin-bottom:10px;cursor:pointer;transition:all 0.2s;}
+.pregunta-check:hover{border-color:var(--naranja);background:var(--naranja-claro);}
+.pregunta-check.marcada{border-color:var(--naranja);background:var(--naranja-claro);}
+.preg-check-ico{font-size:1.4rem;flex-shrink:0;margin-top:1px;}
+.preg-check-texto strong{display:block;font-size:0.93rem;color:var(--gris-oscuro);margin-bottom:2px;}
+.preg-check-texto p{font-size:0.82rem;color:var(--gris);margin:0;line-height:1.4;}
+.checkbox-custom{width:22px;height:22px;border:2px solid var(--borde);border-radius:6px;margin-left:auto;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.pregunta-check.marcada .checkbox-custom{background:var(--naranja);border-color:var(--naranja);}
+.pregunta-check.marcada .checkbox-custom::after{content:'✓';color:white;font-size:0.8rem;font-weight:700;}
+.frecuencia-label{font-size:0.8rem;font-weight:600;color:var(--gris);margin:16px 0 8px;}
+.freq-opciones{display:flex;gap:8px;flex-wrap:wrap;}
+.freq-btn{padding:7px 14px;border:2px solid var(--borde);border-radius:20px;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;color:var(--gris);background:var(--pale);transition:all 0.2s;}
+.freq-btn.activo{background:var(--naranja);color:white;border-color:var(--naranja);}
+.btn-calc{width:100%;padding:15px;background:linear-gradient(135deg,var(--naranja),#d35400);color:white;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:20px;transition:transform 0.15s;}
+.btn-calc:hover{transform:translateY(-2px);}
+.resultado{display:none;}.resultado.visible{display:block;}
+.res-header{text-align:center;padding:20px 0 16px;}
+.res-emoji{font-size:3rem;display:block;margin-bottom:10px;}
+.res-titulo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;margin-bottom:6px;}
+.sintomas-encontrados{background:var(--pale);border-radius:14px;padding:18px;margin:16px 0;}
+.sint-encontrado{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #e2e8f0;font-size:0.88rem;color:var(--gris);}
+.sint-encontrado:last-child{border-bottom:none;}
+.aviso-importante{background:#fdecea;border:1.5px solid #f9c0bc;border-radius:12px;padding:14px 16px;font-size:0.85rem;color:#7b1c1c;margin-top:16px;line-height:1.6;}
+.cta-box{background:linear-gradient(135deg,#0c2d6e,#1346a0);color:#fff;border-radius:20px;padding:28px;text-align:center;margin-top:20px;}
+.cta-box h3{font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:8px;}
+.cta-box p{opacity:0.85;font-size:0.88rem;margin-bottom:18px;line-height:1.5;}
+.cta-btn{display:inline-block;background:#fff;color:var(--azul);padding:11px 26px;border-radius:25px;font-weight:700;text-decoration:none;font-size:0.88rem;}
+footer{background:#07183d;color:rgba(255,255,255,0.6);padding:20px 5%;text-align:center;font-size:0.8rem;}
+footer a{color:#7dd3fc;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="index.html">← Regresar al inicio</a><span class="logo">Dr. Ramses Castañeda</span></div>
+<div class="hero">
+  <span class="hero-emoji">🦶</span>
+  <div class="cat-badge">Cuestionario · Neuropatía</div>
+  <h1>¿Podría tener neuropatía diabética?</h1>
+  <p>Identifique síntomas que podrían indicar daño en los nervios causado por la diabetes.</p>
+</div>
+<div class="quiz-wrap">
+  <div class="card">
+    <div class="intro-box">⚠️ La neuropatía diabética afecta hasta el 50% de las personas con diabetes. Muchos casos no se detectan porque los síntomas se consideran "normales con la edad". Este cuestionario le ayuda a identificarlos.</div>
+    <p style="font-size:0.9rem;color:var(--gris);margin-bottom:18px;line-height:1.6;"><strong>Marque todos los síntomas que ha experimentado en los últimos 3 meses:</strong></p>
+
+    <div id="sintomas-lista">
+      <div class="pregunta-check" onclick="toggleSint(this,3)"><span class="preg-check-ico">🔥</span><div class="preg-check-texto"><strong>Ardor o quemadura en pies o piernas</strong><p>Sensación de calor intenso, especialmente de noche</p></div><div class="checkbox-custom"></div></div>
+      <div class="pregunta-check" onclick="toggleSint(this,3)"><span class="preg-check-ico">⚡</span><div class="preg-check-texto"><strong>Dolor punzante o tipo "descarga eléctrica"</strong><p>Dolores agudos y repentinos en pies o piernas</p></div><div class="checkbox-custom"></div></div>
+      <div class="pregunta-check" onclick="toggleSint(this,2)"><span class="preg-check-ico">🐜</span><div class="preg-check-texto"><strong>Hormigueo o "adormecimiento"</strong><p>Como si tuviera hormigas o la piel dormida</p></div><div class="checkbox-custom"></div></div>
+      <div class="pregunta-check" onclick="toggleSint(this,2)"><span class="preg-check-ico">🧤</span><div class="preg-check-texto"><strong>Pérdida de sensibilidad al tocar o temperatura</strong><p>No siente bien cuando toca el piso o el agua</p></div><div class="checkbox-custom"></div></div>
+      <div class="pregunta-check" onclick="toggleSint(this,3)"><span class="preg-check-ico">🌙</span><div class="preg-check-texto"><strong>Peor de noche o en reposo</strong><p>Los síntomas empeoran cuando está acostado o quieto</p></div><div class="checkbox-custom"></div></div>
+      <div class="pregunta-check" onclick="toggleSint(this,2)"><span class="preg-check-ico">🚶</span><div class="preg-check-texto"><strong>Dificultad para caminar o equilibrio inestable</strong><p>Sensación de caminar sobre algodón o piso inestable</p></div><div class="checkbox-custom"></div></div>
+      <div class="pregunta-check" onclick="toggleSint(this,1)"><span class="preg-check-ico">🦵</span><div class="preg-check-texto"><strong>Calambres frecuentes en piernas</strong><p>Contracciones musculares involuntarias</p></div><div class="checkbox-custom"></div></div>
+      <div class="pregunta-check" onclick="toggleSint(this,2)"><span class="preg-check-ico">👁️</span><div class="preg-check-texto"><strong>Problemas de visión o mareos al levantarse</strong><p>Puede indicar neuropatía autonómica</p></div><div class="checkbox-custom"></div></div>
+      <div class="pregunta-check" onclick="toggleSint(this,1)"><span class="preg-check-ico">🤢</span><div class="preg-check-texto"><strong>Náuseas, digestión lenta o estreñimiento frecuente</strong><p>El sistema nervioso también controla el aparato digestivo</p></div><div class="checkbox-custom"></div></div>
+    </div>
+    <button class="btn-calc" onclick="evaluarNeuropatia()">Evaluar mis síntomas →</button>
+  </div>
+
+  <div class="card resultado" id="resNeuropatia">
+    <div class="res-header">
+      <span class="res-emoji" id="nResEmoji">📋</span>
+      <div class="res-titulo" id="nResTitulo"></div>
+      <div id="nResSubtitulo" style="font-size:0.9rem;color:var(--gris);line-height:1.5;max-width:400px;margin:0 auto;"></div>
+    </div>
+    <div class="sintomas-encontrados" id="nResSintomas"></div>
+    <div class="aviso-importante" id="nResAviso"></div>
+  </div>
+
+  <div class="cta-box">
+    <h3>¿Tiene síntomas de neuropatía?</h3>
+    <p>La neuropatía tiene tratamiento. Cuanto antes se detecte, mejor se puede controlar. Agende su valoración.</p>
+    <a href="index.html#contacto" class="cta-btn">📅 Agendar cita</a>
+  </div>
+</div>
+<footer>© Dr. Ramses Castañeda · Colima · <a href="index.html">Inicio</a> · Cuestionario orientativo, no reemplaza valoración médica</footer>
+<script>
+let puntosTotal=0;const sintomasSeleccionados=[];
+function toggleSint(el,pts){
+  const yaEsta=el.classList.contains('marcada');
+  el.classList.toggle('marcada',!yaEsta);
+  const texto=el.querySelector('strong').textContent;
+  if(!yaEsta){puntosTotal+=pts;sintomasSeleccionados.push({texto,pts});}
+  else{puntosTotal-=pts;const idx=sintomasSeleccionados.findIndex(s=>s.texto===texto);if(idx>-1)sintomasSeleccionados.splice(idx,1);}
+}
+function evaluarNeuropatia(){
+  let emoji,titulo,subtitulo,aviso,color;
+  if(puntosTotal===0){emoji='✅';titulo='No identificamos síntomas significativos';subtitulo='No marcó síntomas sugestivos de neuropatía en este momento. Continúe con revisiones periódicas de sus pies.';aviso='Aunque no tenga síntomas, revísese los pies diariamente y acuda a sus consultas de seguimiento. La neuropatía puede estar presente sin síntomas en sus etapas iniciales.';}
+  else if(puntosTotal<=3){emoji='🟡';titulo='Síntomas leves — Vale la pena mencionarlos';subtitulo='Tiene algunos síntomas que podrían relacionarse con neuropatía incipiente. Se recomienda comentarlos en su próxima consulta.';aviso='No entre en pánico, pero tampoco ignore estos síntomas. Mencionarlos a su médico en la próxima consulta permitirá una evaluación oportuna.';}
+  else if(puntosTotal<=7){emoji='🟠';titulo='Síntomas moderados — Consulte a su médico';subtitulo='Los síntomas que reporta son compatibles con neuropatía diabética periférica. Se recomienda valoración médica próxima.';aviso='⚠️ Es importante que consulte a su médico en las próximas semanas. Existen tratamientos que pueden aliviar los síntomas y prevenir que progrese el daño.';}
+  else{emoji='🔴';titulo='Síntomas significativos — Consulta urgente recomendada';subtitulo='Presenta múltiples síntomas sugestivos de neuropatía. Requiere valoración médica a la brevedad.';aviso='🚨 Los síntomas que describe son sugestivos de neuropatía moderada a severa. Consulte a su médico lo antes posible. El tratamiento oportuno puede prevenir complicaciones graves como úlceras o amputaciones.';}
+  document.getElementById('nResEmoji').textContent=emoji;
+  document.getElementById('nResTitulo').textContent=titulo;
+  document.getElementById('nResSubtitulo').textContent=subtitulo;
+  document.getElementById('nResAviso').textContent=aviso;
+  const lista=sintomasSeleccionados.length>0?sintomasSeleccionados.map(s=>`<div class="sint-encontrado"><span>⚡</span><span>${s.texto}</span></div>`).join(''):'<div class="sint-encontrado"><span>✅</span><span>Ningún síntoma seleccionado</span></div>';
+  document.getElementById('nResSintomas').innerHTML='<p style="font-size:0.82rem;font-weight:700;color:var(--gris);margin-bottom:10px;">Síntomas que marcó:</p>'+lista;
+  document.getElementById('resNeuropatia').classList.add('visible');
+  document.getElementById('resNeuropatia').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body></html>

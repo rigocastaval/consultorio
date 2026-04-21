@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riesgo Cardiovascular | Dr. Ramses Castañeda</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{--rojo:#c0392b;--rojo-claro:#fdecea;--azul:#1346a0;--azul-med:#1a5cc8;--gris:#4a5568;--gris-oscuro:#1e2a3a;--borde:#dce6f7;--pale:#f4f7fe;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;color:var(--gris-oscuro);background:#f0f4fb;min-height:100vh;}
+.topbar{background:linear-gradient(135deg,#0c2d6e,#1346a0);padding:16px 5%;display:flex;align-items:center;justify-content:space-between;}
+.topbar a{color:rgba(255,255,255,0.8);text-decoration:none;font-size:0.85rem;}
+.topbar .logo{font-family:'Playfair Display',serif;font-size:1rem;color:#fff;font-weight:700;}
+.hero{background:linear-gradient(135deg,#fdecea,#f9c0bc);padding:48px 5% 56px;text-align:center;}
+.hero-emoji{font-size:3.5rem;display:block;margin-bottom:14px;}
+.cat-badge{display:inline-block;background:var(--rojo);color:#fff;border-radius:20px;padding:5px 16px;font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:900;color:var(--gris-oscuro);margin-bottom:10px;}
+.hero p{font-size:0.95rem;color:var(--gris);max-width:480px;margin:0 auto;line-height:1.6;}
+.calc-wrap{max-width:620px;margin:-32px auto 0;padding:0 18px 60px;}
+.card{background:white;border-radius:24px;padding:32px 28px;box-shadow:0 8px 32px rgba(19,70,160,0.12);margin-bottom:20px;}
+.card h3{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gris-oscuro);margin-bottom:18px;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:0.85rem;font-weight:600;color:var(--gris);margin-bottom:8px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.input-row{display:flex;gap:10px;align-items:center;}
+.form-input,.form-select{flex:1;width:100%;padding:12px 14px;border:2px solid var(--borde);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:500;color:var(--gris-oscuro);background:var(--pale);outline:none;transition:border-color 0.2s;}
+.form-input:focus,.form-select:focus{border-color:var(--azul);background:white;}
+.unidad{font-size:0.82rem;color:var(--gris);white-space:nowrap;font-weight:600;}
+.seccion-titulo{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--azul);margin:20px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--borde);}
+.checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.check-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border:2px solid var(--borde);border-radius:10px;cursor:pointer;font-size:0.88rem;color:var(--gris);transition:all 0.2s;}
+.check-item:hover{border-color:var(--azul);background:var(--pale);}
+.check-item input{accent-color:var(--azul);width:16px;height:16px;}
+.check-item.activo{border-color:var(--azul);background:var(--pale);color:var(--azul);font-weight:600;}
+.btn-calc{width:100%;padding:16px;background:linear-gradient(135deg,var(--rojo),#e74c3c);color:white;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px;transition:transform 0.15s;}
+.btn-calc:hover{transform:translateY(-2px);}
+.resultado{display:none;}
+.resultado.visible{display:block;}
+.res-gauge{text-align:center;padding:24px 0;}
+.res-num{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;line-height:1;}
+.res-unidad{font-size:0.85rem;color:var(--gris);margin-bottom:8px;}
+.res-nivel{font-size:1.05rem;font-weight:700;margin-bottom:18px;}
+.factores-lista{margin-top:16px;}
+.factor-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #f0f4f8;font-size:0.88rem;color:var(--gris);line-height:1.5;}
+.factor-item:last-child{border-bottom:none;}
+.factor-ico{font-size:1.1rem;flex-shrink:0;}
+.aviso{background:#fef3e8;border:1.5px solid #fddab5;border-radius:12px;padding:14px 16px;font-size:0.83rem;color:#7a3e00;margin-top:16px;line-height:1.6;}
+.cta-box{background:linear-gradient(135deg,#0c2d6e,#1346a0);color:#fff;border-radius:20px;padding:28px;text-align:center;margin-top:20px;}
+.cta-box h3{font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:8px;}
+.cta-box p{opacity:0.85;font-size:0.88rem;margin-bottom:18px;line-height:1.5;}
+.cta-btn{display:inline-block;background:#fff;color:var(--azul);padding:11px 26px;border-radius:25px;font-weight:700;text-decoration:none;font-size:0.88rem;}
+footer{background:#07183d;color:rgba(255,255,255,0.6);padding:20px 5%;text-align:center;font-size:0.8rem;}
+footer a{color:#7dd3fc;text-decoration:none;}
+@media(max-width:520px){.form-row,.checkbox-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="index.html">← Regresar al inicio</a><span class="logo">Dr. Ramses Castañeda</span></div>
+<div class="hero">
+  <span class="hero-emoji">🫀</span>
+  <div class="cat-badge">Cuestionario · Cardiología</div>
+  <h1>Evaluación de Riesgo Cardiovascular</h1>
+  <p>Identifique sus factores de riesgo cardiovascular y reciba recomendaciones personalizadas.</p>
+</div>
+<div class="calc-wrap">
+  <div class="card">
+    <h3>Complete sus datos</h3>
+    <div class="seccion-titulo">Datos generales</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Edad</label><div class="input-row"><input class="form-input" type="number" id="edad" placeholder="45" min="18" max="100"><span class="unidad">años</span></div></div>
+      <div class="form-group"><label class="form-label">Sexo</label><select class="form-select" id="sexo"><option value="">Seleccione</option><option value="m">Masculino</option><option value="f">Femenino</option></select></div>
+    </div>
+    <div class="seccion-titulo">Medidas</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Presión sistólica (el número de arriba)</label><div class="input-row"><input class="form-input" type="number" id="pas" placeholder="130" min="80" max="220"><span class="unidad">mmHg</span></div></div>
+      <div class="form-group"><label class="form-label">Colesterol LDL (si lo sabe)</label><div class="input-row"><input class="form-input" type="number" id="ldl" placeholder="130" min="50" max="400"><span class="unidad">mg/dL</span></div></div>
+    </div>
+    <div class="seccion-titulo">Factores de riesgo — Marque los que aplican</div>
+    <div class="checkbox-grid">
+      <label class="check-item" id="ck1"><input type="checkbox" onchange="toggleCheck('ck1')"> 🩸 Tengo diabetes</label>
+      <label class="check-item" id="ck2"><input type="checkbox" onchange="toggleCheck('ck2')"> 🚬 Fumo actualmente</label>
+      <label class="check-item" id="ck3"><input type="checkbox" onchange="toggleCheck('ck3')"> 💊 Tengo hipertensión</label>
+      <label class="check-item" id="ck4"><input type="checkbox" onchange="toggleCheck('ck4')"> ⚖️ Tengo sobrepeso u obesidad</label>
+      <label class="check-item" id="ck5"><input type="checkbox" onchange="toggleCheck('ck5')"> 👨‍👩‍👧 Familiar con infarto antes de 60 años</label>
+      <label class="check-item" id="ck6"><input type="checkbox" onchange="toggleCheck('ck6')"> 🛋️ Soy sedentario (poco ejercicio)</label>
+      <label class="check-item" id="ck7"><input type="checkbox" onchange="toggleCheck('ck7')"> 🧪 Colesterol alto (LDL &gt;130)</label>
+      <label class="check-item" id="ck8"><input type="checkbox" onchange="toggleCheck('ck8')"> 😰 Estrés crónico o frecuente</label>
+    </div>
+    <button class="btn-calc" onclick="calcularCV()" style="margin-top:20px;">Evaluar mi riesgo cardiovascular →</button>
+  </div>
+
+  <div class="card resultado" id="resultadoCV">
+    <div class="res-gauge">
+      <div class="res-num" id="cvNum">—</div>
+      <div class="res-unidad">puntos de riesgo</div>
+      <div class="res-nivel" id="cvNivel"></div>
+    </div>
+    <div class="factores-lista" id="cvFactores"></div>
+    <div class="aviso">⚠️ Esta evaluación es orientativa y no reemplaza una valoración médica completa con estudios de laboratorio. Consulte a su médico para una evaluación de riesgo cardiovascular formal (SCORE, Framingham).</div>
+  </div>
+
+  <div class="cta-box">
+    <h3>¿Le preocupa su salud cardiovascular?</h3>
+    <p>Solicite una consulta para revisión de presión arterial, perfil de lípidos y evaluación de riesgo cardiovascular completa.</p>
+    <a href="index.html#contacto" class="cta-btn">📅 Agendar cita</a>
+  </div>
+</div>
+<footer>© Dr. Ramses Castañeda · Colima · <a href="index.html">Inicio</a> · Herramienta orientativa, no sustituye valoración médica</footer>
+<script>
+function toggleCheck(id){const el=document.getElementById(id);el.classList.toggle('activo',el.querySelector('input').checked);}
+function calcularCV(){
+  const edad=parseInt(document.getElementById('edad').value)||0;
+  const sexo=document.getElementById('sexo').value;
+  const pas=parseInt(document.getElementById('pas').value)||0;
+  const ldl=parseInt(document.getElementById('ldl').value)||0;
+  if(!edad||!sexo){alert('Por favor ingrese edad y sexo.');return;}
+  let puntos=0;const factores=[];
+  if(edad>=45&&sexo==='m'){puntos+=2;factores.push({ico:'👨',txt:'Hombre ≥45 años: factor de riesgo independiente para enfermedad cardiovascular.'});}
+  if(edad>=55&&sexo==='f'){puntos+=2;factores.push({ico:'👩',txt:'Mujer ≥55 años o posmenopausia: el riesgo cardiovascular aumenta significativamente.'});}
+  if(pas>=140){puntos+=3;factores.push({ico:'💊',txt:'Presión sistólica ≥140 mmHg: hipertensión arterial, factor de riesgo mayor. Requiere manejo médico.'});}
+  else if(pas>=130){puntos+=1;factores.push({ico:'⚠️',txt:'Presión sistólica entre 130-139 mmHg: presión elevada. Monitoreo y cambios en estilo de vida recomendados.'});}
+  if(ldl>=160){puntos+=3;factores.push({ico:'🧪',txt:'LDL ≥160 mg/dL: colesterol muy alto. Mayor riesgo de formación de placas en arterias.'});}
+  else if(ldl>=130){puntos+=2;factores.push({ico:'🧪',txt:'LDL entre 130-159 mg/dL: colesterol moderadamente elevado. Se recomienda dieta y posiblemente medicación.'});}
+  const checks=[
+    {id:'ck1',pts:3,ico:'🩸',txt:'Diabetes mellitus: duplica o triplica el riesgo cardiovascular. Control estricto de glucosa es esencial.'},
+    {id:'ck2',pts:4,ico:'🚬',txt:'Tabaquismo activo: uno de los factores de riesgo más poderosos. Dejar de fumar reduce el riesgo en 50% en 1 año.'},
+    {id:'ck3',pts:2,ico:'💊',txt:'Hipertensión arterial: daña silenciosamente las arterias. Control de presión reduce infartos y eventos vasculares.'},
+    {id:'ck4',pts:2,ico:'⚖️',txt:'Sobrepeso/obesidad: aumenta presión arterial, colesterol y riesgo de diabetes. Perder 5-10% del peso tiene impacto importante.'},
+    {id:'ck5',pts:3,ico:'👨‍👩‍👧',txt:'Historia familiar de infarto temprano: componente genético importante. Requiere vigilancia más estrecha.'},
+    {id:'ck6',pts:2,ico:'🛋️',txt:'Sedentarismo: 150 min de ejercicio moderado por semana reduce riesgo cardiovascular en 35%.'},
+    {id:'ck7',pts:2,ico:'🧪',txt:'Colesterol LDL alto: principal factor en formación de ateromas (placas en arterias).'},
+    {id:'ck8',pts:1,ico:'😰',txt:'Estrés crónico: eleva cortisol, presión arterial y promueve inflamación vascular.'},
+  ];
+  checks.forEach(c=>{if(document.getElementById(c.id).querySelector('input').checked){puntos+=c.pts;factores.push({ico:c.ico,txt:c.txt});}});
+  let nivel,color;
+  if(puntos<=3){nivel='Riesgo BAJO';color='#2e9e6b';}
+  else if(puntos<=7){nivel='Riesgo MODERADO';color='#e67e22';}
+  else if(puntos<=12){nivel='Riesgo ALTO';color='#c0392b';}
+  else{nivel='Riesgo MUY ALTO — consulte a su médico a la brevedad';color='#9b1c1c';}
+  document.getElementById('cvNum').textContent=puntos;
+  document.getElementById('cvNum').style.color=color;
+  document.getElementById('cvNivel').textContent=nivel;
+  document.getElementById('cvNivel').style.color=color;
+  const lista=factores.length>0?factores.map(f=>`<div class="factor-item"><span class="factor-ico">${f.ico}</span><span>${f.txt}</span></div>`).join(''):'<div class="factor-item"><span class="factor-ico">✅</span><span>No identificamos factores de riesgo importantes en los datos proporcionados. Continúe con sus hábitos saludables.</span></div>';
+  document.getElementById('cvFactores').innerHTML='<p style="font-size:0.85rem;font-weight:700;color:var(--gris);margin-bottom:8px;">Factores identificados:</p>'+lista;
+  document.getElementById('resultadoCV').classList.add('visible');
+  document.getElementById('resultadoCV').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body></html>
