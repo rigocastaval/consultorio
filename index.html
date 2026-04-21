@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. Ramses Castañeda | Médico General y Diabetólogo · Colima</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --azul:        #1346a0;
+  --azul-med:    #1a5cc8;
+  --azul-claro:  #e8f0fd;
+  --azul-pale:   #f4f7fe;
+  --acento:      #0ea5e9;
+  --blanco:      #ffffff;
+  --gris-oscuro: #1e2a3a;
+  --gris:        #4a5568;
+  --gris-claro:  #f0f4f8;
+  --borde:       #dce6f7;
+  --sombra-sm:   0 2px 8px rgba(19,70,160,0.08);
+  --sombra-md:   0 6px 24px rgba(19,70,160,0.12);
+  --sombra-lg:   0 16px 48px rgba(19,70,160,0.16);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--blanco);
+  color: var(--gris-oscuro);
+  overflow-x: hidden;
+}
+
+/* ── ANIMACIONES ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(14,165,233,0.4); }
+  70%  { box-shadow: 0 0 0 12px rgba(14,165,233,0); }
+  100% { box-shadow: 0 0 0 0 rgba(14,165,233,0); }
+}
+.fade-up { animation: fadeUp 0.7s ease both; }
+.fade-up-d1 { animation-delay: 0.1s; }
+.fade-up-d2 { animation-delay: 0.2s; }
+.fade-up-d3 { animation-delay: 0.3s; }
+.fade-up-d4 { animation-delay: 0.4s; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--borde);
+  padding: 0 5%;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--azul);
+  text-decoration: none;
+  line-height: 1.2;
+}
+.nav-logo span { display: block; font-size: 0.65rem; font-family: 'DM Sans', sans-serif; font-weight: 400; color: var(--gris); letter-spacing: 1.5px; text-transform: uppercase; }
+.nav-links { display: flex; gap: 28px; align-items: center; }
+.nav-links a {
+  text-decoration: none;
+  font-size: 0.87rem;
+  font-weight: 500;
+  color: var(--gris);
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--azul); }
+.nav-cta {
+  background: var(--azul) !important;
+  color: var(--blanco) !important;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.83rem !important;
+  font-weight: 600 !important;
+  transition: background 0.2s, transform 0.15s !important;
+}
+.nav-cta:hover { background: var(--azul-med) !important; transform: translateY(-1px); }
+.nav-toggle { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
+.nav-toggle span { width: 24px; height: 2px; background: var(--azul); border-radius: 2px; transition: all 0.3s; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0c2d6e 0%, #1346a0 45%, #1a73c8 100%);
+  display: flex; align-items: center;
+  padding: 96px 5% 64px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-blob {
+  position: absolute;
+  width: 520px; height: 520px;
+  background: radial-gradient(circle, rgba(14,165,233,0.18) 0%, transparent 70%);
+  border-radius: 50%;
+  top: -100px; right: -80px;
+  pointer-events: none;
+}
+.hero-blob2 {
+  position: absolute;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  bottom: -60px; left: 10%;
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative; z-index: 1;
+  width: 100%;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.hero-badge::before { content: '●'; color: #4ade80; font-size: 0.6rem; }
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 900;
+  color: white;
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+.hero h1 em { font-style: normal; color: #7dd3fc; }
+.hero-desc {
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.7;
+  margin-bottom: 36px;
+  max-width: 480px;
+}
+.hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+.btn-primary {
+  background: white;
+  color: var(--azul);
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+.btn-secondary {
+  background: rgba(255,255,255,0.12);
+  color: white;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  transition: background 0.2s, transform 0.2s;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+/* Hero card derecha */
+.hero-card {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 24px;
+  padding: 36px 32px;
+  color: white;
+}
+.hero-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  margin-bottom: 24px;
+  opacity: 0.9;
+}
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.stat-item {
+  background: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+}
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #7dd3fc;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label { font-size: 0.75rem; opacity: 0.75; line-height: 1.3; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.hero-tag {
+  background: rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* ── SECCIÓN BASE ── */
+section { padding: 80px 5%; }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--azul);
+  margin-bottom: 10px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 700;
+  color: var(--gris-oscuro);
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 1rem;
+  color: var(--gris);
+  line-height: 1.7;
+  max-width: 560px;
+}
+.divider {
+  width: 48px; height: 4px;
+  background: linear-gradient(90deg, var(--azul), var(--acento));
+  border-radius: 2px;
+  margin: 16px 0 32px;
+}
+
+/* ── QUIÉN SOY ── */
+#quien-soy { background: var(--azul-pale); }
+.quien-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 60px;
+  align-items: start;
+}
+.avatar-wrap { position: relative; }
+.avatar-circle {
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--azul), var(--acento));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 5rem;
+  margin-bottom: 20px;
+  box-shadow: var(--sombra-lg);
+  animation: pulse-ring 3s infinite;
+}
+.credencial {
+  background: white;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: var(--sombra-md);
+  border-left: 4px solid var(--azul);
+}
+.credencial p { font-size: 0.88rem; color: var(--gris); line-height: 1.6; }
+.credencial strong { color: var(--azul); font-weight: 600; }
+.quien-texto p {
+  font-size: 1rem; line-height: 1.8; color: var(--gris); margin-bottom: 18px;
+}
+.destacado {
+  background: linear-gradient(135deg, var(--azul), var(--azul-med));
+  color: white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin: 24px 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  font-style: italic;
+}
+.valores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
+.valor-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: white; border-radius: 12px; padding: 14px;
+  box-shadow: var(--sombra-sm);
+}
+.valor-icono { font-size: 1.3rem; flex-shrink: 0; }
+.valor-texto { font-size: 0.88rem; color: var(--gris); line-height: 1.4; }
+.valor-texto strong { display: block; color: var(--gris-oscuro); font-weight: 600; margin-bottom: 2px; }
+
+/* ── SERVICIOS ── */
+#servicios { background: white; }
+.servicios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 16px;
+}
+.servicio-card {
+  background: var(--azul-pale);
+  border-radius: 20px;
+  padding: 28px 24px;
+  border: 1.5px solid var(--borde);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  cursor: default;
+}
+.servicio-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sombra-md);
+  border-color: var(--azul-med);
+}
+.serv-icono {
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, var(--azul), var(--acento));
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 18px;
+}
+.servicio-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gris-oscuro);
+  margin-bottom: 10px;
+}
+.servicio-card p { font-size: 0.88rem; color: var(--gris); line-height: 1.65; }
+.serv-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.serv-tag {
+  background: var(--azul-claro);
+  color: var(--azul);
+  border-radius: 10px;
+  padding: 3px 10px;
+  font-size: 0.73rem;
+  font-weight: 600;
+}
+
+/* ── HERRAMIENTAS / INSTRUCTIVO ── */
+#herramientas { background: var(--azul-pale); }
+.herram-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; }
+.tool-card {
+  background: white;
+  border-radius: 20px;
+  border: 1.5px solid var(--borde);
+  overflow: hidden;
+  box-shadow: var(--sombra-md);
+}
+.tool-card-header {
+  background: linear-gradient(135deg, var(--azul) 0%, var(--azul-med) 100%);
+  padding: 22px 28px;
+  color: white;
+  display: flex; align-items: center; gap: 16px;
+}
+.tool-card-header .tool-icono { font-size: 2rem; }
+.tool-card-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.tool-card-header p { font-size: 0.83rem; opacity: 0.85; }
+.tool-iframe-wrap {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 75%;
+  overflow: hidden;
+}
+.tool-iframe-wrap iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border: none;
+}
+
+/* ── CONSEJOS / BLOG ── */
+#consejos { background: white; }
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 16px;
+}
+.blog-card {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1.5px solid var(--borde);
+  transition: transform 0.2s, box-shadow 0.2s;
+  background: white;
+}
+.blog-card:hover { transform: translateY(-4px); box-shadow: var(--sombra-md); }
+.blog-banner {
+  height: 120px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.8rem;
+}
+.blog-body { padding: 22px 22px 24px; }
+.blog-cat {
+  font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--azul); margin-bottom: 8px;
+}
+.blog-body h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem; font-weight: 700;
+  color: var(--gris-oscuro); margin-bottom: 10px; line-height: 1.3;
+}
+.blog-body p { font-size: 0.87rem; color: var(--gris); line-height: 1.65; }
+.blog-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 14px;
+  font-size: 0.83rem; font-weight: 600;
+  color: var(--azul); text-decoration: none;
+  transition: gap 0.2s;
+}
+.blog-link:hover { gap: 10px; }
+
+/* ── CONTACTO ── */
+#contacto {
+  background: linear-gradient(135deg, #0c2d6e 0%, #1346a0 100%);
+  color: white;
+}
+#contacto .section-title { color: white; }
+#contacto .section-sub { color: rgba(255,255,255,0.75); }
+#contacto .section-label { color: #7dd3fc; }
+.contacto-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+  margin-top: 8px;
+}
+.contacto-info { display: flex; flex-direction: column; gap: 18px; }
+.contacto-item {
+  display: flex; gap: 16px; align-items: flex-start;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px;
+  padding: 16px 20px;
+}
+.cont-icono { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+.cont-texto strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; margin-bottom: 4px; }
+.cont-texto p { font-size: 0.95rem; line-height: 1.5; }
+.cont-texto a { color: #7dd3fc; text-decoration: none; }
+
+/* Formulario */
+.form-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: var(--sombra-lg);
+}
+.form-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; color: var(--gris-oscuro);
+  margin-bottom: 6px;
+}
+.form-card .form-sub { font-size: 0.85rem; color: var(--gris); margin-bottom: 22px; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--gris); margin-bottom: 6px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--borde);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  color: var(--gris-oscuro);
+  background: var(--azul-pale);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--azul); background: white; }
+.form-textarea { resize: vertical; min-height: 90px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.btn-form {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--azul), var(--azul-med));
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  margin-top: 6px;
+}
+.btn-form:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(19,70,160,0.3); }
+.form-success {
+  display: none;
+  background: #e8fdf0;
+  border: 1.5px solid #86efac;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  color: #166534;
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin-top: 12px;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: #07183d;
+  color: rgba(255,255,255,0.6);
+  padding: 36px 5%;
+  text-align: center;
+  font-size: 0.82rem;
+  line-height: 1.8;
+}
+footer strong { color: rgba(255,255,255,0.85); }
+footer a { color: #7dd3fc; text-decoration: none; }
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+  .nav-links { display: none; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: white; padding: 20px 5%; border-bottom: 1px solid var(--borde); gap: 16px; }
+  .nav-links.open { display: flex; }
+  .nav-toggle { display: flex; }
+  .hero-inner, .quien-grid, .contacto-grid { grid-template-columns: 1fr; }
+  .hero-card { display: none; }
+  .valores-grid, .form-row { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  section { padding: 60px 5%; }
+  .tool-iframe-wrap { padding-bottom: 140%; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    Dr. Ramses Castañeda
+    <span>Médico General · Diabetólogo · Colima</span>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="#quien-soy">Quién soy</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#herramientas">Herramientas</a>
+    <a href="#consejos">Consejos</a>
+    <a href="#contacto" class="nav-cta">Agendar cita</a>
+  </div>
+  <div class="nav-toggle" id="navToggle" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-blob"></div>
+  <div class="hero-blob2"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge fade-up">Consultorio en Colima, Col.</div>
+      <h1 class="fade-up fade-up-d1">
+        Dr. Ramses Rodrigo<br><em>Castañeda Valenzuela</em>
+      </h1>
+      <p class="hero-desc fade-up fade-up-d2">
+        Médico General y Diabetólogo con enfoque en el control integral de la diabetes y enfermedades crónicas. Atención personalizada, educación en salud y acompañamiento continuo para usted y su familia.
+      </p>
+      <div class="hero-btns fade-up fade-up-d3">
+        <a href="#contacto" class="btn-primary">📅 Agendar cita</a>
+        <a href="#herramientas" class="btn-secondary">🩺 Herramientas para pacientes</a>
+      </div>
+    </div>
+    <div class="hero-card fade-up fade-up-d2">
+      <h3>Especialidades principales</h3>
+      <div class="stat-grid">
+        <div class="stat-item">
+          <div class="stat-num">DM1</div>
+          <div class="stat-label">Diabetes Tipo 1</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">DM2</div>
+          <div class="stat-label">Diabetes Tipo 2</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">HbA1c</div>
+          <div class="stat-label">Control glucémico</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">24/7</div>
+          <div class="stat-label">Educación en salud</div>
+        </div>
+      </div>
+      <div class="hero-tags">
+        <span class="hero-tag">🍽️ Conteo de carbohidratos</span>
+        <span class="hero-tag">💉 Terapia con insulina</span>
+        <span class="hero-tag">📊 Monitoreo glucémico</span>
+        <span class="hero-tag">🫀 Prevención cardiovascular</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUIÉN SOY -->
+<section id="quien-soy">
+  <div class="section-inner">
+    <div class="quien-grid">
+      <div class="avatar-wrap fade-up">
+        <div class="avatar-circle">👨‍⚕️</div>
+        <div class="credencial">
+          <p><strong>Dr. Ramses Rodrigo Castañeda Valenzuela</strong><br>
+          Médico General · Diabetólogo<br>
+          📍 Colima, Colima, México</p>
+        </div>
+      </div>
+      <div class="quien-texto fade-up fade-up-d1">
+        <div class="section-label">Quién soy</div>
+        <h2 class="section-title">Un médico comprometido con su salud y bienestar</h2>
+        <div class="divider"></div>
+        <p>Soy médico general con especialización en el manejo de la diabetes mellitus y enfermedades crónicas. Mi práctica está orientada a brindar atención de calidad, accesible y centrada en el paciente, con especial énfasis en la educación y el autocuidado.</p>
+        <p>Creo firmemente que un paciente bien informado tiene mejores resultados. Por eso desarrollo materiales educativos y herramientas digitales que mis pacientes pueden usar en casa para tomar decisiones más seguras sobre su salud.</p>
+        <div class="destacado">
+          "Mi objetivo no es sólo tratar la enfermedad, sino acompañar a cada paciente para que comprenda su condición y viva con mayor calidad de vida."
+        </div>
+        <div class="valores-grid">
+          <div class="valor-item">
+            <span class="valor-icono">🎯</span>
+            <div class="valor-texto"><strong>Enfoque personalizado</strong>Cada paciente es único. El tratamiento se adapta a su vida, no al revés.</div>
+          </div>
+          <div class="valor-item">
+            <span class="valor-icono">📚</span>
+            <div class="valor-texto"><strong>Educación en salud</strong>Explico con claridad para que usted entienda y participe en su cuidado.</div>
+          </div>
+          <div class="valor-item">
+            <span class="valor-icono">🤝</span>
+            <div class="valor-texto"><strong>Confianza y cercanía</strong>Un ambiente sin juicios donde usted puede expresarse libremente.</div>
+          </div>
+          <div class="valor-item">
+            <span class="valor-icono">🔬</span>
+            <div class="valor-texto"><strong>Medicina basada en evidencia</strong>Tratamientos respaldados por las guías clínicas más actualizadas.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section id="servicios">
+  <div class="section-inner">
+    <div class="section-label">Lo que ofrezco</div>
+    <h2 class="section-title">Servicios médicos</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Atención integral para el manejo de la diabetes y enfermedades crónicas en todas las etapas de la vida.</p>
+    <div class="servicios-grid" style="margin-top:36px;">
+      <div class="servicio-card fade-up">
+        <div class="serv-icono">💉</div>
+        <h3>Manejo de Diabetes Tipo 1</h3>
+        <p>Consulta especializada para pacientes con DM1. Ajuste de dosis de insulina, educación en conteo de carbohidratos, manejo de hipoglucemias e hiperglucemias.</p>
+        <div class="serv-tags">
+          <span class="serv-tag">Insulinoterapia</span>
+          <span class="serv-tag">Conteo de CHO</span>
+          <span class="serv-tag">HbA1c</span>
+        </div>
+      </div>
+      <div class="servicio-card fade-up fade-up-d1">
+        <div class="serv-icono">🩸</div>
+        <h3>Control de Diabetes Tipo 2</h3>
+        <p>Diagnóstico, tratamiento farmacológico y no farmacológico de DM2. Plan de alimentación, actividad física y seguimiento metabólico.</p>
+        <div class="serv-tags">
+          <span class="serv-tag">Hipoglucemiantes</span>
+          <span class="serv-tag">Nutrición</span>
+          <span class="serv-tag">Prevención</span>
+        </div>
+      </div>
+      <div class="servicio-card fade-up fade-up-d2">
+        <div class="serv-icono">🫀</div>
+        <h3>Riesgo Cardiovascular</h3>
+        <p>Evaluación y manejo del riesgo cardiovascular en pacientes diabéticos. Control de presión arterial, lípidos y función renal.</p>
+        <div class="serv-tags">
+          <span class="serv-tag">Hipertensión</span>
+          <span class="serv-tag">Dislipidemia</span>
+          <span class="serv-tag">Nefropatía</span>
+        </div>
+      </div>
+      <div class="servicio-card fade-up">
+        <div class="serv-icono">📋</div>
+        <h3>Consulta General</h3>
+        <p>Atención médica general, diagnóstico y tratamiento de enfermedades agudas y crónicas. Medicina preventiva y chequeos periódicos.</p>
+        <div class="serv-tags">
+          <span class="serv-tag">Check-up</span>
+          <span class="serv-tag">Preventiva</span>
+          <span class="serv-tag">Crónicas</span>
+        </div>
+      </div>
+      <div class="servicio-card fade-up fade-up-d1">
+        <div class="serv-icono">🧠</div>
+        <h3>Educación Diabetológica</h3>
+        <p>Sesiones educativas individuales para aprender a vivir bien con diabetes. Conteo de carbohidratos, uso del glucómetro, prevención de complicaciones.</p>
+        <div class="serv-tags">
+          <span class="serv-tag">Autocuidado</span>
+          <span class="serv-tag">Glucómetro</span>
+          <span class="serv-tag">Pie diabético</span>
+        </div>
+      </div>
+      <div class="servicio-card fade-up fade-up-d2">
+        <div class="serv-icono">👨‍👩‍👧</div>
+        <h3>Seguimiento Familiar</h3>
+        <p>Atención médica continua para toda la familia. Incluye orientación a familiares de pacientes diabéticos para apoyar el cuidado en casa.</p>
+        <div class="serv-tags">
+          <span class="serv-tag">Todas las edades</span>
+          <span class="serv-tag">Familia</span>
+          <span class="serv-tag">Seguimiento</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HERRAMIENTAS -->
+<section id="herramientas">
+  <div class="section-inner">
+    <div class="herram-header">
+      <div>
+        <div class="section-label">Para mis pacientes</div>
+        <h2 class="section-title">Herramientas educativas</h2>
+        <div class="divider"></div>
+        <p class="section-sub">Recursos interactivos diseñados especialmente para que usted pueda aprender y practicar en casa.</p>
+      </div>
+    </div>
+    <div class="tool-card fade-up">
+      <div class="tool-card-header">
+        <span class="tool-icono">💉</span>
+        <div>
+          <h3>Guía para contar carbohidratos y calcular insulina</h3>
+          <p>Para pacientes con Diabetes Tipo 1 · Incluye calculadora interactiva de dosis</p>
+        </div>
+      </div>
+      <div class="tool-iframe-wrap">
+        <iframe src="instructivo_insulina_dm1.html" title="Instructivo conteo de carbohidratos e insulina DM1" loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONSEJOS -->
+<section id="consejos">
+  <div class="section-inner">
+    <div class="section-label">Educación en salud</div>
+    <h2 class="section-title">Consejos para su bienestar</h2>
+    <div class="divider"></div>
+    <p class="section-sub">Información confiable y práctica para ayudarle a vivir mejor con diabetes o prevenirla.</p>
+    <div class="blog-grid" style="margin-top:36px;">
+      <div class="blog-card fade-up">
+        <div class="blog-banner" style="background: linear-gradient(135deg,#e8f0fd,#c7d9f8);">🩸</div>
+        <div class="blog-body">
+          <div class="blog-cat">Diabetes Tipo 1</div>
+          <h3>¿Qué es la hipoglucemia y cómo actuar?</h3>
+          <p>Aprenda a reconocer los síntomas de azúcar baja, qué hacer en ese momento y cómo prevenirla en su día a día.</p>
+          <a href="#contacto" class="blog-link">Preguntar al Dr. →</a>
+        </div>
+      </div>
+      <div class="blog-card fade-up fade-up-d1">
+        <div class="blog-banner" style="background: linear-gradient(135deg,#e4f7ef,#b6edda);">🍽️</div>
+        <div class="blog-body">
+          <div class="blog-cat">Nutrición</div>
+          <h3>Los 10 alimentos que más suben la glucosa</h3>
+          <p>Conozca qué alimentos tienen más carbohidratos y cómo incluirlos en su dieta sin perder el control de su azúcar.</p>
+          <a href="#contacto" class="blog-link">Preguntar al Dr. →</a>
+        </div>
+      </div>
+      <div class="blog-card fade-up fade-up-d2">
+        <div class="blog-banner" style="background: linear-gradient(135deg,#fef3e8,#fddab5);">🏃</div>
+        <div class="blog-body">
+          <div class="blog-cat">Actividad física</div>
+          <h3>Ejercicio y diabetes: lo que debe saber</h3>
+          <p>El ejercicio ayuda a controlar el azúcar, pero requiere precauciones. Descubra cómo moverse de forma segura.</p>
+          <a href="#contacto" class="blog-link">Preguntar al Dr. →</a>
+        </div>
+      </div>
+      <div class="blog-card fade-up">
+        <div class="blog-banner" style="background: linear-gradient(135deg,#fdecea,#f9c0bc);">🦶</div>
+        <div class="blog-body">
+          <div class="blog-cat">Prevención</div>
+          <h3>Cuidado del pie diabético: guía básica</h3>
+          <p>Pequeños hábitos diarios pueden prevenir complicaciones graves. Aprenda cómo revisar y cuidar sus pies correctamente.</p>
+          <a href="#contacto" class="blog-link">Preguntar al Dr. →</a>
+        </div>
+      </div>
+      <div class="blog-card fade-up fade-up-d1">
+        <div class="blog-banner" style="background: linear-gradient(135deg,#ede9fe,#c4b5fd);">💊</div>
+        <div class="blog-body">
+          <div class="blog-cat">Tratamiento</div>
+          <h3>¿Cómo conservar correctamente la insulina?</h3>
+          <p>Una insulina mal conservada pierde efectividad. Conozca las reglas básicas de almacenamiento y manejo.</p>
+          <a href="#contacto" class="blog-link">Preguntar al Dr. →</a>
+        </div>
+      </div>
+      <div class="blog-card fade-up fade-up-d2">
+        <div class="blog-banner" style="background: linear-gradient(135deg,#e0f2fe,#bae6fd);">📊</div>
+        <div class="blog-body">
+          <div class="blog-cat">Monitoreo</div>
+          <h3>¿Con qué frecuencia debo medirme el azúcar?</h3>
+          <p>La frecuencia varía según el tipo de diabetes y tratamiento. Aprenda cuándo y cómo registrar sus glucemias.</p>
+          <a href="#contacto" class="blog-link">Preguntar al Dr. →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section id="contacto">
+  <div class="section-inner">
+    <div class="section-label">Agendar cita</div>
+    <h2 class="section-title">Contácteme</h2>
+    <div class="divider" style="background: linear-gradient(90deg,#7dd3fc,#38bdf8);"></div>
+    <p class="section-sub">Estoy disponible para atenderle en Colima. Complete el formulario o contácteme directamente.</p>
+    <div class="contacto-grid" style="margin-top:40px;">
+      <div class="contacto-info fade-up">
+        <div class="contacto-item">
+          <span class="cont-icono">📍</span>
+          <div class="cont-texto">
+            <strong>Ubicación</strong>
+            <p>Colima, Colima, México<br><small style="opacity:0.8;">Dirección disponible al confirmar cita</small></p>
+          </div>
+        </div>
+        <div class="contacto-item">
+          <span class="cont-icono">📞</span>
+          <div class="cont-texto">
+            <strong>Teléfono / WhatsApp</strong>
+            <p><a href="tel:+523121234567">Por definir</a><br><small style="opacity:0.8;">Actualice este dato con su número</small></p>
+          </div>
+        </div>
+        <div class="contacto-item">
+          <span class="cont-icono">✉️</span>
+          <div class="cont-texto">
+            <strong>Correo electrónico</strong>
+            <p><a href="mailto:dr.castaneda@ejemplo.com">Por definir</a><br><small style="opacity:0.8;">Actualice con su correo</small></p>
+          </div>
+        </div>
+        <div class="contacto-item">
+          <span class="cont-icono">🕐</span>
+          <div class="cont-texto">
+            <strong>Horario de consulta</strong>
+            <p>Lunes a Viernes: 9:00 – 14:00 h<br>Sábados: 9:00 – 12:00 h</p>
+          </div>
+        </div>
+      </div>
+      <div class="form-card fade-up fade-up-d1">
+        <h3>Solicitar cita</h3>
+        <p class="form-sub">Le responderemos a la brevedad para confirmar su cita.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre completo</label>
+            <input class="form-input" type="text" placeholder="Su nombre">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input class="form-input" type="tel" placeholder="312 000 0000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input class="form-input" type="email" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Motivo de consulta</label>
+          <select class="form-select">
+            <option value="">Seleccione una opción</option>
+            <option>Control de Diabetes Tipo 1</option>
+            <option>Control de Diabetes Tipo 2</option>
+            <option>Consulta general</option>
+            <option>Educación diabetológica</option>
+            <option>Revisión de resultados</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mensaje adicional (opcional)</label>
+          <textarea class="form-textarea" placeholder="Cuénteme brevemente su situación o dudas..."></textarea>
+        </div>
+        <button class="btn-form" onclick="enviarForm()">Enviar solicitud de cita →</button>
+        <div class="form-success" id="formSuccess">
+          ✅ ¡Mensaje enviado! Le contactaremos pronto para confirmar su cita.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <strong>Dr. Ramses Rodrigo Castañeda Valenzuela</strong><br>
+  Médico General · Diabetólogo · Colima, Colima, México<br><br>
+  <small>Este sitio web es de carácter informativo y educativo. No sustituye la consulta médica presencial.<br>
+  Para emergencias, acuda a urgencias o llame al 911.</small>
+</footer>
+
+<script>
+// Nav mobile
+function toggleNav() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+// Cerrar nav al hacer clic en enlace
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('navLinks').classList.remove('open');
+  });
+});
+
+// Nav scroll shadow
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('nav');
+  nav.style.boxShadow = window.scrollY > 20 ? '0 4px 20px rgba(0,0,0,0.1)' : 'none';
+});
+
+// Formulario demo
+function enviarForm() {
+  const success = document.getElementById('formSuccess');
+  success.style.display = 'block';
+  setTimeout(() => { success.style.display = 'none'; }, 5000);
+}
+
+// Intersection observer para animaciones al scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-up:not(.hero .fade-up)').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(24px)';
+  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
