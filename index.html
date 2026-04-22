@@ -137,8 +137,16 @@ footer a{color:#7dd3fc;text-decoration:none;}
   .tool-iframe-wrap{padding-bottom:140%;}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+<div id="session-bar" style="display:none;background:linear-gradient(90deg,#0ea5e9,#1346a0);padding:8px 5%;text-align:center;font-size:0.83rem;color:white;font-family:'DM Sans',sans-serif;font-weight:500;">
+  <span id="session-msg">Navegando como <strong id="session-nombre"></strong></span>
+  <span style="margin:0 14px;opacity:0.4;">|</span>
+  <a href="panel_paciente.html" id="session-link" style="color:white;font-weight:700;text-decoration:underline;">Ir a mi portal</a>
+  <span style="margin:0 14px;opacity:0.4;">|</span>
+  <span onclick="cerrarSesionNav()" style="cursor:pointer;text-decoration:underline;font-weight:600;">Cerrar sesión</span>
+</div>
 <nav id="nav">
   <a href="#" class="nav-logo">Dr. Ramses Castañeda<span>Médico General · Diabetólogo · Colima</span></a>
   <div class="nav-links" id="navLinks">
@@ -146,7 +154,7 @@ footer a{color:#7dd3fc;text-decoration:none;}
     <a href="#servicios">Servicios</a>
     <a href="#herramientas">Herramientas</a>
     <a href="#consejos">Consejos</a>
-    <a href="#contacto" class="nav-cta">Agendar cita</a>
+    <a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20agendar%20una%20cita" target="_blank" class="nav-cta">📅 Agendar cita</a>
   </div>
   <div class="nav-toggle" id="navToggle" onclick="toggleNav()"><span></span><span></span><span></span></div>
 </nav>
@@ -159,7 +167,7 @@ footer a{color:#7dd3fc;text-decoration:none;}
       <h1 class="fade-up fade-up-d1">Dr. Ramses Rodrigo<br><em>Castañeda Valenzuela</em></h1>
       <p class="hero-desc fade-up fade-up-d2">Médico General y Diabetólogo con enfoque en el control integral de la diabetes y enfermedades crónicas. Atención personalizada, educación en salud y acompañamiento continuo para usted y su familia.</p>
       <div class="hero-btns fade-up fade-up-d3">
-        <a href="#contacto" class="btn-primary">📅 Agendar cita</a>
+        <a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20agendar%20una%20cita" target="_blank" class="btn-primary">📅 Agendar cita por WhatsApp</a>
         <a href="#herramientas" class="btn-secondary">🩺 Herramientas para pacientes</a>
       </div>
     </div>
@@ -320,7 +328,7 @@ footer a{color:#7dd3fc;text-decoration:none;}
           <div class="cont-texto">
             <strong>Dirección</strong>
             <p>Av. Gonzalo de Sandoval 350A<br>Las Víboras, Colima, Col. 28040</p>
-            <a href="https://google.com/maps/search/Dr%20Ramses%20Casta%C3%B1eda/@19.2454,-103.7032,17z?hl=es" target="_blank" class="map-btn">🗺️ Ver en Google Maps</a>
+            <a href="https://www.google.com/maps/search/?api=1&query=Av.+Gonzalo+de+Sandoval+350A,+Las+Víboras,+Colima,+Col.+28040,+México" target="_blank" class="map-btn">🗺️ Ver en Google Maps</a>
           </div>
         </div>
         <div class="contacto-item">
@@ -351,7 +359,7 @@ footer a{color:#7dd3fc;text-decoration:none;}
           <select class="form-select"><option value="">Seleccione una opción</option><option>Control de Diabetes Tipo 1</option><option>Control de Diabetes Tipo 2</option><option>Consulta general</option><option>Educación diabetológica</option><option>Revisión de resultados</option><option>Otro</option></select>
         </div>
         <div class="form-group"><label class="form-label">Mensaje adicional (opcional)</label><textarea class="form-textarea" placeholder="Cuénteme brevemente su situación o dudas..."></textarea></div>
-        <button class="btn-form" onclick="enviarForm()">Enviar solicitud de cita →</button>
+        <button class="btn-form" onclick="enviarFormulario()">Enviar solicitud de cita →</button>
         <div class="form-success" id="formSuccess">✅ ¡Mensaje enviado! Le contactaremos pronto para confirmar su cita.</div>
       </div>
     </div>
@@ -369,9 +377,53 @@ footer a{color:#7dd3fc;text-decoration:none;}
 function toggleNav(){document.getElementById('navLinks').classList.toggle('open');}
 document.querySelectorAll('.nav-links a').forEach(a=>{a.addEventListener('click',()=>{document.getElementById('navLinks').classList.remove('open');});});
 window.addEventListener('scroll',()=>{document.getElementById('nav').style.boxShadow=window.scrollY>20?'0 4px 20px rgba(0,0,0,0.1)':'none';});
-function enviarForm(){const s=document.getElementById('formSuccess');s.style.display='block';setTimeout(()=>{s.style.display='none';},5000);}
+function enviarFormulario(){
+  const nombre=document.querySelector('.form-input[placeholder="Su nombre"]')?.value||'';
+  const tel=document.querySelector('.form-input[placeholder="312 000 0000"]')?.value||'';
+  const email=document.querySelector('.form-input[type="email"]')?.value||'';
+  const motivo=document.querySelector('.form-select')?.value||'';
+  const mensaje=document.querySelector('.form-textarea')?.value||'';
+  if(!nombre||!tel){alert('Por favor ingrese su nombre y teléfono.');return;}
+  const asunto=encodeURIComponent('Solicitud de cita - '+nombre);
+  const cuerpo=encodeURIComponent(
+    'Solicitud de cita desde el sitio web del consultorio\n\n'+
+    'Nombre: '+nombre+'\n'+
+    'Teléfono: '+tel+'\n'+
+    'Correo: '+(email||'No proporcionado')+'\n'+
+    'Motivo: '+(motivo||'No especificado')+'\n'+
+    'Mensaje: '+(mensaje||'Sin mensaje adicional')+'\n\n'+
+    'Enviado desde: drramsescastaneda.netlify.app'
+  );
+  window.location.href='mailto:dr.ramescastaneda@gmail.com?subject='+asunto+'&body='+cuerpo;
+  const s=document.getElementById('formSuccess');
+  s.style.display='block';
+  setTimeout(()=>{s.style.display='none';},5000);
+}
 const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:0.1});
 document.querySelectorAll('.fade-up:not(.hero .fade-up)').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(24px)';el.style.transition='opacity 0.6s ease,transform 0.6s ease';observer.observe(el);});
 </script>
+
+<script>
+const _SB_URL='https://mhejapkehcyezgndglpq.supabase.co';
+const _SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oZWphcGtlaGN5ZXpnbmRnbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDg3NDUsImV4cCI6MjA5MjM4NDc0NX0.ycFQN-Gm6D5V6TJ0PfEReWHD55sqK-cZvYATqVTGuOk';
+const _sb=supabase.createClient(_SB_URL,_SB_KEY);
+(async()=>{
+  const {data:{session}}=await _sb.auth.getSession();
+  if(session){
+    const {data:p}=await _sb.from('profiles').select('nombre,rol').eq('id',session.user.id).single();
+    if(p){
+      const bar=document.getElementById('session-bar');
+      document.getElementById('session-nombre').textContent=p.nombre?.split(' ')[0]||'Paciente';
+      if(p.rol==='medico'||p.rol==='asistente'){
+        document.getElementById('session-link').href='panel_medico.html';
+        document.getElementById('session-link').textContent='Ir al panel médico';
+      }
+      bar.style.display='block';
+    }
+  }
+})();
+async function cerrarSesionNav(){await _sb.auth.signOut();document.getElementById('session-bar').style.display='none';}
+</script>
+
 </body>
 </html>
