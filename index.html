@@ -24,14 +24,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--blanco);color:var(--gris-
 nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--borde);padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;transition:top 0.3s;}
 .nav-logo{font-family:'Playfair Display',serif;font-weight:700;font-size:1.05rem;color:var(--azul);text-decoration:none;line-height:1.2;}
 .nav-logo span{display:block;font-size:0.65rem;font-family:'DM Sans',sans-serif;font-weight:400;color:var(--gris);letter-spacing:1.5px;text-transform:uppercase;}
-.nav-links{display:flex;gap:28px;align-items:center;}
-.nav-links a{text-decoration:none;font-size:0.87rem;font-weight:500;color:var(--gris);transition:color 0.2s;}
-.nav-links a:hover{color:var(--azul);}
 .nav-cta{background:var(--azul)!important;color:var(--blanco)!important;padding:8px 20px;border-radius:20px;font-size:0.83rem!important;font-weight:600!important;}
 .nav-cta:hover{background:var(--azul-med)!important;transform:translateY(-1px);}
 .nav-toggle{display:none;cursor:pointer;flex-direction:column;gap:5px;}
 .nav-toggle span{width:24px;height:2px;background:var(--azul);border-radius:2px;}
-.hero{min-height:100vh;background:linear-gradient(135deg,#0c2d6e 0%,#1346a0 45%,#1a73c8 100%);display:flex;align-items:center;padding:110px 5% 64px;position:relative;overflow:hidden;}
+.hero{min-height:100vh;background:linear-gradient(135deg,#0c2d6e 0%,#1346a0 45%,#1a73c8 100%);display:flex;align-items:center;padding:90px 5% 64px;position:relative;overflow:hidden;}
 .hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
 .hero-blob{position:absolute;width:520px;height:520px;background:radial-gradient(circle,rgba(14,165,233,0.18) 0%,transparent 70%);border-radius:50%;top:-100px;right:-80px;}
 .hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1;width:100%;}
@@ -127,9 +124,7 @@ footer{background:#07183d;color:rgba(255,255,255,0.6);padding:36px 5%;text-align
 footer strong{color:rgba(255,255,255,0.85);}
 footer a{color:#7dd3fc;text-decoration:none;}
 @media(max-width:768px){
-  .nav-links{display:none;flex-direction:column;position:absolute;top:64px;left:0;right:0;background:white;padding:20px 5%;border-bottom:1px solid var(--borde);gap:16px;}
-  .nav-links.open{display:flex;}
-  .nav-toggle{display:flex;}
+      .nav-toggle{display:flex;}
   .hero-inner,.quien-grid,.contacto-grid{grid-template-columns:1fr;}
   .hero-photo{width:200px;height:200px;}
   .valores-grid,.form-row{grid-template-columns:1fr;}
@@ -166,25 +161,17 @@ footer a{color:#7dd3fc;text-decoration:none;}
 </head>
 
 <body>
-<div id="session-bar" style="position:fixed;top:0;left:0;right:0;z-index:101;background:rgba(12,45,110,0.97);padding:6px 5%;display:flex;align-items:center;justify-content:center;gap:16px;font-size:0.79rem;color:white;font-family:'DM Sans',sans-serif;font-weight:500;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,0.12);">
-  <span>👤 <span id="session-prefix">Navegando como </span><strong id="session-nombre">Invitado</strong></span>
-  <span id="session-actions-loggedin" style="display:none;align-items:center;gap:12px;">
-    <span style="opacity:0.4;">|</span>
-    <a href="panel_paciente.html" id="session-link" style="color:#7dd3fc;font-weight:700;text-decoration:none;">📊 Mi dashboard</a>
-    <span style="opacity:0.4;">|</span>
-    <span onclick="cerrarSesionNav()" style="cursor:pointer;color:rgba(255,255,255,0.8);text-decoration:underline;">Cerrar sesión</span>
-  </span>
-  <span id="session-actions-guest" style="display:flex;align-items:center;gap:12px;">
-    <span style="opacity:0.4;">|</span>
-    <a href="auth.html" style="color:#7dd3fc;font-weight:700;text-decoration:none;">Iniciar sesión</a>
-  </span>
-</div>
-<nav id="nav" style="position:fixed;left:0;right:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #dce6f7;padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;">
+<nav id="nav" style="position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);border-bottom:1px solid #dce6f7;padding:0 5%;height:60px;display:flex;align-items:center;justify-content:space-between;">
   <a href="index.html" style="font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:#1346a0;text-decoration:none;line-height:1.2;">Dr. Ramses Castañeda<span style="display:block;font-size:0.62rem;font-family:'DM Sans',sans-serif;font-weight:400;color:#4a5568;letter-spacing:1.5px;text-transform:uppercase;">Médico General · Diabetólogo · Colima</span></a>
-  <div class="nav-solo">
-    <a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20agendar%20una%20cita" target="_blank" class="nav-agendar">📅 Agendar cita</a>
-    <button class="hamburger" onclick="abrirMenu()" aria-label="Menú">
-      <span></span><span></span><span></span>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20agendar%20una%20cita" target="_blank" style="display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,#25D366,#128C7E);color:white;padding:8px 18px;border-radius:22px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;text-decoration:none;white-space:nowrap;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Contacto
+    </a>
+    <button onclick="abrirMenu()" aria-label="Menú" style="background:none;border:2px solid #dce6f7;border-radius:10px;width:40px;height:40px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:8px;transition:all 0.2s;">
+      <span style="display:block;width:18px;height:2px;background:#1346a0;border-radius:2px;"></span>
+      <span style="display:block;width:18px;height:2px;background:#1346a0;border-radius:2px;"></span>
+      <span style="display:block;width:18px;height:2px;background:#1346a0;border-radius:2px;"></span>
     </button>
   </div>
 </nav>
@@ -194,6 +181,19 @@ footer a{color:#7dd3fc;text-decoration:none;}
     <button class="menu-close" onclick="cerrarMenu()">✕</button>
     <div class="logo">Dr. Ramses Castañeda</div>
     <div class="sub">Médico General · Diabetólogo · Colima</div>
+    <div id="menu-sesion-info" style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.15);font-size:0.82rem;opacity:0.9;">
+      <span id="menu-usuario-nombre">👤 Invitado</span>
+      <span id="menu-acciones-loggedin" style="display:none;">
+        <br><a href="panel_paciente.html" id="menu-link-panel" style="color:#7dd3fc;font-weight:700;text-decoration:none;">📊 Mi dashboard</a>
+        &nbsp;·&nbsp;
+        <span onclick="cerrarSesionNav();cerrarMenu();" style="cursor:pointer;color:rgba(255,255,255,0.7);text-decoration:underline;">Salir</span>
+      </span>
+      <span id="menu-acciones-guest" style="">
+        <br><a href="auth.html" style="color:#7dd3fc;font-weight:700;text-decoration:none;">🔐 Iniciar sesión</a>
+        &nbsp;·&nbsp;
+        <a href="auth.html" style="color:rgba(255,255,255,0.75);text-decoration:none;">Registrarse</a>
+      </span>
+    </div>
   </div>
   <nav class="menu-items">
     <div class="menu-sep-label">Conócenos</div>
@@ -488,29 +488,26 @@ const _SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJl
 const _sb=supabase.createClient(_SB_URL,_SB_KEY);
 (async()=>{
   const {data:{session}}=await _sb.auth.getSession();
+  var nombreEl = document.getElementById('menu-usuario-nombre');
+  var loggedEl = document.getElementById('menu-acciones-loggedin');
+  var guestEl = document.getElementById('menu-acciones-guest');
   if(session){
     const {data:p}=await _sb.from('profiles').select('nombre,rol').eq('id',session.user.id).single();
     if(p){
-      document.getElementById('session-nombre').textContent=p.nombre?.split(' ')[0]||'Paciente';
+      var nom = p.nombre?.split(' ')[0]||'Paciente';
+      if(nombreEl) nombreEl.textContent = '👤 ' + nom;
+      if(loggedEl) loggedEl.style.display='inline';
+      if(guestEl) guestEl.style.display='none';
+      var linkPanel = document.getElementById('menu-link-panel');
       if(p.rol==='medico'||p.rol==='asistente'){
-        document.getElementById('session-link').href='panel_medico.html';
-        document.getElementById('session-link').textContent='📊 Panel médico';
+        if(linkPanel){ linkPanel.href='panel_medico.html'; linkPanel.textContent='📊 Panel médico'; }
       }
-      document.getElementById('session-actions-loggedin').style.display='flex';
-      document.getElementById('session-actions-guest').style.display='none';
     }
   }
 })();
 async function cerrarSesionNav(){await _sb.auth.signOut();location.reload();}
 
-// Ajustar nav
-function ajustarNav(){
-  var bar=document.getElementById('session-bar');
-  var nav=document.getElementById('nav');
-  if(bar&&nav) nav.style.top=bar.offsetHeight+'px';
-}
-window.addEventListener('load',ajustarNav);
-window.addEventListener('resize',ajustarNav);
+// Nav fijo en top:0
 
 // Animaciones
 const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:0.1});
