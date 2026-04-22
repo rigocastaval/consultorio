@@ -94,6 +94,16 @@ body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#0c2d6e 
       <label class="form-label">Contraseña</label>
       <input class="form-input" type="password" id="reg-pass" placeholder="Mínimo 6 caracteres">
     </div>
+    <div style="background:#f4f7fe;border:1.5px solid #dce6f7;border-radius:12px;padding:14px 16px;margin-bottom:12px;">
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.82rem;color:#4a5568;line-height:1.5;">
+        <input type="checkbox" id="acepto-privacidad" style="margin-top:2px;width:16px;height:16px;accent-color:#1346a0;flex-shrink:0;">
+        <span>He leído y acepto el 
+          <button type="button" onclick="verPrivacidad()" style="background:none;border:none;color:#1346a0;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;font-size:0.82rem;text-decoration:underline;padding:0;">Aviso de Privacidad</button>. 
+          Autorizo al Dr. Ramses Castañeda Valenzuela a recopilar y utilizar mis datos de salud con fines de atención médica, en cumplimiento con la 
+          Ley Federal de Protección de Datos Personales en Posesión de los Particulares (México).
+        </span>
+      </label>
+    </div>
     <button class="btn-submit" onclick="registerUser()" id="btn-register">Crear mi cuenta</button>
     <div class="error-msg" id="reg-error"></div>
     <div class="success-msg" id="reg-success"></div>
@@ -113,6 +123,44 @@ body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#0c2d6e 
   </div>
 </div>
 <a href="index.html" class="back-link">← Regresar al sitio del consultorio</a>
+
+<!-- MODAL AVISO DE PRIVACIDAD -->
+<div id="modal-privacidad" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;overflow-y:auto;padding:20px;align-items:flex-start;justify-content:center;">
+  <div style="background:white;border-radius:20px;padding:32px 28px;max-width:560px;width:100%;margin:20px auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h2 style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700;color:#1e2a3a;">Aviso de Privacidad</h2>
+      <button onclick="cerrarPrivacidad()" style="background:#f0f4f8;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-family:DM Sans,sans-serif;font-weight:600;color:#4a5568;">✕ Cerrar</button>
+    </div>
+    <div style="font-size:0.85rem;color:#4a5568;line-height:1.8;max-height:65vh;overflow-y:auto;padding-right:8px;">
+      <p style="font-weight:700;color:#1e2a3a;margin-bottom:8px;">Dr. Ramses Rodrigo Castañeda Valenzuela</p>
+      <p style="margin-bottom:4px;">Médico General y Diabetólogo · Colima, Colima, México</p>
+      <p style="margin-bottom:16px;font-size:0.78rem;color:#94a3b8;">Última actualización: abril 2026</p>
+
+      <p style="font-weight:700;color:#1346a0;margin-bottom:6px;">1. Responsable del tratamiento de datos</p>
+      <p style="margin-bottom:14px;">El Dr. Ramses Rodrigo Castañeda Valenzuela, con consultorio ubicado en Av. Gonzalo de Sandoval 350A, Las Víboras, Colima, Col. 28040, es el responsable del tratamiento de sus datos personales.</p>
+
+      <p style="font-weight:700;color:#1346a0;margin-bottom:6px;">2. Datos personales que se recaban</p>
+      <p style="margin-bottom:14px;">Se recopilan los siguientes datos: nombre completo, fecha de nacimiento, teléfono, correo electrónico, y datos de salud incluyendo: glucosa en sangre, presión arterial, peso, talla, perímetro de cintura, frecuencia cardiaca, resultados de laboratorio (HbA1c, lípidos, función renal) y otros marcadores metabólicos que usted decida registrar voluntariamente.</p>
+
+      <p style="font-weight:700;color:#1346a0;margin-bottom:6px;">3. Finalidades del tratamiento</p>
+      <p style="margin-bottom:14px;">Sus datos serán utilizados para: (a) prestarle servicios de atención médica; (b) llevar un seguimiento de su estado de salud; (c) generar recomendaciones personalizadas basadas en sus registros; (d) permitir que su médico revise su evolución clínica; (e) mejorar la calidad de la atención médica.</p>
+
+      <p style="font-weight:700;color:#1346a0;margin-bottom:6px;">4. Protección de sus datos</p>
+      <p style="margin-bottom:14px;">Sus datos se almacenan en servidores seguros con cifrado. Solo el Dr. Castañeda y su personal autorizado tienen acceso a su información. No se venden ni comparten sus datos con terceros con fines comerciales.</p>
+
+      <p style="font-weight:700;color:#1346a0;margin-bottom:6px;">5. Derechos ARCO</p>
+      <p style="margin-bottom:14px;">Usted tiene derecho a Acceder, Rectificar, Cancelar u Oponerse (derechos ARCO) al tratamiento de sus datos personales. Para ejercerlos, contacte al consultorio al teléfono 312 135 5297 o al correo dr.ramescastaneda@gmail.com.</p>
+
+      <p style="font-weight:700;color:#1346a0;margin-bottom:6px;">6. Consentimiento</p>
+      <p style="margin-bottom:14px;">Al registrarse en este portal y marcar la casilla de aceptación, usted otorga su consentimiento expreso para el tratamiento de sus datos personales conforme a lo establecido en este aviso y en la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.</p>
+
+      <div style="background:#e8f0fd;border-radius:10px;padding:12px 14px;font-size:0.8rem;color:#1346a0;margin-top:8px;">
+        <strong>Fundamento legal:</strong> Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP), publicada en el DOF el 5 de julio de 2010 y su Reglamento.
+      </div>
+    </div>
+    <button onclick="aceptarPrivacidad()" style="width:100%;margin-top:20px;padding:13px;background:linear-gradient(135deg,#1346a0,#1a5cc8);color:white;border:none;border-radius:12px;font-family:DM Sans,sans-serif;font-size:0.95rem;font-weight:700;cursor:pointer;">Acepto el Aviso de Privacidad ✓</button>
+  </div>
+</div>
 
 <script>
 const SUPABASE_URL = 'https://mhejapkehcyezgndglpq.supabase.co';
@@ -181,6 +229,10 @@ async function registerUser(){
   const btn=document.getElementById('btn-register');
   if(!nombre||!email||!pass){mostrarError(errEl,'Por favor complete nombre, correo y contraseña.');return;}
   if(pass.length<6){mostrarError(errEl,'La contraseña debe tener al menos 6 caracteres.');return;}
+  if(!document.getElementById('acepto-privacidad').checked){
+    mostrarError(errEl,'Debe aceptar el Aviso de Privacidad para continuar.');
+    return;
+  }
   btn.disabled=true;btn.textContent='Creando cuenta...';
   const {data,error}=await sb.auth.signUp({
     email,password:pass,
@@ -217,5 +269,25 @@ async function resetPass(){
 }
 
 function mostrarError(el,msg){el.textContent=msg;el.classList.add('visible');setTimeout(()=>el.classList.remove('visible'),5000);}
+
+function verPrivacidad(){
+  var modal = document.getElementById('modal-privacidad');
+  modal.style.display = 'flex';
+}
+
+function cerrarPrivacidad(){
+  document.getElementById('modal-privacidad').style.display = 'none';
+}
+
+function aceptarPrivacidad(){
+  var check = document.getElementById('acepto-privacidad');
+  if(check) check.checked = true;
+  cerrarPrivacidad();
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('modal-privacidad').addEventListener('click', function(e){
+  if(e.target === this) cerrarPrivacidad();
+});
 </script>
 </body></html>
