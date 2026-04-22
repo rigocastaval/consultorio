@@ -26,7 +26,7 @@ nav{background:linear-gradient(135deg,#0c2d6e,#1346a0);height:60px;padding:0 4%;
 
 /* LAYOUT */
 .app{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 60px);}
-.sidebar{background:white;border-right:1px solid var(--borde);padding:20px 0;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;}
+.sidebar{background:white;border-right:1px solid var(--borde);padding:20px 0;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;transition:transform 0.3s ease;}
 .sidebar-item{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:0.87rem;font-weight:600;color:var(--gris);cursor:pointer;transition:all 0.2s;border-left:3px solid transparent;text-decoration:none;}
 .sidebar-item:hover{background:var(--pale);color:var(--azul);}
 .sidebar-item.activo{background:var(--pale);color:var(--azul);border-left-color:var(--azul);}
@@ -144,7 +144,21 @@ tbody tr:hover{background:var(--pale);}
 
 @media(max-width:768px){
   .app{grid-template-columns:1fr;}
-  .sidebar{display:none;}
+  .sidebar{
+    display:flex !important;
+    flex-direction:column;
+    position:fixed;
+    top:0;
+    left:0;
+    height:100vh;
+    width:260px;
+    z-index:150;
+    transform:translateX(-100%);
+    box-shadow:4px 0 20px rgba(0,0,0,0.15);
+    padding-top:60px;
+  }
+  .sidebar.abierto{transform:translateX(0);}
+  #btn-menu-mobile{display:flex !important;}
   .main{padding:16px 14px 60px;}
   .charts-grid{grid-template-columns:1fr;}
   .form-grid{grid-template-columns:1fr 1fr;}
@@ -155,7 +169,10 @@ tbody tr:hover{background:var(--pale);}
 <body>
 
 <nav>
-  <a href="index.html" class="nav-logo">Dr. Ramses Castañeda</a>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button id="btn-menu-mobile" onclick="toggleMenuMobile()" style="display:none;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:white;width:36px;height:36px;border-radius:10px;cursor:pointer;font-size:1.1rem;align-items:center;justify-content:center;flex-shrink:0;" aria-label="Menú">☰</button>
+    <a href="index.html" class="nav-logo">Dr. Ramses Castañeda</a>
+  </div>
   <div class="nav-r">
     <span class="nav-nombre" id="nav-nombre">Cargando...</span>
     <span class="nav-badge" id="nav-cond">—</span>
@@ -164,8 +181,9 @@ tbody tr:hover{background:var(--pale);}
   </div>
 </nav>
 
+<div id="sidebar-overlay" onclick="cerrarMenuMobile()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:149;"></div>
 <div class="app">
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="sidebar-sep">Principal</div>
     <div class="sidebar-item activo" onclick="irA('dashboard')"><span class="ico">📊</span> Mi dashboard</div>
     <div class="sidebar-item" onclick="irA('registrar')"><span class="ico">➕</span> Registrar hoy</div>
@@ -1312,6 +1330,34 @@ function toast(msg,tipo=''){
   t.textContent=msg;t.className='toast '+(tipo||'');
   t.classList.add('v');setTimeout(()=>t.classList.remove('v'),3500);
 }
+
+function toggleMenuMobile(){
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebar-overlay');
+  var isOpen = sidebar.classList.contains('abierto');
+  if(isOpen){
+    cerrarMenuMobile();
+  } else {
+    sidebar.classList.add('abierto');
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function cerrarMenuMobile(){
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebar-overlay');
+  sidebar.classList.remove('abierto');
+  overlay.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// Cerrar menú al hacer clic en un item (en móvil)
+document.querySelectorAll('.sidebar-item').forEach(function(item){
+  item.addEventListener('click', function(){
+    if(window.innerWidth <= 768) cerrarMenuMobile();
+  });
+});
 
 init();
 </script>
