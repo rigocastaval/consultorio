@@ -354,21 +354,87 @@ function estadoVal(val,min,max){
   return'naranja';
 }
 
+function mostrarErrorCarga(msg){
+  document.querySelector('.app').classList.add('lista');
+  document.getElementById('p-dashboard').innerHTML =
+    '<div style="text-align:center;padding:60px 20px;">' +
+    '<div style="font-size:3rem;margin-bottom:16px;">!</div>' +
+    '<h2 style="font-family:Playfair Display,serif;margin-bottom:12px;">Algo salió mal</h2>' +
+    '<p style="color:#4a5568;margin-bottom:24px;">' + msg + '</p>' +
+    '<button onclick="location.reload()" style="background:#1346a0;color:white;border:none;padding:12px 24px;border-radius:12px;font-family:DM Sans,sans-serif;font-weight:700;cursor:pointer;margin-right:10px;">Reintentar</button>' +
+    '<button onclick="sb.auth.signOut().then(()=>window.location.replace('auth.html'))" style="background:#f0f4f8;color:#4a5568;border:2px solid #dce6f7;padding:12px 24px;border-radius:12px;font-family:DM Sans,sans-serif;font-weight:700;cursor:pointer;">Cerrar sesión</button>' +
+    '</div>';
+}
+
 async function init(){
-  const {data:{session}} = await sb.auth.getSession();
-  if(!session){
+  // Anti-loop: contar intentos en sessionStorage
+  const intentos = parseInt(sessionStorage.getItem('_rc_intentos') || '0');
+  if(intentos >= 3){
+    sessionStorage.removeItem('_rc_intentos');
+    await sb.auth.signOut();
     window.location.replace('auth.html');
     return;
   }
-  await cargarPerfil(session.user.id);
+  sessionStorage.setItem('_rc_intentos', intentos + 1);
+
+  try{
+    const { data, error } = await sb.auth.getSession();
+    if(error) throw error;
+    if(!data?.session){
+      sessionStorage.removeItem('_rc_intentos');
+      window.location.replace('auth.html');
+      return;
+    }
+    await cargarPerfil(data.session.user.id, data.session.user);
+  } catch(e){
+    console.error('Error en init:', e);
+    mostrarErrorCarga('Error al conectar. Recargue la página.');
+  }
 }
 
-async function cargarPerfil(uid){
-  userId=uid;
-  const {data:p}=await sb.from('profiles').select('*').eq('id',uid).single();
-  if(!p){window.location.replace('auth.html');return;}
-  perfil=p;
-  document.querySelector('.app').classList.add('lista');
+async function cargarPerfil(uid, userAuth){
+  userId = uid;
+
+  try{
+    const { data:p, error } = await sb.from('profiles').select('*').eq('id', uid).single();
+
+    // Caso 1: perfil no existe aun (usuario recien registrado, trigger en proceso)
+    if(!p || error?.code === 'PGRST116'){
+      const meta = userAuth?.user_metadata || {};
+      const { data:nuevo, error:errInsert } = await sb.from('profiles').upsert({
+        id: uid,
+        nombre: meta.nombre || userAuth?.email?.split('@')[0] || 'Paciente',
+        rol: 'paciente',
+        perfil_completo: false
+      }).select().single();
+
+      if(errInsert){
+        // Esperar 1s y reintentar una sola vez mas
+        await new Promise(r => setTimeout(r, 1000));
+        const { data:reintento } = await sb.from('profiles').select('*').eq('id', uid).single();
+        if(!reintento){
+          mostrarErrorCarga('No se pudo cargar su perfil. Por favor intente de nuevo.');
+          return;
+        }
+        perfil = reintento;
+      } else {
+        perfil = nuevo || { id: uid, rol: 'paciente', perfil_completo: false };
+      }
+    }
+    // Caso 2: error real de red o RLS
+    else if(error && error.code !== 'PGRST116'){
+      console.error('Error perfil:', error);
+      mostrarErrorCarga('Error de conexión. Recargue la página.');
+      return;
+    }
+    // Caso 3: perfil cargado correctamente
+    else{
+      perfil = p;
+    }
+
+    // Exito: limpiar contador anti-loop
+    sessionStorage.removeItem('_rc_intentos');
+    document.querySelector('.app').classList.add('lista');
 
   const nom=p.nombre?.split(' ')[0]||'Paciente';
   document.getElementById('nav-nombre').textContent=p.nombre||'';

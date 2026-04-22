@@ -119,11 +119,20 @@ const SUPABASE_URL = 'https://mhejapkehcyezgndglpq.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oZWphcGtlaGN5ZXpnbmRnbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDg3NDUsImV4cCI6MjA5MjM4NDc0NX0.ycFQN-Gm6D5V6TJ0PfEReWHD55sqK-cZvYATqVTGuOk';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Verificar sesión una sola vez al cargar
+// Verificar sesion solo si no venimos de un loop
 (async()=>{
-  const {data:{session}}=await sb.auth.getSession();
-  if(session){
-    redirigirSegunRol(session.user.id);
+  // Si hay intentos activos en sessionStorage, limpiar y NO redirigir
+  // (significa que venimos de un bucle desde panel_paciente)
+  const intentos = parseInt(sessionStorage.getItem('_rc_intentos') || '0');
+  if(intentos > 0){
+    sessionStorage.removeItem('_rc_intentos');
+    await sb.auth.signOut();
+    return; // Dejar al usuario en auth.html para que inicie sesion de nuevo
+  }
+
+  const {data, error} = await sb.auth.getSession();
+  if(!error && data?.session){
+    redirigirSegunRol(data.session.user.id);
   }
 })();
 
