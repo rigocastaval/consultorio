@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Médico | Dr. Ramses Castañeda</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{--azul:#1346a0;--azul-med:#1a5cc8;--verde:#2e9e6b;--naranja:#e67e22;--rojo:#c0392b;--gris:#4a5568;--gris-oscuro:#1e2a3a;--borde:#dce6f7;--pale:#f4f7fe;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#f0f4fb;color:var(--gris-oscuro);}
+nav{background:linear-gradient(135deg,#0c2d6e,#1346a0);padding:0 5%;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1rem;color:white;font-weight:700;}
+.nav-badge{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:700;}
+.nav-r{display:flex;align-items:center;gap:10px;}
+.btn-salir{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;padding:6px 14px;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;}
+.contenido{max-width:1100px;margin:0 auto;padding:28px 18px 60px;}
+.header-panel{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:gap;}
+.header-panel h2{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;}
+.stats-top{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
+.stat-box{background:white;border-radius:16px;padding:18px;text-align:center;box-shadow:0 2px 10px rgba(19,70,160,0.08);border-left:4px solid var(--azul);}
+.stat-box.verde{border-left-color:var(--verde);}
+.stat-box.naranja{border-left-color:var(--naranja);}
+.stat-box.rojo{border-left-color:var(--rojo);}
+.stat-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--azul);line-height:1;}
+.stat-box.verde .stat-num{color:var(--verde);}
+.stat-box.naranja .stat-num{color:var(--naranja);}
+.stat-box.rojo .stat-num{color:var(--rojo);}
+.stat-label{font-size:0.75rem;color:var(--gris);margin-top:4px;font-weight:600;}
+.card{background:white;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(19,70,160,0.08);margin-bottom:16px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.card-header h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;}
+.search-input{padding:9px 14px;border:2px solid var(--borde);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;width:220px;transition:border-color 0.2s;}
+.search-input:focus{border-color:var(--azul);}
+table{width:100%;border-collapse:collapse;font-size:0.83rem;}
+thead tr{background:var(--azul);color:white;}
+thead th{padding:11px 12px;text-align:left;font-weight:600;font-size:0.78rem;}
+tbody td{padding:11px 12px;border-bottom:1px solid #f0f4f8;color:var(--gris);}
+tbody tr:hover{background:var(--pale);cursor:pointer;}
+.badge{display:inline-block;border-radius:8px;padding:2px 9px;font-size:0.73rem;font-weight:700;}
+.badge-verde{background:#e4f7ef;color:var(--verde);}
+.badge-naranja{background:#fef3e8;color:var(--naranja);}
+.badge-rojo{background:#fdecea;color:var(--rojo);}
+.badge-azul{background:#e8f0fd;color:var(--azul);}
+/* MODAL PACIENTE */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;overflow-y:auto;padding:24px;}
+.modal-overlay.visible{display:flex;align-items:flex-start;justify-content:center;}
+.modal{background:white;border-radius:24px;padding:32px;max-width:720px;width:100%;margin:auto;}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;}
+.modal-header h3{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;}
+.btn-cerrar{background:var(--pale);border:none;border-radius:10px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;color:var(--gris);}
+.modal-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.modal-stat{background:var(--pale);border-radius:12px;padding:12px;text-align:center;}
+.modal-stat .val{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--azul);}
+.modal-stat .lbl{font-size:0.72rem;color:var(--gris);font-weight:600;}
+.modal-tabs{display:flex;gap:6px;margin-bottom:18px;}
+.modal-tab{padding:8px 14px;border:2px solid var(--borde);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;background:var(--pale);color:var(--gris);}
+.modal-tab.activo{background:var(--azul);color:white;border-color:var(--azul);}
+.modal-content{display:none;}.modal-content.activo{display:block;}
+.tabla-modal{width:100%;border-collapse:collapse;font-size:0.8rem;}
+.tabla-modal th{background:var(--azul);color:white;padding:8px 10px;font-size:0.75rem;text-align:left;}
+.tabla-modal td{padding:8px 10px;border-bottom:1px solid #f0f4f8;color:var(--gris);}
+/* Rol change */
+.btn-rol{padding:5px 10px;border-radius:8px;border:2px solid var(--borde);font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;background:var(--pale);color:var(--gris);}
+.btn-rol:hover{border-color:var(--azul);color:var(--azul);}
+.empty{text-align:center;padding:30px;color:var(--gris);font-size:0.88rem;}
+.toast{position:fixed;bottom:24px;right:24px;background:#1e2a3a;color:white;padding:14px 20px;border-radius:12px;font-size:0.88rem;font-weight:600;z-index:999;transform:translateY(80px);opacity:0;transition:all 0.3s;}
+.toast.visible{transform:translateY(0);opacity:1;}
+.toast.verde{background:var(--verde);}
+@media(max-width:700px){.modal-stats{grid-template-columns:1fr 1fr;}.stats-top{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="nav-logo">Dr. Ramses Castañeda</span>
+    <span class="nav-badge">Panel médico</span>
+  </div>
+  <div class="nav-r">
+    <span style="font-size:0.8rem;color:rgba(255,255,255,0.8);" id="nav-nombre"></span>
+    <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+</nav>
+
+<div class="contenido">
+  <div class="header-panel">
+    <h2>Panel de pacientes</h2>
+    <span style="font-size:0.85rem;color:var(--gris);" id="fecha-hoy"></span>
+  </div>
+
+  <div class="stats-top">
+    <div class="stat-box"><div class="stat-num" id="s-total">—</div><div class="stat-label">Pacientes registrados</div></div>
+    <div class="stat-box verde"><div class="stat-num" id="s-activos">—</div><div class="stat-label">Con registros esta semana</div></div>
+    <div class="stat-box naranja"><div class="stat-num" id="s-alertas">—</div><div class="stat-label">Glucosa > 180 esta semana</div></div>
+    <div class="stat-box rojo"><div class="stat-num" id="s-hta">—</div><div class="stat-label">Presión > 140 esta semana</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>👥 Lista de pacientes</h3>
+      <input class="search-input" type="text" id="buscador" placeholder="🔍 Buscar paciente..." oninput="filtrarPacientes()">
+    </div>
+    <div style="overflow-x:auto;" id="tabla-pacientes">
+      <div class="empty">Cargando pacientes...</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PACIENTE -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)cerrarModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3 id="modal-nombre">Paciente</h3>
+        <p style="font-size:0.83rem;color:var(--gris);margin-top:4px;" id="modal-info"></p>
+      </div>
+      <button class="btn-cerrar" onclick="cerrarModal()">✕ Cerrar</button>
+    </div>
+    <div class="modal-stats">
+      <div class="modal-stat"><div class="val" id="m-registros">—</div><div class="lbl">Registros</div></div>
+      <div class="modal-stat"><div class="val" id="m-gluc">—</div><div class="lbl">Glucosa prom.</div></div>
+      <div class="modal-stat"><div class="val" id="m-pas">—</div><div class="lbl">Presión prom.</div></div>
+      <div class="modal-stat"><div class="val" id="m-ultimo">—</div><div class="lbl">Último registro</div></div>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab activo" onclick="cambiarModalTab('registros',this)">📋 Registros</button>
+      <button class="modal-tab" onclick="cambiarModalTab('grafica',this)">📈 Gráfica</button>
+      <button class="modal-tab" onclick="cambiarModalTab('herramientas',this)">🩺 Herramientas</button>
+    </div>
+    <div class="modal-content activo" id="mc-registros">
+      <div style="overflow-x:auto;" id="modal-tabla-registros"></div>
+    </div>
+    <div class="modal-content" id="mc-grafica">
+      <canvas id="modal-chart" height="140"></canvas>
+    </div>
+    <div class="modal-content" id="mc-herramientas">
+      <div id="modal-herramientas-lista"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://mhejapkehcyezgndglpq.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oZWphcGtlaGN5ZXpnbmRnbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDg3NDUsImV4cCI6MjA5MjM4NDc0NX0.ycFQN-Gm6D5V6TJ0PfEReWHD55sqK-cZvYATqVTGuOk';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let todosLosPacientes=[];let modalChart=null;
+
+document.getElementById('fecha-hoy').textContent=new Date().toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='auth.html';return;}
+  const {data:profile}=await sb.from('profiles').select('rol,nombre').eq('id',session.user.id).single();
+  if(!profile||!['medico','asistente'].includes(profile.rol)){window.location.href='panel_paciente.html';return;}
+  document.getElementById('nav-nombre').textContent=profile.nombre||'';
+  cargarPacientes();
+}
+
+async function cargarPacientes(){
+  const {data:pacientes}=await sb.from('profiles').select('*').eq('rol','paciente').order('created_at',{ascending:false});
+  if(!pacientes||pacientes.length===0){
+    document.getElementById('tabla-pacientes').innerHTML='<div class="empty">No hay pacientes registrados aún.</div>';
+    ['s-total','s-activos','s-alertas','s-hta'].forEach(id=>document.getElementById(id).textContent='0');
+    return;
+  }
+  todosLosPacientes=pacientes;
+  document.getElementById('s-total').textContent=pacientes.length;
+
+  // Stats semana
+  const hace7=new Date();hace7.setDate(hace7.getDate()-7);
+  const fecha7=hace7.toISOString().split('T')[0];
+  const {data:regs}=await sb.from('registros_diarios').select('*').gte('fecha',fecha7);
+  const idsActivos=new Set((regs||[]).map(r=>r.user_id));
+  document.getElementById('s-activos').textContent=idsActivos.size;
+  document.getElementById('s-alertas').textContent=(regs||[]).filter(r=>r.glucosa_ayuno>180||r.glucosa_postprandial>180).length;
+  document.getElementById('s-hta').textContent=(regs||[]).filter(r=>r.presion_sistolica>140).length;
+
+  renderTablaPacientes(pacientes,regs||[]);
+}
+
+function renderTablaPacientes(pacientes,regs){
+  if(pacientes.length===0){document.getElementById('tabla-pacientes').innerHTML='<div class="empty">No se encontraron pacientes.</div>';return;}
+  const filas=pacientes.map(p=>{
+    const pRegs=regs.filter(r=>r.user_id===p.id);
+    const ultimo=pRegs.sort((a,b)=>b.fecha>a.fecha?1:-1)[0];
+    const alerta=pRegs.some(r=>r.glucosa_ayuno>180||r.glucosa_postprandial>180||r.presion_sistolica>140);
+    return `<tr onclick="abrirPaciente('${p.id}')">
+      <td><strong style="color:var(--gris-oscuro)">${p.nombre||'—'}</strong></td>
+      <td>${p.fecha_nacimiento||'—'}</td>
+      <td>${p.telefono||'—'}</td>
+      <td>${ultimo?`<span class="badge badge-verde">${ultimo.fecha}</span>`:'<span class="badge">Sin registros</span>'}</td>
+      <td>${alerta?'<span class="badge badge-rojo">⚠️ Alerta</span>':'<span class="badge badge-verde">✅ Normal</span>'}</td>
+      <td>${p.created_at?.split('T')[0]||'—'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('tabla-pacientes').innerHTML=`<table><thead><tr><th>Nombre</th><th>Fecha nacimiento</th><th>Teléfono</th><th>Último registro</th><th>Estado</th><th>Registrado</th></tr></thead><tbody>${filas}</tbody></table>`;
+}
+
+function filtrarPacientes(){
+  const q=document.getElementById('buscador').value.toLowerCase();
+  const filtrados=todosLosPacientes.filter(p=>(p.nombre||'').toLowerCase().includes(q)||(p.telefono||'').includes(q));
+  renderTablaPacientes(filtrados,[]);
+}
+
+async function abrirPaciente(uid){
+  const paciente=todosLosPacientes.find(p=>p.id===uid);
+  if(!paciente)return;
+  document.getElementById('modal-nombre').textContent=paciente.nombre||'Paciente';
+  document.getElementById('modal-info').textContent=`📞 ${paciente.telefono||'Sin teléfono'} · 🎂 ${paciente.fecha_nacimiento||'Sin fecha'} · Registrado: ${paciente.created_at?.split('T')[0]||'—'}`;
+
+  const {data:registros}=await sb.from('registros_diarios').select('*').eq('user_id',uid).order('fecha',{ascending:false}).limit(30);
+  const regs=registros||[];
+
+  const glucosas=regs.filter(r=>r.glucosa_ayuno).map(r=>r.glucosa_ayuno);
+  const presiones=regs.filter(r=>r.presion_sistolica).map(r=>r.presion_sistolica);
+  document.getElementById('m-registros').textContent=regs.length||'0';
+  document.getElementById('m-gluc').textContent=glucosas.length?Math.round(glucosas.reduce((a,b)=>a+b)/glucosas.length)+'mg':'—';
+  document.getElementById('m-pas').textContent=presiones.length?Math.round(presiones.reduce((a,b)=>a+b)/presiones.length)+'mmHg':'—';
+  document.getElementById('m-ultimo').textContent=regs[0]?.fecha||'Sin datos';
+
+  // Tabla registros
+  const filas=regs.length?regs.map(r=>{
+    const gBadge=r.glucosa_ayuno?(r.glucosa_ayuno<=130?'badge-verde':r.glucosa_ayuno<=180?'badge-naranja':'badge-rojo'):'';
+    const pBadge=r.presion_sistolica?(r.presion_sistolica<130?'badge-verde':r.presion_sistolica<140?'badge-naranja':'badge-rojo'):'';
+    return `<tr><td>${r.fecha}</td><td>${r.glucosa_ayuno?`<span class="badge ${gBadge}">${r.glucosa_ayuno}</span>`:'—'}</td><td>${r.glucosa_postprandial||'—'}</td><td>${r.presion_sistolica?`<span class="badge ${pBadge}">${r.presion_sistolica}/${r.presion_diastolica||'?'}</span>`:'—'}</td><td>${r.notas||'—'}</td></tr>`;
+  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--gris)">Sin registros</td></tr>';
+  document.getElementById('modal-tabla-registros').innerHTML=`<table class="tabla-modal"><thead><tr><th>Fecha</th><th>Glucosa ayuno</th><th>Gluc. post.</th><th>Presión</th><th>Notas</th></tr></thead><tbody>${filas}</tbody></table>`;
+
+  // Gráfica
+  if(modalChart)modalChart.destroy();
+  const ultimos=([...regs].reverse().slice(-14));
+  const ctx=document.getElementById('modal-chart').getContext('2d');
+  modalChart=new Chart(ctx,{type:'line',data:{labels:ultimos.map(r=>r.fecha?.slice(5)),datasets:[
+    {label:'Glucosa ayuno',data:ultimos.map(r=>r.glucosa_ayuno||null),borderColor:'rgba(19,70,160,0.8)',backgroundColor:'rgba(19,70,160,0.1)',borderWidth:2,tension:0.3,fill:true,spanGaps:true},
+    {label:'Presión sistólica',data:ultimos.map(r=>r.presion_sistolica||null),borderColor:'rgba(192,57,43,0.8)',backgroundColor:'rgba(192,57,43,0.05)',borderWidth:2,tension:0.3,fill:false,spanGaps:true}
+  ]},options:{responsive:true,plugins:{legend:{display:true,position:'top'}},scales:{y:{beginAtZero:false,grid:{color:'#f0f4f8'}}}}});
+
+  // Herramientas
+  const {data:herrs}=await sb.from('resultados_herramientas').select('*').eq('user_id',uid).order('created_at',{ascending:false});
+  const hLista=(herrs||[]).length?`<table class="tabla-modal"><thead><tr><th>Herramienta</th><th>Fecha</th><th>Resultado</th></tr></thead><tbody>${(herrs||[]).map(h=>`<tr><td>${h.herramienta}</td><td>${h.created_at?.split('T')[0]}</td><td style="font-size:0.75rem;max-width:200px;">${JSON.stringify(h.resultado).slice(0,80)}...</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Sin resultados de herramientas guardados.</div>';
+  document.getElementById('modal-herramientas-lista').innerHTML=hLista;
+
+  document.getElementById('modal-overlay').classList.add('visible');
+}
+
+function cerrarModal(){
+  document.getElementById('modal-overlay').classList.remove('visible');
+  if(modalChart){modalChart.destroy();modalChart=null;}
+}
+
+function cambiarModalTab(tab,btn){
+  document.querySelectorAll('.modal-tab').forEach(b=>b.classList.remove('activo'));
+  document.querySelectorAll('.modal-content').forEach(c=>c.classList.remove('activo'));
+  btn.classList.add('activo');
+  document.getElementById('mc-'+tab).classList.add('activo');
+  if(tab==='grafica'&&modalChart)modalChart.resize();
+}
+
+async function cerrarSesion(){await sb.auth.signOut();window.location.href='auth.html';}
+
+function mostrarToast(msg,tipo=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(tipo||'');
+  t.classList.add('visible');
+  setTimeout(()=>t.classList.remove('visible'),3500);
+}
+init();
+</script>
+</body></html>

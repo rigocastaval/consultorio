@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Panel | Dr. Ramses Castañeda</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{--azul:#1346a0;--azul-med:#1a5cc8;--verde:#2e9e6b;--naranja:#e67e22;--rojo:#c0392b;--gris:#4a5568;--gris-oscuro:#1e2a3a;--borde:#dce6f7;--pale:#f4f7fe;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#f0f4fb;color:var(--gris-oscuro);}
+/* NAV */
+nav{background:linear-gradient(135deg,#0c2d6e,#1346a0);padding:0 5%;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1rem;color:white;font-weight:700;}
+.nav-usuario{display:flex;align-items:center;gap:12px;}
+.nav-nombre{font-size:0.83rem;color:rgba(255,255,255,0.85);}
+.btn-salir{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;padding:6px 14px;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;transition:background 0.2s;}
+.btn-salir:hover{background:rgba(255,255,255,0.22);}
+/* LAYOUT */
+.contenido{max-width:900px;margin:0 auto;padding:28px 18px 60px;}
+.bienvenida{margin-bottom:28px;}
+.bienvenida h2{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;margin-bottom:4px;}
+.bienvenida p{font-size:0.9rem;color:var(--gris);}
+/* TABS */
+.tabs-nav{display:flex;gap:6px;margin-bottom:24px;background:white;border-radius:14px;padding:6px;box-shadow:0 2px 8px rgba(19,70,160,0.08);}
+.tab-btn{flex:1;padding:10px 6px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:0.83rem;font-weight:600;cursor:pointer;border-radius:10px;color:var(--gris);transition:all 0.2s;text-align:center;}
+.tab-btn.activo{background:var(--azul);color:white;}
+.tab-content{display:none;}.tab-content.activo{display:block;}
+/* CARDS */
+.card{background:white;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(19,70,160,0.08);margin-bottom:16px;}
+.card h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--gris-oscuro);}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.stat-box{background:var(--pale);border-radius:14px;padding:16px;text-align:center;border:1.5px solid var(--borde);}
+.stat-num{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;line-height:1;margin-bottom:4px;}
+.stat-label{font-size:0.75rem;color:var(--gris);font-weight:600;}
+.stat-verde .stat-num{color:var(--verde);}
+.stat-naranja .stat-num{color:var(--naranja);}
+.stat-rojo .stat-num{color:var(--rojo);}
+.stat-azul .stat-num{color:var(--azul);}
+/* FORM REGISTRO */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-group{margin-bottom:0;}
+.form-label{display:block;font-size:0.82rem;font-weight:600;color:var(--gris);margin-bottom:6px;}
+.form-input,.form-textarea{width:100%;padding:11px 13px;border:2px solid var(--borde);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.93rem;color:var(--gris-oscuro);background:var(--pale);outline:none;transition:border-color 0.2s;}
+.form-input:focus,.form-textarea:focus{border-color:var(--azul);background:white;}
+.form-textarea{resize:vertical;min-height:70px;grid-column:1/-1;}
+.btn-guardar{background:linear-gradient(135deg,var(--verde),#27ae60);color:white;border:none;border-radius:12px;padding:13px 28px;font-family:'DM Sans',sans-serif;font-size:0.93rem;font-weight:700;cursor:pointer;margin-top:14px;transition:transform 0.15s;}
+.btn-guardar:hover{transform:translateY(-1px);}
+.btn-guardar:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+/* TABLA HISTORIAL */
+.tabla-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:0.83rem;}
+thead tr{background:var(--azul);color:white;}
+thead th{padding:10px 12px;text-align:left;font-weight:600;font-size:0.78rem;}
+tbody td{padding:10px 12px;border-bottom:1px solid #f0f4f8;color:var(--gris);}
+tbody tr:hover{background:var(--pale);}
+.badge{display:inline-block;border-radius:8px;padding:2px 8px;font-size:0.73rem;font-weight:700;}
+.badge-verde{background:#e4f7ef;color:var(--verde);}
+.badge-naranja{background:#fef3e8;color:var(--naranja);}
+.badge-rojo{background:#fdecea;color:var(--rojo);}
+/* HERRAMIENTAS */
+.herram-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+.herram-card{background:var(--pale);border:1.5px solid var(--borde);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;transition:transform 0.2s,box-shadow 0.2s;}
+.herram-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(19,70,160,0.12);}
+.herram-ico{font-size:1.6rem;}
+.herram-card h4{font-size:0.93rem;font-weight:700;color:var(--gris-oscuro);}
+.herram-card p{font-size:0.8rem;color:var(--gris);line-height:1.4;flex:1;}
+.herram-card a{display:inline-flex;align-items:center;gap:5px;background:var(--azul);color:white;padding:8px 14px;border-radius:18px;font-size:0.78rem;font-weight:700;text-decoration:none;}
+/* EMPTY */
+.empty-state{text-align:center;padding:40px 20px;color:var(--gris);}
+.empty-state .empty-ico{font-size:3rem;margin-bottom:12px;display:block;}
+.empty-state p{font-size:0.9rem;line-height:1.6;}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1e2a3a;color:white;padding:14px 20px;border-radius:12px;font-size:0.88rem;font-weight:600;z-index:999;transform:translateY(80px);opacity:0;transition:all 0.3s;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+.toast.visible{transform:translateY(0);opacity:1;}
+.toast.verde{background:var(--verde);}
+.toast.rojo{background:var(--rojo);}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr;}.stats-grid{grid-template-columns:1fr 1fr;}.tabs-nav{flex-wrap:wrap;}}
+</style>
+</head>
+<body>
+<nav>
+  <span class="nav-logo">Dr. Ramses Castañeda</span>
+  <div class="nav-usuario">
+    <span class="nav-nombre" id="nav-nombre">Cargando...</span>
+    <button class="btn-salir" onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+</nav>
+
+<div class="contenido">
+  <div class="bienvenida">
+    <h2 id="saludo">Hola 👋</h2>
+    <p>Bienvenido a tu panel de salud personal</p>
+  </div>
+
+  <div class="tabs-nav">
+    <button class="tab-btn activo" onclick="cambiarTab('resumen')">📊 Resumen</button>
+    <button class="tab-btn" onclick="cambiarTab('registrar')">➕ Registrar</button>
+    <button class="tab-btn" onclick="cambiarTab('historial')">📋 Historial</button>
+    <button class="tab-btn" onclick="cambiarTab('herramientas')">🩺 Herramientas</button>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="tab-content activo" id="tab-resumen">
+    <div class="stats-grid" id="stats-hoy">
+      <div class="stat-box stat-azul"><div class="stat-num" id="stat-registros">—</div><div class="stat-label">Registros totales</div></div>
+      <div class="stat-box stat-verde"><div class="stat-num" id="stat-gluc-prom">—</div><div class="stat-label">Glucosa promedio (mg/dL)</div></div>
+      <div class="stat-box stat-naranja"><div class="stat-num" id="stat-pas-prom">—</div><div class="stat-label">Presión promedio (mmHg)</div></div>
+      <div class="stat-box stat-azul"><div class="stat-num" id="stat-ultimo">—</div><div class="stat-label">Último registro</div></div>
+    </div>
+    <div class="card">
+      <h3>📈 Glucosa en ayuno — últimas 2 semanas</h3>
+      <canvas id="chart-glucosa" height="120"></canvas>
+    </div>
+    <div class="card">
+      <h3>📈 Presión sistólica — últimas 2 semanas</h3>
+      <canvas id="chart-presion" height="120"></canvas>
+    </div>
+  </div>
+
+  <!-- REGISTRAR -->
+  <div class="tab-content" id="tab-registrar">
+    <div class="card">
+      <h3>➕ Nuevo registro del día</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Fecha</label>
+          <input class="form-input" type="date" id="r-fecha">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Glucosa en ayuno (mg/dL)</label>
+          <input class="form-input" type="number" id="r-gluc-ay" placeholder="ej: 120" min="40" max="600">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Glucosa postprandial (mg/dL)</label>
+          <input class="form-input" type="number" id="r-gluc-post" placeholder="ej: 160" min="40" max="600">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Presión sistólica (mmHg)</label>
+          <input class="form-input" type="number" id="r-pas" placeholder="ej: 120" min="60" max="220">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Presión diastólica (mmHg)</label>
+          <input class="form-input" type="number" id="r-pad" placeholder="ej: 80" min="40" max="140">
+        </div>
+        <textarea class="form-input form-textarea" id="r-notas" placeholder="Notas adicionales: síntomas, actividad, qué comió..."></textarea>
+      </div>
+      <button class="btn-guardar" onclick="guardarRegistro()" id="btn-guardar">💾 Guardar registro</button>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="tab-content" id="tab-historial">
+    <div class="card">
+      <h3>📋 Mis últimos registros</h3>
+      <div class="tabla-wrap" id="tabla-historial">
+        <div class="empty-state"><span class="empty-ico">📋</span><p>Cargando registros...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERRAMIENTAS -->
+  <div class="tab-content" id="tab-herramientas">
+    <div class="card">
+      <h3>🩺 Herramientas disponibles</h3>
+      <p style="font-size:0.85rem;color:var(--gris);margin-bottom:18px;">Sus resultados se guardarán automáticamente en su expediente.</p>
+      <div class="herram-grid">
+        <div class="herram-card"><span class="herram-ico">💉</span><h4>Guía de insulina y carbohidratos</h4><p>Calcule su dosis de insulina ultrarrápida.</p><a href="instructivo_insulina_dm1.html">Abrir →</a></div>
+        <div class="herram-card"><span class="herram-ico">⚖️</span><h4>Calculadora de IMC</h4><p>Calcule e interprete su índice de masa corporal.</p><a href="herramienta_imc.html">Abrir →</a></div>
+        <div class="herram-card"><span class="herram-ico">🩺</span><h4>Riesgo de diabetes</h4><p>Cuestionario FINDRISC de 8 preguntas.</p><a href="herramienta_riesgo_diabetes.html">Abrir →</a></div>
+        <div class="herram-card"><span class="herram-ico">🫀</span><h4>Riesgo cardiovascular</h4><p>Evalúe sus factores de riesgo cardíaco.</p><a href="herramienta_riesgo_cardiovascular.html">Abrir →</a></div>
+        <div class="herram-card"><span class="herram-ico">🔬</span><h4>Conversor HbA1c</h4><p>Convierta HbA1c a glucosa promedio.</p><a href="herramienta_hba1c.html">Abrir →</a></div>
+        <div class="herram-card"><span class="herram-ico">🦶</span><h4>Síntomas de neuropatía</h4><p>Identifique posibles síntomas de daño nervioso.</p><a href="herramienta_neuropatia.html">Abrir →</a></div>
+        <div class="herram-card"><span class="herram-ico">🎯</span><h4>Mis metas de control</h4><p>Compare sus resultados con las metas recomendadas.</p><a href="herramienta_metas.html">Abrir →</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://mhejapkehcyezgndglpq.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oZWphcGtlaGN5ZXpnbmRnbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDg3NDUsImV4cCI6MjA5MjM4NDc0NX0.ycFQN-Gm6D5V6TJ0PfEReWHD55sqK-cZvYATqVTGuOk';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let userId=null;
+
+// Fecha de hoy por defecto
+document.getElementById('r-fecha').value=new Date().toISOString().split('T')[0];
+
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='auth.html';return;}
+  userId=session.user.id;
+  const {data:profile}=await sb.from('profiles').select('*').eq('id',userId).single();
+  if(profile){
+    const nombre=profile.nombre?.split(' ')[0]||'Paciente';
+    document.getElementById('nav-nombre').textContent=profile.nombre||'';
+    document.getElementById('saludo').textContent='Hola, '+nombre+' 👋';
+  }
+  cargarDatos();
+}
+
+async function cargarDatos(){
+  const {data:registros}=await sb.from('registros_diarios').select('*').eq('user_id',userId).order('fecha',{ascending:false}).limit(30);
+  if(!registros||registros.length===0){
+    document.getElementById('stat-registros').textContent='0';
+    document.getElementById('stat-gluc-prom').textContent='—';
+    document.getElementById('stat-pas-prom').textContent='—';
+    document.getElementById('stat-ultimo').textContent='—';
+    document.getElementById('tabla-historial').innerHTML='<div class="empty-state"><span class="empty-ico">📋</span><p>Aún no tiene registros.<br>Use la pestaña <strong>Registrar</strong> para agregar su primera medición.</p></div>';
+    return;
+  }
+  // Stats
+  document.getElementById('stat-registros').textContent=registros.length;
+  const glucosas=registros.filter(r=>r.glucosa_ayuno).map(r=>r.glucosa_ayuno);
+  const presiones=registros.filter(r=>r.presion_sistolica).map(r=>r.presion_sistolica);
+  document.getElementById('stat-gluc-prom').textContent=glucosas.length?Math.round(glucosas.reduce((a,b)=>a+b,0)/glucosas.length):'—';
+  document.getElementById('stat-pas-prom').textContent=presiones.length?Math.round(presiones.reduce((a,b)=>a+b,0)/presiones.length):'—';
+  document.getElementById('stat-ultimo').textContent=registros[0]?.fecha||'—';
+  // Gráficas
+  const ultimos14=[...registros].reverse().slice(-14);
+  const labels=ultimos14.map(r=>r.fecha?.slice(5));
+  const glucData=ultimos14.map(r=>r.glucosa_ayuno||null);
+  const pasData=ultimos14.map(r=>r.presion_sistolica||null);
+  renderChart('chart-glucosa',labels,glucData,'Glucosa ayuno','rgba(19,70,160,0.8)','rgba(19,70,160,0.1)',[{value:130,color:'rgba(230,126,34,0.5)',label:'Meta 130'}]);
+  renderChart('chart-presion',labels,pasData,'Presión sistólica','rgba(192,57,43,0.8)','rgba(192,57,43,0.1)',[{value:130,color:'rgba(230,126,34,0.5)',label:'Meta 130'}]);
+  // Tabla
+  const filas=registros.slice(0,20).map(r=>{
+    const gBadge=r.glucosa_ayuno?(r.glucosa_ayuno<=130?'badge-verde':r.glucosa_ayuno<=180?'badge-naranja':'badge-rojo'):'';
+    const pBadge=r.presion_sistolica?(r.presion_sistolica<130?'badge-verde':r.presion_sistolica<140?'badge-naranja':'badge-rojo'):'';
+    return `<tr>
+      <td>${r.fecha||'—'}</td>
+      <td>${r.glucosa_ayuno?`<span class="badge ${gBadge}">${r.glucosa_ayuno}</span>`:'—'}</td>
+      <td>${r.glucosa_postprandial||'—'}</td>
+      <td>${r.presion_sistolica?`<span class="badge ${pBadge}">${r.presion_sistolica}/${r.presion_diastolica||'?'}</span>`:'—'}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.notas||'—'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('tabla-historial').innerHTML=`<table><thead><tr><th>Fecha</th><th>Glucosa ayuno</th><th>Gluc. postprandial</th><th>Presión</th><th>Notas</th></tr></thead><tbody>${filas}</tbody></table>`;
+}
+
+function renderChart(id,labels,data,label,borderColor,bgColor,referencias){
+  const ctx=document.getElementById(id).getContext('2d');
+  const anotaciones={};
+  referencias?.forEach((r,i)=>{anotaciones['line'+i]={type:'line',yMin:r.value,yMax:r.value,borderColor:r.color,borderWidth:2,borderDash:[6,4]};});
+  new Chart(ctx,{type:'line',data:{labels,datasets:[{label,data,borderColor,backgroundColor:bgColor,borderWidth:2.5,pointRadius:4,pointBackgroundColor:borderColor,tension:0.3,fill:true,spanGaps:true}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,grid:{color:'#f0f4f8'}}},elements:{point:{hoverRadius:6}}}});
+}
+
+async function guardarRegistro(){
+  const btn=document.getElementById('btn-guardar');
+  const fecha=document.getElementById('r-fecha').value;
+  const ga=parseInt(document.getElementById('r-gluc-ay').value)||null;
+  const gp=parseInt(document.getElementById('r-gluc-post').value)||null;
+  const pas=parseInt(document.getElementById('r-pas').value)||null;
+  const pad=parseInt(document.getElementById('r-pad').value)||null;
+  const notas=document.getElementById('r-notas').value.trim()||null;
+  if(!fecha){mostrarToast('Seleccione una fecha','rojo');return;}
+  if(!ga&&!gp&&!pas){mostrarToast('Ingrese al menos una medición','rojo');return;}
+  btn.disabled=true;btn.textContent='Guardando...';
+  const {error}=await sb.from('registros_diarios').insert({user_id:userId,fecha,glucosa_ayuno:ga,glucosa_postprandial:gp,presion_sistolica:pas,presion_diastolica:pad,notas});
+  if(error){mostrarToast('Error al guardar. Intente de nuevo.','rojo');}
+  else{mostrarToast('✅ Registro guardado correctamente','verde');['r-gluc-ay','r-gluc-post','r-pas','r-pad','r-notas'].forEach(id=>document.getElementById(id).value='');cargarDatos();}
+  btn.disabled=false;btn.textContent='💾 Guardar registro';
+}
+
+function cambiarTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('activo'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('activo'));
+  event.target.classList.add('activo');
+  document.getElementById('tab-'+tab).classList.add('activo');
+}
+
+async function cerrarSesion(){await sb.auth.signOut();window.location.href='auth.html';}
+
+function mostrarToast(msg,tipo=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(tipo||'');
+  t.classList.add('visible');
+  setTimeout(()=>t.classList.remove('visible'),3500);
+}
+
+init();
+</script>
+</body></html>

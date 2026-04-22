@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceder | Dr. Ramses Castañeda</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{--azul:#1346a0;--azul-med:#1a5cc8;--gris:#4a5568;--gris-oscuro:#1e2a3a;--borde:#dce6f7;--pale:#f4f7fe;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#0c2d6e 0%,#1346a0 50%,#1a73c8 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.logo-wrap{text-align:center;margin-bottom:28px;color:white;}
+.logo-wrap h1{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;margin-bottom:4px;}
+.logo-wrap p{font-size:0.82rem;opacity:0.8;}
+.card{background:white;border-radius:24px;padding:36px 32px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.25);}
+.tabs{display:flex;gap:0;margin-bottom:28px;background:#f0f4f8;border-radius:12px;padding:4px;}
+.tab{flex:1;padding:10px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;border-radius:9px;color:var(--gris);transition:all 0.2s;}
+.tab.activo{background:white;color:var(--azul);box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.modo{display:none;}.modo.activo{display:block;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:0.82rem;font-weight:600;color:var(--gris);margin-bottom:6px;}
+.form-input{width:100%;padding:12px 14px;border:2px solid var(--borde);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:0.95rem;color:var(--gris-oscuro);background:var(--pale);outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--azul);background:white;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--azul),var(--azul-med));color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.97rem;font-weight:700;cursor:pointer;margin-top:6px;transition:transform 0.15s,box-shadow 0.15s;}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(19,70,160,0.3);}
+.btn-submit:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.error-msg{background:#fdecea;border:1.5px solid #f9c0bc;border-radius:10px;padding:11px 14px;font-size:0.85rem;color:#c0392b;margin-top:12px;display:none;}
+.error-msg.visible{display:block;}
+.success-msg{background:#e4f7ef;border:1.5px solid #b6edda;border-radius:10px;padding:11px 14px;font-size:0.85rem;color:#2e9e6b;margin-top:12px;display:none;}
+.success-msg.visible{display:block;}
+.divider{text-align:center;font-size:0.78rem;color:#94a3b8;margin:16px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:#e2e8f0;}
+.divider::before{left:0;}.divider::after{right:0;}
+.link-btn{background:none;border:none;color:var(--azul);font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;text-decoration:underline;}
+.back-link{color:rgba(255,255,255,0.75);font-size:0.83rem;text-align:center;margin-top:20px;text-decoration:none;display:block;}
+.back-link:hover{color:white;}
+.spinner{display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="logo-wrap">
+  <h1>Dr. Ramses Castañeda</h1>
+  <p>Portal de pacientes · Colima</p>
+</div>
+<div class="card">
+  <div class="tabs">
+    <button class="tab activo" onclick="cambiarTab('login')">Iniciar sesión</button>
+    <button class="tab" onclick="cambiarTab('register')">Registrarse</button>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="modo activo" id="modo-login">
+    <div class="form-group">
+      <label class="form-label">Correo electrónico</label>
+      <input class="form-input" type="email" id="login-email" placeholder="correo@ejemplo.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input class="form-input" type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginUser()">
+    </div>
+    <button class="btn-submit" onclick="loginUser()" id="btn-login">Entrar a mi cuenta</button>
+    <div class="error-msg" id="login-error"></div>
+    <div class="divider">¿Olvidó su contraseña?</div>
+    <div style="text-align:center;"><button class="link-btn" onclick="cambiarTab('reset')">Recuperar contraseña</button></div>
+  </div>
+
+  <!-- REGISTER -->
+  <div class="modo" id="modo-register">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input class="form-input" type="text" id="reg-nombre" placeholder="Juan">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Apellido</label>
+        <input class="form-input" type="text" id="reg-apellido" placeholder="García">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha de nacimiento</label>
+      <input class="form-input" type="date" id="reg-fecha">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Teléfono</label>
+      <input class="form-input" type="tel" id="reg-tel" placeholder="312 000 0000">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Correo electrónico</label>
+      <input class="form-input" type="email" id="reg-email" placeholder="correo@ejemplo.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input class="form-input" type="password" id="reg-pass" placeholder="Mínimo 6 caracteres">
+    </div>
+    <button class="btn-submit" onclick="registerUser()" id="btn-register">Crear mi cuenta</button>
+    <div class="error-msg" id="reg-error"></div>
+    <div class="success-msg" id="reg-success"></div>
+  </div>
+
+  <!-- RESET -->
+  <div class="modo" id="modo-reset">
+    <p style="font-size:0.88rem;color:var(--gris);margin-bottom:18px;line-height:1.6;">Ingrese su correo y le enviaremos un enlace para restablecer su contraseña.</p>
+    <div class="form-group">
+      <label class="form-label">Correo electrónico</label>
+      <input class="form-input" type="email" id="reset-email" placeholder="correo@ejemplo.com">
+    </div>
+    <button class="btn-submit" onclick="resetPass()" id="btn-reset">Enviar enlace de recuperación</button>
+    <div class="success-msg" id="reset-success"></div>
+    <div class="error-msg" id="reset-error"></div>
+    <div style="text-align:center;margin-top:14px;"><button class="link-btn" onclick="cambiarTab('login')">← Regresar</button></div>
+  </div>
+</div>
+<a href="index.html" class="back-link">← Regresar al sitio del consultorio</a>
+
+<script>
+const SUPABASE_URL = 'https://mhejapkehcyezgndglpq.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oZWphcGtlaGN5ZXpnbmRnbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDg3NDUsImV4cCI6MjA5MjM4NDc0NX0.ycFQN-Gm6D5V6TJ0PfEReWHD55sqK-cZvYATqVTGuOk';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Redirigir si ya hay sesión
+sb.auth.getSession().then(({data:{session}})=>{
+  if(session) redirigirSegunRol(session.user.id);
+});
+
+function cambiarTab(modo){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const modos=['login','register','reset'];
+    t.classList.toggle('activo', modos[i]===modo);
+  });
+  document.querySelectorAll('.modo').forEach(m=>m.classList.remove('activo'));
+  document.getElementById('modo-'+modo).classList.add('activo');
+}
+
+async function redirigirSegunRol(uid){
+  const {data}=await sb.from('profiles').select('rol').eq('id',uid).single();
+  if(data?.rol==='medico'||data?.rol==='asistente') window.location.href='panel_medico.html';
+  else window.location.href='panel_paciente.html';
+}
+
+async function loginUser(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  const errEl=document.getElementById('login-error');
+  const btn=document.getElementById('btn-login');
+  if(!email||!pass){mostrarError(errEl,'Por favor complete todos los campos.');return;}
+  btn.disabled=true;btn.textContent='Entrando...';
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){mostrarError(errEl,'Correo o contraseña incorrectos.');btn.disabled=false;btn.textContent='Entrar a mi cuenta';return;}
+  redirigirSegunRol(data.user.id);
+}
+
+async function registerUser(){
+  const nombre=document.getElementById('reg-nombre').value.trim();
+  const apellido=document.getElementById('reg-apellido').value.trim();
+  const fecha=document.getElementById('reg-fecha').value;
+  const tel=document.getElementById('reg-tel').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const pass=document.getElementById('reg-pass').value;
+  const errEl=document.getElementById('reg-error');
+  const sucEl=document.getElementById('reg-success');
+  const btn=document.getElementById('btn-register');
+  if(!nombre||!email||!pass){mostrarError(errEl,'Por favor complete nombre, correo y contraseña.');return;}
+  if(pass.length<6){mostrarError(errEl,'La contraseña debe tener al menos 6 caracteres.');return;}
+  btn.disabled=true;btn.textContent='Creando cuenta...';
+  const {data,error}=await sb.auth.signUp({
+    email,password:pass,
+    options:{data:{nombre:nombre+' '+apellido}}
+  });
+  if(error){mostrarError(errEl,'Error: '+error.message);btn.disabled=false;btn.textContent='Crear mi cuenta';return;}
+  if(data.user){
+    await sb.from('profiles').upsert({
+      id:data.user.id,
+      nombre:nombre+' '+apellido,
+      fecha_nacimiento:fecha||null,
+      telefono:tel||null,
+      rol:'paciente'
+    });
+  }
+  errEl.classList.remove('visible');
+  sucEl.textContent='✅ Cuenta creada. Revise su correo para confirmar su registro y luego inicie sesión.';
+  sucEl.classList.add('visible');
+  btn.textContent='Cuenta creada';
+}
+
+async function resetPass(){
+  const email=document.getElementById('reset-email').value.trim();
+  const errEl=document.getElementById('reset-error');
+  const sucEl=document.getElementById('reset-success');
+  const btn=document.getElementById('btn-reset');
+  if(!email){mostrarError(errEl,'Ingrese su correo.');return;}
+  btn.disabled=true;btn.textContent='Enviando...';
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+'/auth.html'});
+  if(error){mostrarError(errEl,'Error al enviar. Verifique el correo.');btn.disabled=false;btn.textContent='Enviar enlace de recuperación';return;}
+  sucEl.textContent='✅ Enlace enviado. Revise su bandeja de entrada.';
+  sucEl.classList.add('visible');
+}
+
+function mostrarError(el,msg){el.textContent=msg;el.classList.add('visible');setTimeout(()=>el.classList.remove('visible'),5000);}
+</script>
+</body></html>
