@@ -168,6 +168,7 @@ tbody tr:hover{background:var(--pale);}
     <div class="sidebar-item activo" onclick="irA('dashboard')"><span class="ico">📊</span> Mi dashboard</div>
     <div class="sidebar-item" onclick="irA('registrar')"><span class="ico">➕</span> Registrar hoy</div>
     <div class="sidebar-item" onclick="irA('historial')"><span class="ico">📋</span> Mi historial</div>
+    <div class="sidebar-item" onclick="irA('resumen')"><span class="ico">📝</span> Mi resumen</div>
     <div class="sidebar-sep">Herramientas</div>
     <div class="sidebar-item" onclick="window.open('grafica_curvas_glucosa.html','_blank')"><span class="ico">📊</span> Curvas de glucosa</div>
     <a href="instructivo_insulina_dm1.html" class="sidebar-item"><span class="ico">💉</span> Guía de insulina</a>
@@ -365,6 +366,26 @@ tbody tr:hover{background:var(--pale);}
       <div class="page-sub">Todos sus registros ordenados por fecha.</div>
       <div class="tabla-card">
         <div class="tabla-wrap" id="tabla-historial"><div class="empty"><span>📋</span><p>Cargando...</p></div></div>
+      </div>
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="pantalla" id="p-resumen">
+      <div class="page-title">📝 Mi resumen de salud</div>
+      <div class="page-sub">Basado en tus registros más recientes</div>
+
+      <!-- Intro -->
+      <div style="background:linear-gradient(135deg,#0c2d6e,#1346a0);color:white;border-radius:20px;padding:24px 28px;margin-bottom:20px;">
+        <div style="font-size:1.05rem;font-weight:700;margin-bottom:10px;">¿Por qué es importante conocer tu estado de salud?</div>
+        <p style="font-size:0.88rem;line-height:1.8;opacity:0.9;margin-bottom:12px;">El monitoreo regular de tus marcadores de salud te permite detectar cambios a tiempo y actuar antes de que aparezcan complicaciones. Este resumen es una herramienta de orientación basada en tus registros y en las guías de la <strong>American Diabetes Association (ADA) Standards of Care 2026</strong>.</p>
+        <div style="background:rgba(255,255,255,0.12);border-radius:12px;padding:12px 16px;font-size:0.82rem;line-height:1.6;border-left:3px solid rgba(255,255,255,0.4);">
+          ⚠️ <strong>Aviso importante:</strong> Este resumen es únicamente informativo. Nunca sustituye la evaluación, diagnóstico ni tratamiento de un profesional de la salud. Ante cualquier duda, consulte al Dr. Castañeda.
+        </div>
+      </div>
+
+      <!-- Contenido generado dinámicamente -->
+      <div id="resumen-contenido">
+        <div class="empty"><span>📊</span><p>Cargando tu resumen...</p></div>
       </div>
     </div>
 
@@ -888,6 +909,200 @@ Usa un tono cálido, claro y no alarmista. NO uses asteriscos ni markdown. Escri
   }
 }
 
+// ─── RESUMEN COMPLETO DE SALUD ────────────────────────────────
+function renderResumen(){
+  var metas = getMetas(perfil?.tipo_diabetes || 'no');
+  var cond = perfil?.tipo_diabetes || 'no';
+  var condLabel = {dm1:'Diabetes Tipo 1', dm2:'Diabetes Tipo 2', pre:'Prediabetes', no:'Sin diabetes'}[cond] || 'Sin diabetes';
+
+  if(!registros || registros.length === 0){
+    document.getElementById('resumen-contenido').innerHTML =
+      '<div class="empty"><span>📋</span><p>Aún no tienes registros. Comienza registrando tus mediciones en <strong>Registrar hoy</strong> para ver tu resumen de salud.</p></div>';
+    return;
+  }
+
+  var html = '';
+
+  // ── Función helper: estado de un valor
+  function estado(val, min, max){
+    if(!val || val === 0) return null;
+    if(val >= min && val <= max) return 'bien';
+    var margen = (max - min) * 0.15 + max * 0.1;
+    if(val <= max + margen) return 'cuidado';
+    return 'malo';
+  }
+
+  // ── Función helper: último valor y promedio
+  function ultProm(campo){
+    var vals = registros.filter(r => r[campo]).map(r => parseFloat(r[campo]));
+    if(!vals.length) return {ult:null, prom:null, n:0};
+    return {
+      ult: vals[0],
+      prom: Math.round(vals.reduce((a,b)=>a+b,0)/vals.length * 10)/10,
+      n: vals.length
+    };
+  }
+
+  // ── Resumen de GLUCOSA ──
+  var glucAyuno = registros.filter(r=>r.glucosa_ayuno).map(r=>r.glucosa_ayuno);
+  var glucPost = [];
+  registros.forEach(function(r){
+    if(r.glucosas_comidas){
+      var comidas = typeof r.glucosas_comidas==='string' ? JSON.parse(r.glucosas_comidas) : r.glucosas_comidas;
+      comidas.forEach(function(c){
+        if(c.tipo && c.tipo.startsWith('despues') && c.valor) glucPost.push(parseFloat(c.valor));
+      });
+    }
+  });
+
+  var promAyuno = glucAyuno.length ? Math.round(glucAyuno.reduce((a,b)=>a+b)/glucAyuno.length) : null;
+  var promPost = glucPost.length ? Math.round(glucPost.reduce((a,b)=>a+b)/glucPost.length) : null;
+  var maxAyuno = glucAyuno.length ? Math.max.apply(null,glucAyuno) : null;
+  var minAyuno = glucAyuno.length ? Math.min.apply(null,glucAyuno) : null;
+
+  var estAyuno = promAyuno ? estado(promAyuno, metas.gluc_ay.min, metas.gluc_ay.max) : null;
+  var estPost = promPost ? estado(promPost, 0, metas.gluc_post1h ? metas.gluc_post1h.max : 180) : null;
+
+  html += '<div style="background:white;border-radius:20px;padding:26px;box-shadow:0 2px 12px rgba(19,70,160,0.08);margin-bottom:16px;">';
+  html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><span style="font-size:1.5rem;">🩸</span><h3 style="font-family:Playfair Display,serif;font-size:1.15rem;font-weight:700;">Glucosa</h3></div>';
+
+  if(promAyuno || promPost){
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px;">';
+    if(promAyuno) html += '<div style="background:#f4f7fe;border-radius:12px;padding:14px;text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1.6rem;font-weight:900;color:'+colorEst(estAyuno)+'">'+promAyuno+'</div><div style="font-size:0.72rem;color:#4a5568;font-weight:600;">Promedio en ayuno (mg/dL)<br><span style="color:#94a3b8;">'+glucAyuno.length+' mediciones</span></div></div>';
+    if(promPost) html += '<div style="background:#f4f7fe;border-radius:12px;padding:14px;text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1.6rem;font-weight:900;color:'+colorEst(estPost)+'">'+promPost+'</div><div style="font-size:0.72rem;color:#4a5568;font-weight:600;">Promedio postprandial (mg/dL)<br><span style="color:#94a3b8;">'+glucPost.length+' mediciones</span></div></div>';
+    if(maxAyuno) html += '<div style="background:#f4f7fe;border-radius:12px;padding:14px;text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1.6rem;font-weight:900;color:#c0392b">'+maxAyuno+'</div><div style="font-size:0.72rem;color:#4a5568;font-weight:600;">Glucosa máxima (mg/dL)</div></div>';
+    if(minAyuno) html += '<div style="background:#f4f7fe;border-radius:12px;padding:14px;text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1.6rem;font-weight:900;color:#2e9e6b">'+minAyuno+'</div><div style="font-size:0.72rem;color:#4a5568;font-weight:600;">Glucosa mínima (mg/dL)</div></div>';
+    html += '</div>';
+
+    html += textoGlucosa(promAyuno, promPost, estAyuno, estPost, metas, condLabel);
+  } else {
+    html += '<p style="color:#94a3b8;font-size:0.88rem;">Sin registros de glucosa aún.</p>';
+  }
+
+  // Enlace a curvas
+  html += '<a href="grafica_curvas_glucosa.html" target="_blank" style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;background:#e8f0fd;color:#1346a0;padding:8px 16px;border-radius:10px;font-size:0.82rem;font-weight:700;text-decoration:none;">📊 Ver curvas de glucosa del día →</a>';
+  html += '</div>';
+
+  // ── Secciones de otros marcadores ──
+  var secciones = [
+    {campo:'presion_sistolica', ico:'💊', titulo:'Presión arterial', min:metas.pas.min, max:metas.pas.max, unidad:'mmHg', label:metas.pas.label,
+      textoBien:'Su presión arterial está dentro de la meta recomendada por la ADA 2026 (&lt;130 mmHg). Continúe con su estilo de vida saludable, limite el consumo de sal y mantenga su actividad física regular.',
+      textoCuidado:'Su presión arterial está ligeramente por encima de la meta. La ADA 2026 recomienda mantenerla por debajo de 130/80 mmHg en personas con diabetes. Reduzca el consumo de sal, aumente la actividad física y consulte con su médico para evaluar si requiere ajuste de tratamiento.',
+      textoMalo:'Su presión arterial está significativamente elevada. La hipertensión no controlada en diabetes aumenta el riesgo de infarto, evento vascular cerebral y daño renal. <strong>Se recomienda consultar al Dr. Castañeda a la brevedad para evaluar su tratamiento.</strong>'},
+    {campo:'hba1c', ico:'🔬', titulo:'HbA1c', min:0, max:metas.hba1c.max, unidad:'%', label:metas.hba1c.label,
+      textoBien:'¡Excelente! Su HbA1c está dentro de la meta recomendada por la ADA 2026. Esto significa que su glucosa ha estado bien controlada durante los últimos 2-3 meses. Continúe con su tratamiento y monitoreo actual.',
+      textoCuidado:'Su HbA1c está ligeramente por encima de la meta. Según la ADA SCD 2026, una HbA1c sostenida por encima de la meta aumenta el riesgo de complicaciones a largo plazo. Revise su plan de alimentación y consulte con su médico para evaluar ajustes en el tratamiento.',
+      textoMalo:'Su HbA1c está fuera de la meta de control. Niveles elevados de HbA1c se asocian con mayor riesgo de nefropatía, retinopatía y neuropatía diabética. <strong>Es importante que consulte con el Dr. Castañeda para revisar y ajustar su tratamiento.</strong>'},
+    {campo:'colesterol_ldl', ico:'🧪', titulo:'Colesterol LDL', min:0, max:100, unidad:'mg/dL', label:'Meta DM: <100 mg/dL (ADA 2026)',
+      textoBien:'Su colesterol LDL está en meta. La ADA 2026 recomienda mantenerlo por debajo de 100 mg/dL en personas con diabetes para reducir el riesgo cardiovascular. Siga con su alimentación baja en grasas saturadas.',
+      textoCuidado:'Su LDL está ligeramente elevado. La ADA 2026 recomienda &lt;100 mg/dL y considera el uso de estatinas en la mayoría de adultos con diabetes. Reduzca grasas saturadas, evite alimentos ultraprocesados y consulte con su médico.',
+      textoMalo:'Su LDL está significativamente elevado. En personas con diabetes, el riesgo cardiovascular es ya de por sí mayor, por lo que el control del colesterol es esencial. <strong>Consulte al Dr. Castañeda para evaluar inicio o ajuste de tratamiento con estatinas.</strong>'},
+    {campo:'colesterol_hdl', ico:'🧪', titulo:'Colesterol HDL', min:40, max:999, unidad:'mg/dL', label:'Meta: >40 mg/dL (hombres) / >50 mg/dL (mujeres)',
+      textoBien:'Su colesterol HDL (el "bueno") está en un rango saludable. Niveles altos de HDL protegen el corazón. Mantenga su actividad física que es el principal factor para elevar el HDL.',
+      textoCuidado:'Su HDL está por debajo de lo deseable. Niveles bajos de HDL se asocian con mayor riesgo cardiovascular. Aumente la actividad física aeróbica, evite el tabaquismo y consulte con su médico.',
+      textoMalo:'Su HDL está muy bajo. Esto representa un factor de riesgo cardiovascular importante. <strong>Consulte al Dr. Castañeda para evaluación completa de su perfil cardiovascular.</strong>'},
+    {campo:'trigliceridos', ico:'🧪', titulo:'Triglicéridos', min:0, max:150, unidad:'mg/dL', label:'Normal: <150 mg/dL',
+      textoBien:'Sus triglicéridos están dentro del rango normal. Siga evitando azúcares simples, bebidas azucaradas y alcohol en exceso para mantener este buen resultado.',
+      textoCuidado:'Sus triglicéridos están ligeramente elevados. Reduzca el consumo de azúcares, refrescos, jugos, pan dulce y alcohol. Aumente la actividad física. Consulte con su médico.',
+      textoMalo:'Sus triglicéridos están muy elevados (>500 mg/dL es riesgo de pancreatitis). <strong>Se recomienda consulta médica urgente para evaluar tratamiento farmacológico.</strong>'},
+    {campo:'peso', ico:'⚖️', titulo:'Peso / IMC', min:18.5, max:24.9, unidad:'kg/m²', label:'IMC saludable: 18.5-24.9',
+      textoBien:'Su IMC está dentro del rango saludable. Mantener un peso adecuado es fundamental para el control de la glucosa y la presión arterial. ¡Siga adelante!',
+      textoCuidado:'Su IMC indica sobrepeso. La ADA 2026 indica que perder entre el 5-10% del peso corporal mejora significativamente el control glucémico y reduce el riesgo cardiovascular. Consulte con su médico un plan individualizado.',
+      textoMalo:'Su IMC indica obesidad. La obesidad aumenta la resistencia a la insulina y el riesgo de complicaciones. <strong>Consulte al Dr. Castañeda para un plan de manejo integral que incluya alimentación, actividad física y posible tratamiento farmacológico.</strong>'},
+    {campo:'creatinina', ico:'🫘', titulo:'Creatinina', min:0.5, max:1.2, unidad:'mg/dL', label:'Normal: 0.6-1.2 mg/dL',
+      textoBien:'Su creatinina está dentro del rango normal, lo que indica una función renal adecuada. La diabetes es la principal causa de enfermedad renal crónica, por eso es importante mantenerla en control.',
+      textoCuidado:'Su creatinina está ligeramente elevada. Esto puede indicar inicio de daño renal. Consulte con su médico para solicitar cálculo de filtración glomerular (TFGe) y microalbuminuria.',
+      textoMalo:'Su creatinina está elevada. Esto sugiere daño renal que requiere evaluación. <strong>Consulte al Dr. Castañeda a la brevedad. Puede requerir ajuste de medicamentos y evaluación nefrológica.</strong>'},
+  ];
+
+  secciones.forEach(function(s){
+    var dp = ultProm(s.campo);
+    if(!dp.ult) return;
+    var imcVal = s.campo==='peso' && perfil?.estatura ? Math.round((dp.ult/((perfil.estatura/100)**2))*10)/10 : null;
+    var valMostrar = imcVal || dp.ult;
+    var est = s.campo==='colesterol_hdl' ? (valMostrar >= s.min ? 'bien' : valMostrar >= s.min*0.85 ? 'cuidado' : 'malo') : estado(valMostrar, s.min, s.max);
+
+    html += '<div style="background:white;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(19,70,160,0.08);margin-bottom:16px;">';
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><span style="font-size:1.4rem;">'+s.ico+'</span><h3 style="font-family:Playfair Display,serif;font-size:1.05rem;font-weight:700;">'+s.titulo+'</h3><span style="margin-left:auto;font-size:0.8rem;background:'+bgEst(est)+';color:'+colorEst(est)+';border-radius:8px;padding:3px 10px;font-weight:700;">'+labelEst(est)+'</span></div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px;">';
+    html += '<div style="background:#f4f7fe;border-radius:10px;padding:12px;text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1.5rem;font-weight:900;color:'+colorEst(est)+'">'+valMostrar+'</div><div style="font-size:0.7rem;color:#4a5568;font-weight:600;">Último valor ('+s.unidad+')</div></div>';
+    if(dp.n > 1) html += '<div style="background:#f4f7fe;border-radius:10px;padding:12px;text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1.5rem;font-weight:900;color:#1346a0">'+dp.prom+'</div><div style="font-size:0.7rem;color:#4a5568;font-weight:600;">Promedio ('+dp.n+' registros)</div></div>';
+    html += '<div style="background:#f4f7fe;border-radius:10px;padding:12px;text-align:center;"><div style="font-size:0.75rem;color:#1346a0;font-weight:700;line-height:1.4;">'+s.label+'</div><div style="font-size:0.7rem;color:#94a3b8;margin-top:2px;">ADA SCD 2026</div></div>';
+    html += '</div>';
+
+    var textoRecom = est==='bien' ? s.textoBien : est==='cuidado' ? s.textoCuidado : s.textoMalo;
+    var bgColor = est==='bien' ? '#e4f7ef' : est==='cuidado' ? '#fef3e8' : '#fdecea';
+    var borderColor = est==='bien' ? '#2e9e6b' : est==='cuidado' ? '#e67e22' : '#c0392b';
+    html += '<div style="background:'+bgColor+';border-left:4px solid '+borderColor+';border-radius:0 12px 12px 0;padding:14px 16px;font-size:0.85rem;color:#1e2a3a;line-height:1.7;">'+textoRecom+'</div>';
+    html += '</div>';
+  });
+
+  // ── TABLA RESUMEN FINAL ──
+  var tablaItems = [
+    {lbl:'Glucosa en ayuno', val:promAyuno, min:metas.gluc_ay.min, max:metas.gluc_ay.max, unidad:'mg/dL'},
+    {lbl:'Glucosa postprandial', val:promPost, min:0, max:metas.gluc_post1h?metas.gluc_post1h.max:180, unidad:'mg/dL'},
+    {lbl:'HbA1c', val:ultProm('hba1c').ult, min:0, max:metas.hba1c.max, unidad:'%'},
+    {lbl:'Presión sistólica', val:ultProm('presion_sistolica').ult, min:metas.pas.min, max:metas.pas.max, unidad:'mmHg'},
+    {lbl:'Colesterol LDL', val:ultProm('colesterol_ldl').ult, min:0, max:100, unidad:'mg/dL'},
+    {lbl:'Colesterol HDL', val:ultProm('colesterol_hdl').ult, min:40, max:999, unidad:'mg/dL', invertido:true},
+    {lbl:'Triglicéridos', val:ultProm('trigliceridos').ult, min:0, max:150, unidad:'mg/dL'},
+    {lbl:'Creatinina', val:ultProm('creatinina').ult, min:0.5, max:1.2, unidad:'mg/dL'},
+    {lbl:'BUN', val:ultProm('bun').ult, min:7, max:20, unidad:'mg/dL'},
+    {lbl:'IMC', val:(ultProm('peso').ult && perfil?.estatura) ? Math.round(ultProm('peso').ult/((perfil.estatura/100)**2)*10)/10 : null, min:18.5, max:24.9, unidad:'kg/m²'},
+    {lbl:'Frec. cardiaca', val:ultProm('frecuencia_cardiaca').ult, min:60, max:100, unidad:'lpm'},
+  ];
+
+  html += '<div style="background:white;border-radius:20px;padding:26px;box-shadow:0 2px 12px rgba(19,70,160,0.08);margin-bottom:16px;">';
+  html += '<h3 style="font-family:Playfair Display,serif;font-size:1.15rem;font-weight:700;margin-bottom:6px;">📋 Tabla resumen de indicadores</h3>';
+  html += '<p style="font-size:0.82rem;color:#4a5568;margin-bottom:18px;">Basado en los últimos valores registrados · ADA Standards of Care 2026</p>';
+  html += '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.83rem;">';
+  html += '<thead><tr style="background:#1346a0;color:white;"><th style="padding:10px 14px;text-align:left;">Indicador</th><th style="padding:10px 14px;text-align:center;">Valor</th><th style="padding:10px 14px;text-align:center;">Meta</th><th style="padding:10px 14px;text-align:center;">Estado</th></tr></thead><tbody>';
+
+  tablaItems.forEach(function(item, i){
+    var bg = i%2===0 ? 'white' : '#f9fafb';
+    if(!item.val){ html += '<tr style="background:'+bg+';"><td style="padding:10px 14px;color:#1e2a3a;font-weight:600;">'+item.lbl+'</td><td style="padding:10px 14px;text-align:center;color:#94a3b8;">Sin datos</td><td style="padding:10px 14px;text-align:center;color:#94a3b8;">'+item.min+(item.max<900?'-'+item.max:'+')+' '+item.unidad+'</td><td style="padding:10px 14px;text-align:center;">⬜ Sin datos</td></tr>'; return; }
+    var est2 = item.invertido ? (item.val>=item.min?'bien':item.val>=item.min*0.85?'cuidado':'malo') : estado(item.val, item.min, item.max);
+    var icono = est2==='bien' ? '✅' : est2==='cuidado' ? '⚠️' : '🔴';
+    var metaStr = item.max >= 900 ? '>'+item.min+' '+item.unidad : item.min>0 ? item.min+'-'+item.max+' '+item.unidad : '<'+item.max+' '+item.unidad;
+    html += '<tr style="background:'+bg+';"><td style="padding:10px 14px;color:#1e2a3a;font-weight:600;">'+item.lbl+'</td><td style="padding:10px 14px;text-align:center;font-weight:700;color:'+colorEst(est2)+'">'+item.val+' '+item.unidad+'</td><td style="padding:10px 14px;text-align:center;color:#4a5568;font-size:0.78rem;">'+metaStr+'</td><td style="padding:10px 14px;text-align:center;font-size:1.1rem;">'+icono+' <span style="font-size:0.75rem;font-weight:700;color:'+colorEst(est2)+'">'+labelEst(est2)+'</span></td></tr>';
+  });
+
+  html += '</tbody></table></div>';
+  html += '<p style="font-size:0.75rem;color:#94a3b8;margin-top:14px;line-height:1.6;">Este resumen es orientativo. Los valores deben interpretarse en conjunto con la evaluación clínica del Dr. Castañeda. Los valores de referencia corresponden a las guías ADA Standards of Care 2026.</p>';
+  html += '<a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20revisar%20mis%20resultados" target="_blank" style="display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:#1346a0;color:white;padding:12px 22px;border-radius:12px;font-size:0.88rem;font-weight:700;text-decoration:none;">💬 Consultar mis resultados con el Dr. Castañeda</a>';
+  html += '</div>';
+
+  document.getElementById('resumen-contenido').innerHTML = html;
+}
+
+// Helpers de color
+function colorEst(est){ return est==='bien'?'#2e9e6b':est==='cuidado'?'#e67e22':est==='malo'?'#c0392b':'#94a3b8'; }
+function bgEst(est){ return est==='bien'?'#e4f7ef':est==='cuidado'?'#fef3e8':est==='malo'?'#fdecea':'#f0f4f8'; }
+function labelEst(est){ return est==='bien'?'✅ En meta':est==='cuidado'?'⚠️ Revisar':est==='malo'?'🔴 Atención':'—'; }
+
+function textoGlucosa(promAy, promPost, estAy, estPost, metas, condLabel){
+  var textos = [];
+  // Ayuno
+  if(promAy && estAy === 'bien'){
+    textos.push('<div style="background:#e4f7ef;border-left:4px solid #2e9e6b;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:10px;font-size:0.85rem;color:#1e2a3a;line-height:1.7;"><strong>Glucosa en ayuno:</strong> ¡Excelente control! Su glucosa en ayuno promedio ('+promAy+' mg/dL) está dentro de la meta de la ADA 2026 para '+condLabel+'. Continúe con sus hábitos actuales, siga monitoreando y asista a sus consultas de seguimiento.</div>');
+  } else if(promAy && estAy === 'cuidado'){
+    textos.push('<div style="background:#fef3e8;border-left:4px solid #e67e22;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:10px;font-size:0.85rem;color:#1e2a3a;line-height:1.7;"><strong>Glucosa en ayuno:</strong> Su glucosa en ayuno promedio ('+promAy+' mg/dL) está ligeramente por encima de la meta ('+metas.gluc_ay.min+'-'+metas.gluc_ay.max+' mg/dL). Revise sus porciones de hidratos de carbono en la cena, evite comer tarde y consulte con su médico si persiste elevada.</div>');
+  } else if(promAy && estAy === 'malo'){
+    textos.push('<div style="background:#fdecea;border-left:4px solid #c0392b;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:10px;font-size:0.85rem;color:#1e2a3a;line-height:1.7;"><strong>Glucosa en ayuno:</strong> Su glucosa en ayuno promedio ('+promAy+' mg/dL) está significativamente por encima de la meta. Glucosas en ayuno persistentemente elevadas se asocian con mayor riesgo de complicaciones. <strong>Se recomienda consulta con el Dr. Castañeda para revisar el tratamiento.</strong></div>');
+  }
+  // Postprandial
+  if(promPost && estPost === 'bien'){
+    textos.push('<div style="background:#e4f7ef;border-left:4px solid #2e9e6b;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:10px;font-size:0.85rem;color:#1e2a3a;line-height:1.7;"><strong>Glucosa postprandial:</strong> Sus glucosas después de los alimentos (promedio '+promPost+' mg/dL) están dentro de la meta. Esto indica que su conteo de hidratos de carbono y/o dosis de insulina están funcionando adecuadamente.</div>');
+  } else if(promPost && estPost === 'cuidado'){
+    textos.push('<div style="background:#fef3e8;border-left:4px solid #e67e22;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:10px;font-size:0.85rem;color:#1e2a3a;line-height:1.7;"><strong>Glucosa postprandial:</strong> Sus glucosas después de los alimentos (promedio '+promPost+' mg/dL) están algo elevadas. Revise las porciones de alimentos que consume, especialmente hidratos de carbono simples. Consulte con su médico si necesita ajuste en la dosis de insulina o medicamento.</div>');
+  } else if(promPost && estPost === 'malo'){
+    textos.push('<div style="background:#fdecea;border-left:4px solid #c0392b;border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:10px;font-size:0.85rem;color:#1e2a3a;line-height:1.7;"><strong>Glucosa postprandial:</strong> Sus glucosas después de los alimentos están frecuentemente elevadas (promedio '+promPost+' mg/dL). <strong>Esto requiere atención médica. Consulte al Dr. Castañeda para revisar su plan de alimentación y tratamiento.</strong></div>');
+  }
+  return textos.join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+
 function abrirGrafica(campo){
   window.open('grafica_detalle.html?campo=' + campo, '_blank');
 }
@@ -898,14 +1113,9 @@ function irA(id, btn){
   var pantalla = document.getElementById('p-'+id);
   if(pantalla) pantalla.classList.add('activa');
   if(btn) btn.classList.add('activo');
-  // Re-renderizar dashboard cada vez que se visita
-  if(id === 'dashboard' && registros !== null){
-    renderDashboard();
-  }
-  // Re-renderizar historial cada vez que se visita
-  if(id === 'historial' && registros !== null){
-    renderHistorial();
-  }
+  if(id === 'dashboard' && registros !== null) renderDashboard();
+  if(id === 'historial' && registros !== null) renderHistorial();
+  if(id === 'resumen' && registros !== null) renderResumen();
 }
 
 async function cerrarSesion(){await sb.auth.signOut();window.location.href='auth.html';}
