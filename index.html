@@ -140,12 +140,20 @@ footer a{color:#7dd3fc;text-decoration:none;}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div id="session-bar" style="display:none;background:linear-gradient(90deg,#0ea5e9,#1346a0);padding:8px 5%;text-align:center;font-size:0.83rem;color:white;font-family:'DM Sans',sans-serif;font-weight:500;">
-  <span id="session-msg">Navegando como <strong id="session-nombre"></strong></span>
-  <span style="margin:0 14px;opacity:0.4;">|</span>
-  <a href="panel_paciente.html" id="session-link" style="color:white;font-weight:700;text-decoration:underline;">Ir a mi portal</a>
-  <span style="margin:0 14px;opacity:0.4;">|</span>
-  <span onclick="cerrarSesionNav()" style="cursor:pointer;text-decoration:underline;font-weight:600;">Cerrar sesión</span>
+<div id="session-bar" style="background:linear-gradient(90deg,#0c2d6e,#1346a0);padding:9px 5%;display:flex;align-items:center;justify-content:center;gap:16px;font-size:0.82rem;color:white;font-family:'DM Sans',sans-serif;font-weight:500;flex-wrap:wrap;">
+  <span>👤 <span id="session-prefix">Navegando como </span><strong id="session-nombre">Invitado</strong></span>
+  <span id="session-actions-loggedin" style="display:none;display:flex;align-items:center;gap:12px;">
+    <span style="opacity:0.4;">|</span>
+    <a href="panel_paciente.html" id="session-link" style="color:#7dd3fc;font-weight:700;text-decoration:none;">📊 Mi dashboard</a>
+    <span style="opacity:0.4;">|</span>
+    <span onclick="cerrarSesionNav()" style="cursor:pointer;color:rgba(255,255,255,0.8);text-decoration:underline;">Cerrar sesión</span>
+  </span>
+  <span id="session-actions-guest" style="display:flex;align-items:center;gap:12px;">
+    <span style="opacity:0.4;">|</span>
+    <a href="auth.html" style="color:#7dd3fc;font-weight:700;text-decoration:none;">Iniciar sesión</a>
+    <span style="opacity:0.4;">|</span>
+    <a href="auth.html" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:4px 12px;border-radius:14px;font-weight:600;text-decoration:none;font-size:0.78rem;">Registrarse gratis</a>
+  </span>
 </div>
 <nav id="nav">
   <a href="#" class="nav-logo">Dr. Ramses Castañeda<span>Médico General · Diabetólogo · Colima</span></a>
@@ -168,7 +176,7 @@ footer a{color:#7dd3fc;text-decoration:none;}
       <p class="hero-desc fade-up fade-up-d2">Médico General y Diabetólogo con enfoque en el control integral de la diabetes y enfermedades crónicas. Atención personalizada, educación en salud y acompañamiento continuo para usted y su familia.</p>
       <div class="hero-btns fade-up fade-up-d3">
         <a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20agendar%20una%20cita" target="_blank" class="btn-primary">📅 Agendar cita por WhatsApp</a>
-        <a href="#herramientas" class="btn-secondary">🩺 Herramientas para pacientes</a>
+        <a href="auth.html" class="btn-secondary">🔐 Crear cuenta gratuita</a>
       </div>
     </div>
         <div class="hero-photo-wrap fade-up fade-up-d1" style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.2);border-radius:24px;padding:32px 28px;">
@@ -181,7 +189,7 @@ footer a{color:#7dd3fc;text-decoration:none;}
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;">
         <span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 12px;font-size:0.76rem;color:white;">💉 Insulinoterapia</span>
-        <span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 12px;font-size:0.76rem;color:white;">🍽️ Conteo de CHO</span>
+        <span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 12px;font-size:0.76rem;color:white;">🍽️ Hidratos de carbono</span>
         <span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 12px;font-size:0.76rem;color:white;">📊 Control glucémico</span>
         <span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 12px;font-size:0.76rem;color:white;">🫀 Prev. cardiovascular</span>
       </div>
@@ -220,6 +228,70 @@ footer a{color:#7dd3fc;text-decoration:none;}
   </div>
 </section>
 
+
+<section id="mi-portal" style="background:linear-gradient(135deg,#0c2d6e 0%,#1346a0 60%,#1a73c8 100%);padding:80px 5%;overflow:hidden;position:relative;">
+  <div style="position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(14,165,233,0.2),transparent 70%);border-radius:50%;"></div>
+  <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1;">
+    
+    <div style="color:white;">
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7dd3fc;margin-bottom:12px;">Portal de pacientes — Gratis</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.3rem);font-weight:700;line-height:1.2;margin-bottom:18px;">Lleve un registro inteligente de su salud</h2>
+      <p style="font-size:0.97rem;opacity:0.85;line-height:1.75;margin-bottom:28px;">Cree su cuenta gratuita y acceda a su dashboard personal donde podrá registrar y monitorear todos sus marcadores de salud. La inteligencia artificial analizará sus datos y le dará orientación personalizada basada en las guías ADA 2026.</p>
+      
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px;">
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:36px;height:36px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">📊</div>
+          <div><strong style="display:block;margin-bottom:2px;">Dashboard con gráficas en tiempo real</strong><span style="font-size:0.85rem;opacity:0.8;">Glucosa, presión, peso, HbA1c, colesterol y más — todo graficado con sus metas personales.</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:36px;height:36px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🤖</div>
+          <div><strong style="display:block;margin-bottom:2px;">Recomendaciones con IA basadas en SCD 2026</strong><span style="font-size:0.85rem;opacity:0.8;">El sistema analiza sus resultados y le explica qué significan y qué puede mejorar.</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:36px;height:36px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">🎯</div>
+          <div><strong style="display:block;margin-bottom:2px;">Metas individualizadas según su condición</strong><span style="font-size:0.85rem;opacity:0.8;">Diferente si vive con diabetes tipo 1, tipo 2, o sin diabetes. Basado en ADA SCD 2026.</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:36px;height:36px;background:rgba(255,255,255,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">👨‍⚕️</div>
+          <div><strong style="display:block;margin-bottom:2px;">Su médico ve su progreso en tiempo real</strong><span style="font-size:0.85rem;opacity:0.8;">El Dr. Castañeda puede revisar sus registros antes de su consulta para optimizar el tiempo.</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <a href="auth.html" style="background:white;color:#1346a0;padding:14px 28px;border-radius:30px;font-weight:700;font-size:0.92rem;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,0.2);">🔐 Crear cuenta gratuita</a>
+        <a href="auth.html" style="background:rgba(255,255,255,0.12);color:white;padding:14px 28px;border-radius:30px;font-weight:600;font-size:0.92rem;text-decoration:none;border:1.5px solid rgba(255,255,255,0.3);">Ya tengo cuenta →</a>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.06);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.15);border-radius:24px;padding:28px;color:white;">
+      <div style="font-size:0.8rem;font-weight:700;opacity:0.7;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px;">Vista previa del dashboard</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div style="background:rgba(255,255,255,0.08);border-radius:14px;padding:14px;text-align:center;">
+          <div style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:#4ade80;line-height:1;">6.8%</div>
+          <div style="font-size:0.72rem;opacity:0.75;margin-top:3px;">HbA1c ✅ En meta</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:14px;padding:14px;text-align:center;">
+          <div style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:#fb923c;line-height:1;">142</div>
+          <div style="font-size:0.72rem;opacity:0.75;margin-top:3px;">Glucosa ⚠️ Revisar</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:14px;padding:14px;text-align:center;">
+          <div style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:#4ade80;line-height:1;">118/76</div>
+          <div style="font-size:0.72rem;opacity:0.75;margin-top:3px;">Presión ✅ Normal</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:14px;padding:14px;text-align:center;">
+          <div style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:#4ade80;line-height:1;">24.1</div>
+          <div style="font-size:0.72rem;opacity:0.75;margin-top:3px;">IMC ✅ Normal</div>
+        </div>
+      </div>
+      <div style="background:rgba(14,165,233,0.15);border:1px solid rgba(14,165,233,0.3);border-radius:12px;padding:14px;font-size:0.82rem;line-height:1.6;">
+        <div style="font-weight:700;margin-bottom:6px;color:#7dd3fc;">🤖 Recomendación IA</div>
+        <span style="opacity:0.9;">Su HbA1c está en meta (&lt;7%). Su glucosa en ayuno de 142 mg/dL está ligeramente por encima de su meta de 130 mg/dL. Considere revisar la dosis de insulina basal con su médico en la próxima consulta.</span>
+      </div>
+      <div style="margin-top:14px;font-size:0.75rem;opacity:0.6;text-align:center;">Basado en ADA Standards of Care 2026</div>
+    </div>
+
+  </div>
+</section>
 <section id="servicios">
   <div class="section-inner">
     <div class="section-label">Lo que ofrezco</div>
@@ -227,7 +299,7 @@ footer a{color:#7dd3fc;text-decoration:none;}
     <div class="divider"></div>
     <p class="section-sub">Atención integral para el manejo de la diabetes y enfermedades crónicas en todas las etapas de la vida.</p>
     <div class="servicios-grid">
-      <div class="servicio-card fade-up"><div class="serv-icono">💉</div><h3>Manejo de Diabetes Tipo 1</h3><p>Consulta especializada para pacientes con DM1. Ajuste de dosis de insulina, educación en conteo de carbohidratos, manejo de hipoglucemias e hiperglucemias.</p><div class="serv-tags"><span class="serv-tag">Insulinoterapia</span><span class="serv-tag">Conteo de CHO</span><span class="serv-tag">HbA1c</span></div></div>
+      <div class="servicio-card fade-up"><div class="serv-icono">💉</div><h3>Manejo de Diabetes Tipo 1</h3><p>Consulta especializada para pacientes con DM1. Ajuste de dosis de insulina, educación en conteo de carbohidratos, manejo de hipoglucemias e hiperglucemias.</p><div class="serv-tags"><span class="serv-tag">Insulinoterapia</span><span class="serv-tag">Hidratos de carbono</span><span class="serv-tag">HbA1c</span></div></div>
       <div class="servicio-card fade-up fade-up-d1"><div class="serv-icono">🩸</div><h3>Control de Diabetes Tipo 2</h3><p>Diagnóstico, tratamiento farmacológico y no farmacológico de DM2. Plan de alimentación, actividad física y seguimiento metabólico.</p><div class="serv-tags"><span class="serv-tag">Hipoglucemiantes</span><span class="serv-tag">Nutrición</span><span class="serv-tag">Prevención</span></div></div>
       <div class="servicio-card fade-up fade-up-d2"><div class="serv-icono">🫀</div><h3>Riesgo Cardiovascular</h3><p>Evaluación y manejo del riesgo cardiovascular en pacientes diabéticos. Control de presión arterial, lípidos y función renal.</p><div class="serv-tags"><span class="serv-tag">Hipertensión</span><span class="serv-tag">Dislipidemia</span><span class="serv-tag">Nefropatía</span></div></div>
       <div class="servicio-card fade-up"><div class="serv-icono">📋</div><h3>Consulta General</h3><p>Atención médica general, diagnóstico y tratamiento de enfermedades agudas y crónicas. Medicina preventiva y chequeos periódicos.</p><div class="serv-tags"><span class="serv-tag">Check-up</span><span class="serv-tag">Preventiva</span><span class="serv-tag">Crónicas</span></div></div>
@@ -412,17 +484,18 @@ const _sb=supabase.createClient(_SB_URL,_SB_KEY);
   if(session){
     const {data:p}=await _sb.from('profiles').select('nombre,rol').eq('id',session.user.id).single();
     if(p){
-      const bar=document.getElementById('session-bar');
       document.getElementById('session-nombre').textContent=p.nombre?.split(' ')[0]||'Paciente';
       if(p.rol==='medico'||p.rol==='asistente'){
         document.getElementById('session-link').href='panel_medico.html';
-        document.getElementById('session-link').textContent='Ir al panel médico';
+        document.getElementById('session-link').textContent='📊 Panel médico';
       }
-      bar.style.display='block';
+      document.getElementById('session-actions-loggedin').style.display='flex';
+      document.getElementById('session-actions-guest').style.display='none';
+      document.getElementById('session-prefix').textContent='Navegando como ';
     }
   }
 })();
-async function cerrarSesionNav(){await _sb.auth.signOut();document.getElementById('session-bar').style.display='none';}
+async function cerrarSesionNav(){await _sb.auth.signOut();location.reload();}
 </script>
 
 </body>

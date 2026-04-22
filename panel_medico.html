@@ -189,14 +189,14 @@ function renderTablaPacientes(pacientes,regs){
     const alerta=pRegs.some(r=>r.glucosa_ayuno>180||r.glucosa_postprandial>180||r.presion_sistolica>140);
     return `<tr onclick="abrirPaciente('${p.id}')">
       <td><strong style="color:var(--gris-oscuro)">${p.nombre||'—'}</strong></td>
-      <td>${p.fecha_nacimiento||'—'}</td>
+      <td>${{dm1:'DM Tipo 1',dm2:'DM Tipo 2',pre:'Prediabetes',no:'Sin DM'}[p.tipo_diabetes||'no']||'—'}</td>
       <td>${p.telefono||'—'}</td>
       <td>${ultimo?`<span class="badge badge-verde">${ultimo.fecha}</span>`:'<span class="badge">Sin registros</span>'}</td>
       <td>${alerta?'<span class="badge badge-rojo">⚠️ Alerta</span>':'<span class="badge badge-verde">✅ Normal</span>'}</td>
       <td>${p.created_at?.split('T')[0]||'—'}</td>
     </tr>`;
   }).join('');
-  document.getElementById('tabla-pacientes').innerHTML=`<table><thead><tr><th>Nombre</th><th>Fecha nacimiento</th><th>Teléfono</th><th>Último registro</th><th>Estado</th><th>Registrado</th></tr></thead><tbody>${filas}</tbody></table>`;
+  document.getElementById('tabla-pacientes').innerHTML=`<table><thead><tr><th>Nombre</th><th>Condición</th><th>Teléfono</th><th>Último registro</th><th>Estado</th><th>Registrado</th></tr></thead><tbody>${filas}</tbody></table>`;
 }
 
 function filtrarPacientes(){
@@ -225,8 +225,8 @@ async function abrirPaciente(uid){
   const filas=regs.length?regs.map(r=>{
     const gBadge=r.glucosa_ayuno?(r.glucosa_ayuno<=130?'badge-verde':r.glucosa_ayuno<=180?'badge-naranja':'badge-rojo'):'';
     const pBadge=r.presion_sistolica?(r.presion_sistolica<130?'badge-verde':r.presion_sistolica<140?'badge-naranja':'badge-rojo'):'';
-    return `<tr><td>${r.fecha}</td><td>${r.glucosa_ayuno?`<span class="badge ${gBadge}">${r.glucosa_ayuno}</span>`:'—'}</td><td>${r.glucosa_postprandial||'—'}</td><td>${r.presion_sistolica?`<span class="badge ${pBadge}">${r.presion_sistolica}/${r.presion_diastolica||'?'}</span>`:'—'}</td><td>${r.notas||'—'}</td></tr>`;
-  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--gris)">Sin registros</td></tr>';
+    return `<tr><td>${r.fecha}</td><td>${r.glucosa_ayuno?`<span class="badge ${gBadge}">${r.glucosa_ayuno}</span>`:'—'}</td><td>${r.presion_sistolica?`<span class="badge ${pBadge}">${r.presion_sistolica}/${r.presion_diastolica||'?'}</span>`:'—'}</td><td>${r.peso||'—'}</td><td>${r.hba1c||'—'}</td><td>${r.colesterol_ldl||'—'}</td><td>${r.trigliceridos||'—'}</td><td>${r.frecuencia_cardiaca||'—'}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.notas||'—'}</td></tr>`;
+  }).join(''):'<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--gris)">Sin registros</td></tr>';
   document.getElementById('modal-tabla-registros').innerHTML=`<table class="tabla-modal"><thead><tr><th>Fecha</th><th>Glucosa ayuno</th><th>Gluc. post.</th><th>Presión</th><th>Notas</th></tr></thead><tbody>${filas}</tbody></table>`;
 
   // Gráfica
