@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Dashboard | Dr. Ramses Castañeda</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{
+  --azul:#1346a0;--azul-med:#1a5cc8;--verde:#2e9e6b;--naranja:#e67e22;
+  --rojo:#c0392b;--morado:#7c3aed;--gris:#4a5568;--gris-oscuro:#1e2a3a;
+  --borde:#dce6f7;--pale:#f4f7fe;--bg:#f0f4fb;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--gris-oscuro);min-height:100vh;}
+
+/* NAV */
+nav{background:linear-gradient(135deg,#0c2d6e,#1346a0);height:60px;padding:0 4%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,0.2);}
+.nav-logo{font-family:'Playfair Display',serif;font-size:0.95rem;color:white;font-weight:700;text-decoration:none;}
+.nav-r{display:flex;align-items:center;gap:10px;}
+.nav-nombre{font-size:0.82rem;color:rgba(255,255,255,0.85);}
+.nav-badge{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:14px;padding:3px 10px;font-size:0.72rem;color:#7dd3fc;font-weight:700;}
+.btn-nav{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:6px 14px;border-radius:18px;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;text-decoration:none;transition:background 0.2s;}
+.btn-nav:hover{background:rgba(255,255,255,0.2);}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 60px);}
+.sidebar{background:white;border-right:1px solid var(--borde);padding:20px 0;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:0.87rem;font-weight:600;color:var(--gris);cursor:pointer;transition:all 0.2s;border-left:3px solid transparent;text-decoration:none;}
+.sidebar-item:hover{background:var(--pale);color:var(--azul);}
+.sidebar-item.activo{background:var(--pale);color:var(--azul);border-left-color:var(--azul);}
+.sidebar-item .ico{font-size:1.1rem;width:22px;text-align:center;}
+.sidebar-sep{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;padding:16px 20px 6px;}
+.main{padding:24px 28px 60px;overflow-y:auto;}
+
+/* PANTALLAS */
+.pantalla{display:none;}.pantalla.activa{display:block;}
+
+/* MODAL ONBOARDING */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.visible{display:flex;}
+.modal{background:white;border-radius:24px;padding:36px 32px;max-width:500px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.modal h2{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;margin-bottom:8px;}
+.modal p{font-size:0.9rem;color:var(--gris);line-height:1.6;margin-bottom:20px;}
+.modal-step{display:none;}.modal-step.activo{display:block;}
+.opciones-diabetes{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.opcion-diab{padding:14px 16px;border:2px solid var(--borde);border-radius:12px;cursor:pointer;font-size:0.93rem;font-weight:500;transition:all 0.2s;}
+.opcion-diab:hover{border-color:var(--azul);background:var(--pale);}
+.opcion-diab.sel{border-color:var(--azul);background:var(--pale);font-weight:700;color:var(--azul);}
+.form-g{margin-bottom:14px;}
+.form-l{display:block;font-size:0.82rem;font-weight:600;color:var(--gris);margin-bottom:5px;}
+.form-i{width:100%;padding:10px 13px;border:2px solid var(--borde);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.93rem;outline:none;background:var(--pale);}
+.form-i:focus{border-color:var(--azul);background:white;}
+.btn-modal{width:100%;padding:13px;background:linear-gradient(135deg,var(--azul),var(--azul-med));color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:8px;}
+.btn-modal:hover{opacity:0.9;}
+.btn-modal-sec{background:var(--pale);color:var(--gris);border:2px solid var(--borde);}
+
+/* DASHBOARD CARDS */
+.page-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;margin-bottom:4px;}
+.page-sub{font-size:0.88rem;color:var(--gris);margin-bottom:24px;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;}
+.stat-card{background:white;border-radius:16px;padding:16px;border-left:4px solid var(--borde);box-shadow:0 2px 8px rgba(19,70,160,0.07);transition:transform 0.2s;}
+.stat-card:hover{transform:translateY(-2px);}
+.stat-card.verde{border-left-color:var(--verde);}
+.stat-card.naranja{border-left-color:var(--naranja);}
+.stat-card.rojo{border-left-color:var(--rojo);}
+.stat-card.azul{border-left-color:var(--azul);}
+.stat-card.morado{border-left-color:var(--morado);}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;line-height:1;margin-bottom:3px;}
+.stat-card.verde .stat-val{color:var(--verde);}
+.stat-card.naranja .stat-val{color:var(--naranja);}
+.stat-card.rojo .stat-val{color:var(--rojo);}
+.stat-card.azul .stat-val{color:var(--azul);}
+.stat-card.morado .stat-val{color:var(--morado);}
+.stat-lbl{font-size:0.72rem;color:var(--gris);font-weight:600;}
+.stat-meta{font-size:0.68rem;margin-top:3px;font-weight:700;}
+.meta-ok{color:var(--verde);}.meta-warn{color:var(--naranja);}.meta-bad{color:var(--rojo);}
+
+/* AI BOX */
+.ai-box{background:linear-gradient(135deg,#0c2d6e,#1346a0);color:white;border-radius:20px;padding:24px;margin-bottom:20px;}
+.ai-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.ai-ico{font-size:1.5rem;}
+.ai-titulo{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;}
+.ai-sub{font-size:0.75rem;opacity:0.7;}
+.ai-contenido{font-size:0.88rem;line-height:1.75;opacity:0.92;}
+.ai-loading{display:flex;align-items:center;gap:10px;opacity:0.8;font-size:0.85rem;}
+.ai-dots{display:flex;gap:4px;}
+.ai-dot{width:6px;height:6px;background:white;border-radius:50%;animation:bounce 1s infinite;}
+.ai-dot:nth-child(2){animation-delay:0.2s;}
+.ai-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.ai-badge{display:inline-block;background:rgba(255,255,255,0.15);border-radius:8px;padding:2px 8px;font-size:0.68rem;font-weight:700;margin-left:8px;}
+
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.chart-card{background:white;border-radius:18px;padding:20px;box-shadow:0 2px 8px rgba(19,70,160,0.07);}
+.chart-card h4{font-size:0.88rem;font-weight:700;color:var(--gris-oscuro);margin-bottom:4px;}
+.chart-meta{font-size:0.72rem;color:var(--gris);margin-bottom:14px;}
+
+/* FORM REGISTRO */
+.registro-card{background:white;border-radius:20px;padding:28px;box-shadow:0 2px 8px rgba(19,70,160,0.07);}
+.registro-card h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:6px;}
+.seccion-titulo{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--azul);margin:18px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--borde);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-group2{margin-bottom:0;}
+.form-label2{display:block;font-size:0.8rem;font-weight:600;color:var(--gris);margin-bottom:5px;}
+.form-input2,.form-textarea2{width:100%;padding:10px 12px;border:2px solid var(--borde);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.92rem;color:var(--gris-oscuro);background:var(--pale);outline:none;transition:border-color 0.2s;}
+.form-input2:focus{border-color:var(--azul);background:white;}
+.form-textarea2{resize:vertical;min-height:70px;grid-column:1/-1;}
+.btn-guardar{background:linear-gradient(135deg,var(--verde),#27ae60);color:white;border:none;border-radius:12px;padding:13px 28px;font-family:'DM Sans',sans-serif;font-size:0.93rem;font-weight:700;cursor:pointer;margin-top:16px;transition:transform 0.15s;}
+.btn-guardar:hover{transform:translateY(-1px);}
+.btn-guardar:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+/* TABLA */
+.tabla-card{background:white;border-radius:18px;padding:24px;box-shadow:0 2px 8px rgba(19,70,160,0.07);}
+.tabla-wrap{overflow-x:auto;margin-top:14px;}
+table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+thead th{background:var(--azul);color:white;padding:10px 11px;font-size:0.74rem;font-weight:600;text-align:left;white-space:nowrap;}
+tbody td{padding:10px 11px;border-bottom:1px solid #f0f4f8;color:var(--gris);white-space:nowrap;}
+tbody tr:hover{background:var(--pale);}
+.badge{display:inline-block;border-radius:7px;padding:2px 8px;font-size:0.71rem;font-weight:700;}
+.b-verde{background:#e4f7ef;color:var(--verde);}
+.b-naranja{background:#fef3e8;color:var(--naranja);}
+.b-rojo{background:#fdecea;color:var(--rojo);}
+.b-gris{background:#f0f4f8;color:#64748b;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1e2a3a;color:white;padding:14px 20px;border-radius:12px;font-size:0.87rem;font-weight:600;z-index:999;transform:translateY(80px);opacity:0;transition:all 0.3s;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+.toast.v{transform:translateY(0);opacity:1;}
+.toast.verde{background:var(--verde);}
+.toast.rojo{background:var(--rojo);}
+/* Carga inicial */
+.app{opacity:0;transition:opacity 0.3s;}
+.app.lista{opacity:1;}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--gris);}
+.empty span{font-size:3rem;display:block;margin-bottom:12px;}
+.empty p{font-size:0.88rem;line-height:1.6;}
+
+@media(max-width:768px){
+  .app{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .main{padding:16px 14px 60px;}
+  .charts-grid{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr 1fr;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Dr. Ramses Castañeda</a>
+  <div class="nav-r">
+    <span class="nav-nombre" id="nav-nombre">Cargando...</span>
+    <span class="nav-badge" id="nav-cond">—</span>
+    <a href="index.html" class="btn-nav">Sitio web</a>
+    <button class="btn-nav" onclick="cerrarSesion()">Salir</button>
+  </div>
+</nav>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-sep">Principal</div>
+    <div class="sidebar-item activo" onclick="irA('dashboard')"><span class="ico">📊</span> Mi dashboard</div>
+    <div class="sidebar-item" onclick="irA('registrar')"><span class="ico">➕</span> Registrar hoy</div>
+    <div class="sidebar-item" onclick="irA('historial')"><span class="ico">📋</span> Mi historial</div>
+    <div class="sidebar-sep">Herramientas</div>
+    <a href="instructivo_insulina_dm1.html" class="sidebar-item"><span class="ico">💉</span> Guía de insulina</a>
+    <a href="herramienta_imc.html" class="sidebar-item"><span class="ico">⚖️</span> Calculadora IMC</a>
+    <a href="herramienta_hba1c.html" class="sidebar-item"><span class="ico">🔬</span> Conversor HbA1c</a>
+    <a href="herramienta_riesgo_diabetes.html" class="sidebar-item"><span class="ico">🩺</span> Riesgo diabetes</a>
+    <a href="herramienta_riesgo_cardiovascular.html" class="sidebar-item"><span class="ico">🫀</span> Riesgo cardiovascular</a>
+    <a href="herramienta_neuropatia.html" class="sidebar-item"><span class="ico">🦶</span> Neuropatía</a>
+    <a href="herramienta_metas.html" class="sidebar-item"><span class="ico">🎯</span> Mis metas</a>
+    <div class="sidebar-sep">Contacto</div>
+    <a href="https://wa.me/5213121355297" target="_blank" class="sidebar-item"><span class="ico">💬</span> WhatsApp Dr.</a>
+    <a href="index.html#contacto" class="sidebar-item"><span class="ico">📅</span> Agendar cita</a>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="pantalla activa" id="p-dashboard">
+      <div class="page-title" id="saludo-nombre">Mi dashboard</div>
+      <div class="page-sub" id="saludo-fecha">Cargando datos...</div>
+
+      <div class="ai-box" id="ai-box">
+        <div class="ai-header">
+          <span class="ai-ico">🤖</span>
+          <div>
+            <div class="ai-titulo">Análisis personalizado <span class="ai-badge">IA · ADA SCD 2026</span></div>
+            <div class="ai-sub">Basado en sus últimos registros</div>
+          </div>
+        </div>
+        <div class="ai-loading" id="ai-loading">
+          <div class="ai-dots"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>
+          <span>Analizando sus datos...</span>
+        </div>
+        <div class="ai-contenido" id="ai-texto" style="display:none;"></div>
+      </div>
+
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card azul"><div class="stat-val" id="s-gluc">—</div><div class="stat-lbl">Glucosa ayuno (mg/dL)</div><div class="stat-meta" id="s-gluc-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-pas">—</div><div class="stat-lbl">Presión sistólica</div><div class="stat-meta" id="s-pas-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-hba1c">—</div><div class="stat-lbl">HbA1c (%)</div><div class="stat-meta" id="s-hba1c-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-imc">—</div><div class="stat-lbl">IMC (kg/m²)</div><div class="stat-meta" id="s-imc-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-ldl">—</div><div class="stat-lbl">Colesterol LDL</div><div class="stat-meta" id="s-ldl-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-fc">—</div><div class="stat-lbl">Frec. cardiaca</div><div class="stat-meta" id="s-fc-m"></div></div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card"><h4>📈 Glucosa en ayuno</h4><div class="chart-meta" id="cm-gluc"></div><canvas id="ch-gluc" height="130"></canvas></div>
+        <div class="chart-card"><h4>💊 Presión arterial sistólica</h4><div class="chart-meta" id="cm-pas"></div><canvas id="ch-pas" height="130"></canvas></div>
+        <div class="chart-card"><h4>⚖️ Peso corporal (kg)</h4><div class="chart-meta" id="cm-peso"></div><canvas id="ch-peso" height="130"></canvas></div>
+        <div class="chart-card"><h4>🔬 HbA1c (%)</h4><div class="chart-meta" id="cm-hba1c"></div><canvas id="ch-hba1c" height="130"></canvas></div>
+      </div>
+    </div>
+
+    <!-- REGISTRAR -->
+    <div class="pantalla" id="p-registrar">
+      <div class="page-title">➕ Registrar mediciones de hoy</div>
+      <div class="page-sub">Ingrese los valores que tenga disponibles. No todos son obligatorios.</div>
+      <div class="registro-card">
+        <div class="seccion-titulo">📅 Fecha</div>
+        <div class="form-grid-2">
+          <div class="form-group2"><label class="form-label2">Fecha del registro</label><input class="form-input2" type="date" id="r-fecha"></div>
+        </div>
+
+        <div class="seccion-titulo">🩸 Glucosa</div>
+        <div class="form-grid">
+          <div class="form-group2"><label class="form-label2">Glucosa en ayuno (mg/dL)</label><input class="form-input2" type="number" id="r-ga" placeholder="80-130"></div>
+          <div class="form-group2"><label class="form-label2">Glucosa postprandial</label><input class="form-input2" type="number" id="r-gp" placeholder="&lt;180"></div>
+          <div class="form-group2"><label class="form-label2">Glucosa antes de dormir</label><input class="form-input2" type="number" id="r-gn" placeholder="90-150"></div>
+        </div>
+
+        <div class="seccion-titulo">💊 Presión arterial</div>
+        <div class="form-grid">
+          <div class="form-group2"><label class="form-label2">Sistólica (mmHg)</label><input class="form-input2" type="number" id="r-pas" placeholder="&lt;130"></div>
+          <div class="form-group2"><label class="form-label2">Diastólica (mmHg)</label><input class="form-input2" type="number" id="r-pad" placeholder="&lt;80"></div>
+          <div class="form-group2"><label class="form-label2">Frec. cardiaca (lpm)</label><input class="form-input2" type="number" id="r-fc" placeholder="60-100"></div>
+        </div>
+
+        <div class="seccion-titulo">⚖️ Antropometría</div>
+        <div class="form-grid">
+          <div class="form-group2"><label class="form-label2">Peso (kg)</label><input class="form-input2" type="number" id="r-peso" placeholder="ej: 72.5" step="0.1"></div>
+          <div class="form-group2"><label class="form-label2">Cintura (cm)</label><input class="form-input2" type="number" id="r-cintura" placeholder="ej: 88"></div>
+        </div>
+
+        <div class="seccion-titulo">🔬 Laboratorio (si tiene resultados)</div>
+        <div class="form-grid">
+          <div class="form-group2"><label class="form-label2">HbA1c (%)</label><input class="form-input2" type="number" id="r-hba1c" placeholder="ej: 7.2" step="0.1"></div>
+          <div class="form-group2"><label class="form-label2">Colesterol LDL (mg/dL)</label><input class="form-input2" type="number" id="r-ldl" placeholder="&lt;100"></div>
+          <div class="form-group2"><label class="form-label2">Triglicéridos (mg/dL)</label><input class="form-input2" type="number" id="r-tg" placeholder="&lt;150"></div>
+        </div>
+
+        <div class="seccion-titulo">📝 Notas</div>
+        <div class="form-grid-2">
+          <textarea class="form-input2 form-textarea2" id="r-notas" placeholder="Síntomas, actividad física, qué comió, ajustes de medicamento..."></textarea>
+        </div>
+        <button class="btn-guardar" onclick="guardarRegistro()" id="btn-guardar">💾 Guardar registro</button>
+      </div>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="pantalla" id="p-historial">
+      <div class="page-title">📋 Mi historial completo</div>
+      <div class="page-sub">Todos sus registros ordenados por fecha.</div>
+      <div class="tabla-card">
+        <div class="tabla-wrap" id="tabla-historial"><div class="empty"><span>📋</span><p>Cargando...</p></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL ONBOARDING -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <div class="modal-step activo" id="ms-1">
+      <h2>👋 Bienvenido a su portal</h2>
+      <p>Para personalizar sus metas de salud necesitamos una pregunta importante:</p>
+      <strong style="display:block;margin-bottom:12px;font-size:0.95rem;">¿Vive usted con diabetes?</strong>
+      <div class="opciones-diabetes">
+        <div class="opcion-diab" onclick="selDiab('no')">✅ No tengo diabetes</div>
+        <div class="opcion-diab" onclick="selDiab('dm1')">💉 Sí, Diabetes Tipo 1</div>
+        <div class="opcion-diab" onclick="selDiab('dm2')">🩸 Sí, Diabetes Tipo 2</div>
+        <div class="opcion-diab" onclick="selDiab('pre')">⚠️ Me han dicho que tengo prediabetes</div>
+      </div>
+      <button class="btn-modal" onclick="siguienteOnboarding()" id="btn-ob1" style="opacity:0.4;" disabled>Continuar →</button>
+    </div>
+    <div class="modal-step" id="ms-2">
+      <h2>📐 Un dato más</h2>
+      <p>Para calcular su peso ideal y IMC necesitamos su estatura:</p>
+      <div class="form-g">
+        <label class="form-l">Estatura (cm)</label>
+        <input class="form-i" type="number" id="ob-estatura" placeholder="ej: 170" min="100" max="220">
+      </div>
+      <button class="btn-modal" onclick="guardarOnboarding()">Comenzar mi seguimiento →</button>
+      <button class="btn-modal btn-modal-sec" onclick="guardarOnboardingSinEstatura()" style="margin-top:8px;">Omitir por ahora</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://mhejapkehcyezgndglpq.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oZWphcGtlaGN5ZXpnbmRnbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDg3NDUsImV4cCI6MjA5MjM4NDc0NX0.ycFQN-Gm6D5V6TJ0PfEReWHD55sqK-cZvYATqVTGuOk';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const CLAUDE_URL='https://api.anthropic.com/v1/messages';
+
+let userId=null,perfil=null,registros=[],chartRefs={};
+let diabSel=null;
+
+// Fecha hoy
+document.getElementById('r-fecha').value=new Date().toISOString().split('T')[0];
+
+// METAS según condición
+function getMetas(cond){
+  if(cond==='dm1'||cond==='dm2') return {
+    gluc_ay:{min:80,max:130,label:'Meta DM: 80-130 mg/dL'},
+    pas:{min:90,max:130,label:'Meta DM: <130 mmHg'},
+    hba1c:{min:0,max:7.0,label:'Meta DM: <7.0% (ADA 2026)'},
+    ldl:{min:0,max:100,label:'Meta DM: <100 mg/dL'},
+    tg:{min:0,max:150,label:'Normal: <150 mg/dL'},
+    fc:{min:60,max:100,label:'Normal: 60-100 lpm'},
+  };
+  if(cond==='pre') return {
+    gluc_ay:{min:80,max:100,label:'Meta: 80-100 mg/dL'},
+    pas:{min:90,max:130,label:'Normal: <130 mmHg'},
+    hba1c:{min:0,max:5.7,label:'Normal: <5.7%'},
+    ldl:{min:0,max:130,label:'Óptimo: <130 mg/dL'},
+    tg:{min:0,max:150,label:'Normal: <150 mg/dL'},
+    fc:{min:60,max:100,label:'Normal: 60-100 lpm'},
+  };
+  return {
+    gluc_ay:{min:70,max:100,label:'Normal: 70-100 mg/dL'},
+    pas:{min:90,max:120,label:'Óptima: <120 mmHg'},
+    hba1c:{min:0,max:5.7,label:'Normal: <5.7%'},
+    ldl:{min:0,max:130,label:'Óptimo: <130 mg/dL'},
+    tg:{min:0,max:150,label:'Normal: <150 mg/dL'},
+    fc:{min:60,max:100,label:'Normal: 60-100 lpm'},
+  };
+}
+
+function estadoVal(val,min,max){
+  if(!val||val===0)return'gris';
+  if(val>=min&&val<=max)return'verde';
+  if(val<min*0.9||val>max*1.15)return'rojo';
+  return'naranja';
+}
+
+function mostrarApp(){
+  document.querySelector('.app').classList.add('lista');
+}
+
+function mostrarErrorCarga(msg){
+  mostrarApp();
+  var d = document.getElementById('p-dashboard');
+  d.innerHTML = '<div style="text-align:center;padding:60px 20px;">' +
+    '<p style="font-size:2rem;margin-bottom:12px;">!</p>' +
+    '<h2 style="font-family:Playfair Display,serif;margin-bottom:10px;">Algo salio mal</h2>' +
+    '<p style="color:#4a5568;margin-bottom:20px;">' + msg + '</p>' +
+    '<button onclick="location.reload()" style="background:#1346a0;color:white;border:none;padding:11px 22px;border-radius:10px;font-weight:700;cursor:pointer;margin-right:8px;">Reintentar</button>' +
+    '<button onclick="sb.auth.signOut().then(function(){location.replace(\'auth.html\')})" style="background:#f0f4f8;color:#4a5568;border:2px solid #dce6f7;padding:11px 22px;border-radius:10px;font-weight:700;cursor:pointer;">Salir</button>' +
+    '</div>';
+}
+
+async function init(){
+  try{
+    var sesResult = await sb.auth.getSession();
+    if(sesResult.error || !sesResult.data || !sesResult.data.session){
+      window.location.replace('auth.html');
+      return;
+    }
+    var user = sesResult.data.session.user;
+    userId = user.id;
+
+    // Intentar cargar perfil, con 1 reintento si no aparece aun
+    var perfil_data = null;
+    for(var i = 0; i < 2; i++){
+      var res = await sb.from('profiles').select('*').eq('id', user.id).single();
+      if(res.data){ perfil_data = res.data; break; }
+      if(i === 0) await new Promise(function(r){ setTimeout(r, 1200); });
+    }
+
+    // Si no existe, crearlo (usuario recien registrado)
+    if(!perfil_data){
+      var meta = user.user_metadata || {};
+      var upsertRes = await sb.from('profiles').upsert({
+        id: user.id,
+        nombre: meta.nombre || (user.email ? user.email.split('@')[0] : 'Paciente'),
+        rol: 'paciente',
+        perfil_completo: false
+      }).select().single();
+      perfil_data = upsertRes.data || {
+        id: user.id,
+        nombre: user.email ? user.email.split('@')[0] : 'Paciente',
+        rol: 'paciente',
+        perfil_completo: false
+      };
+    }
+
+    perfil = perfil_data;
+
+    // Mostrar app SIEMPRE — nunca dejar en blanco
+    mostrarApp();
+
+    // Configurar UI
+    var nom = (perfil.nombre || 'Paciente').split(' ')[0];
+    document.getElementById('nav-nombre').textContent = perfil.nombre || '';
+    document.getElementById('saludo-nombre').textContent = 'Hola, ' + nom + '!';
+    document.getElementById('saludo-fecha').textContent = new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    var condLabel = {dm1:'Diabetes T1', dm2:'Diabetes T2', pre:'Prediabetes', no:'Sin diabetes'};
+    document.getElementById('nav-cond').textContent = condLabel[perfil.tipo_diabetes || 'no'] || '--';
+
+    if(!perfil.perfil_completo){
+      document.getElementById('modal-bg').classList.add('visible');
+    } else {
+      await cargarRegistros();
+    }
+
+  } catch(e){
+    console.error('Error init:', e);
+    mostrarApp();
+    mostrarErrorCarga('Error al cargar. Verifique su conexion e intente de nuevo.');
+  }
+}
+
+// ONBOARDING
+function selDiab(val){
+  document.querySelectorAll('.opcion-diab').forEach(o=>o.classList.remove('sel'));
+  event.target.classList.add('sel');
+  diabSel=val;
+  const btn=document.getElementById('btn-ob1');
+  btn.disabled=false;btn.style.opacity='1';
+}
+
+function siguienteOnboarding(){
+  if(!diabSel)return;
+  document.getElementById('ms-1').classList.remove('activo');
+  document.getElementById('ms-2').classList.add('activo');
+}
+
+async function guardarOnboarding(){
+  const est = parseFloat(document.getElementById('ob-estatura').value) || null;
+  if(!diabSel){ toast('Seleccione una opcion de diabetes','rojo'); return; }
+  
+  const datos = {
+    id: userId,
+    tiene_diabetes: diabSel !== 'no',
+    tipo_diabetes: diabSel,
+    perfil_completo: true
+  };
+  if(est) datos.estatura = est;
+
+  // Usar upsert en lugar de update — funciona aunque la fila ya exista
+  const { data, error } = await sb.from('profiles').upsert(datos).select().single();
+  
+  if(error){
+    console.error('Error guardando onboarding:', error);
+    toast('Error al guardar: ' + error.message, 'rojo');
+    return;
+  }
+
+  // Actualizar perfil local
+  perfil = data || { ...perfil, ...datos };
+  
+  document.getElementById('modal-bg').classList.remove('visible');
+  const condLabel = {dm1:'Diabetes T1', dm2:'Diabetes T2', pre:'Prediabetes', no:'Sin diabetes'};
+  document.getElementById('nav-cond').textContent = condLabel[diabSel] || '--';
+  await cargarRegistros();
+}
+
+
+async function guardarOnboardingSinEstatura(){
+  if(!diabSel){ toast('Seleccione una opcion de diabetes','rojo'); return; }
+  
+  const datos = {
+    id: userId,
+    tiene_diabetes: diabSel !== 'no',
+    tipo_diabetes: diabSel,
+    perfil_completo: true
+  };
+
+  const { data, error } = await sb.from('profiles').upsert(datos).select().single();
+  
+  if(error){
+    console.error('Error guardando perfil:', error);
+    toast('Error al guardar: ' + error.message, 'rojo');
+    return;
+  }
+
+  perfil = data || { ...perfil, ...datos };
+  document.getElementById('modal-bg').classList.remove('visible');
+  await cargarRegistros();
+}
+
+async function cargarRegistros(){
+  var res = await sb.from('registros_diarios')
+    .select('*')
+    .eq('user_id', userId)
+    .order('fecha', {ascending: false})
+    .limit(60);
+
+  if(res.error){
+    console.error('Error cargando registros:', res.error);
+    document.getElementById('ai-loading').style.display='none';
+    document.getElementById('ai-texto').style.display='block';
+    document.getElementById('ai-texto').textContent='Error al cargar registros: ' + res.error.message;
+    return;
+  }
+
+  registros = res.data || [];
+  console.log('Registros cargados:', registros.length);
+  renderDashboard();
+  renderHistorial();
+
+  if(registros.length > 0){
+    generarRecomendacionIA();
+  } else {
+    document.getElementById('ai-loading').style.display='none';
+    document.getElementById('ai-texto').style.display='block';
+    document.getElementById('ai-texto').innerHTML='Aún no tiene registros. Agregue su primera medición en la pestaña <strong>Registrar hoy</strong>.';
+  }
+}
+
+function renderDashboard(){
+  const metas=getMetas(perfil?.tipo_diabetes||'no');
+  const ultimo=registros[0];
+
+  // Stats cards
+  const setCard=(id,metaId,val,meta)=>{
+    document.getElementById(id).textContent=val||'—';
+    if(!val){document.getElementById(metaId).textContent=meta.label;return;}
+    const est=estadoVal(val,meta.min,meta.max);
+    const card=document.getElementById(id).closest('.stat-card');
+    card.className='stat-card '+est;
+    document.getElementById(metaId).innerHTML=`<span class="meta-${est}">${est==='verde'?'✅ En meta':est==='naranja'?'⚠️ Revisar':'🔴 Fuera de meta'}</span>`;
+  };
+  setCard('s-gluc','s-gluc-m',ultimo?.glucosa_ayuno,metas.gluc_ay);
+  setCard('s-pas','s-pas-m',ultimo?.presion_sistolica,metas.pas);
+  setCard('s-hba1c','s-hba1c-m',ultimo?.hba1c,metas.hba1c);
+  setCard('s-ldl','s-ldl-m',ultimo?.colesterol_ldl,metas.ldl);
+  setCard('s-fc','s-fc-m',ultimo?.frecuencia_cardiaca,metas.fc);
+
+  // IMC
+  if(ultimo?.peso&&perfil?.estatura){
+    const est=perfil.estatura/100;
+    const imc=Math.round((ultimo.peso/(est*est))*10)/10;
+    document.getElementById('s-imc').textContent=imc;
+    const imcEst=imc>=18.5&&imc<25?'verde':imc<18.5||imc>=30?'rojo':'naranja';
+    document.getElementById('s-imc').closest('.stat-card').className='stat-card '+imcEst;
+    document.getElementById('s-imc-m').innerHTML=`<span class="meta-${imcEst}">${imc<18.5?'⚠️ Bajo peso':imc<25?'✅ Normal':imc<30?'⚠️ Sobrepeso':'🔴 Obesidad'}</span>`;
+  }
+
+  // Gráficas
+  const rev=[...registros].reverse();
+  const ultimos=rev.slice(-21);
+  const labels=ultimos.map(r=>r.fecha?.slice(5));
+
+  renderChart('ch-gluc',labels,ultimos.map(r=>r.glucosa_ayuno||null),'rgba(19,70,160,0.9)','rgba(19,70,160,0.1)',
+    metas.gluc_ay.max,metas.gluc_ay.min,'Glucosa ayuno (mg/dL)',metas.gluc_ay.label,'cm-gluc');
+  renderChart('ch-pas',labels,ultimos.map(r=>r.presion_sistolica||null),'rgba(192,57,43,0.9)','rgba(192,57,43,0.08)',
+    metas.pas.max,null,'Presión sistólica (mmHg)',metas.pas.label,'cm-pas');
+  renderChart('ch-peso',labels,ultimos.map(r=>r.peso||null),'rgba(46,158,107,0.9)','rgba(46,158,107,0.08)',
+    null,null,'Peso (kg)','Registre su peso regularmente','cm-peso');
+  renderChart('ch-hba1c',labels,ultimos.map(r=>r.hba1c||null),'rgba(124,58,237,0.9)','rgba(124,58,237,0.08)',
+    metas.hba1c.max,null,'HbA1c (%)',metas.hba1c.label,'cm-hba1c');
+}
+
+function renderChart(id,labels,data,borderColor,bgColor,refMax,refMin,label,metaLabel,metaId){
+  if(chartRefs[id])chartRefs[id].destroy();
+  if(metaId)document.getElementById(metaId).textContent='Meta: '+metaLabel;
+  const ctx=document.getElementById(id).getContext('2d');
+  const datasets=[{label,data,borderColor,backgroundColor:bgColor,borderWidth:2.5,pointRadius:3.5,pointBackgroundColor:borderColor,tension:0.35,fill:true,spanGaps:true}];
+  if(refMax)datasets.push({label:'Límite superior',data:labels.map(()=>refMax),borderColor:'rgba(230,126,34,0.6)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false});
+  if(refMin)datasets.push({label:'Límite inferior',data:labels.map(()=>refMin),borderColor:'rgba(46,158,107,0.5)',borderWidth:1.5,borderDash:[4,4],pointRadius:0,fill:false});
+  chartRefs[id]=new Chart(ctx,{type:'line',data:{labels,datasets},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:false,grid:{color:'#f0f4f8'}}}}});
+}
+
+async function guardarRegistro(){
+  const btn=document.getElementById('btn-guardar');
+  const vals={
+    user_id:userId,
+    fecha:document.getElementById('r-fecha').value,
+    glucosa_ayuno:parseInt(document.getElementById('r-ga').value)||null,
+    glucosa_postprandial:parseInt(document.getElementById('r-gp').value)||null,
+    presion_sistolica:parseInt(document.getElementById('r-pas').value)||null,
+    presion_diastolica:parseInt(document.getElementById('r-pad').value)||null,
+    frecuencia_cardiaca:parseInt(document.getElementById('r-fc').value)||null,
+    peso:parseFloat(document.getElementById('r-peso').value)||null,
+    cintura:parseInt(document.getElementById('r-cintura').value)||null,
+    hba1c:parseFloat(document.getElementById('r-hba1c').value)||null,
+    colesterol_ldl:parseInt(document.getElementById('r-ldl').value)||null,
+    trigliceridos:parseInt(document.getElementById('r-tg').value)||null,
+    notas:document.getElementById('r-notas').value.trim()||null,
+  };
+  if(!vals.fecha){toast('Seleccione una fecha','rojo');return;}
+  const tieneAlgo=Object.entries(vals).some(([k,v])=>!['user_id','fecha','notas'].includes(k)&&v!==null);
+  if(!tieneAlgo){toast('Ingrese al menos una medición','rojo');return;}
+  btn.disabled=true;btn.textContent='Guardando...';
+  var insRes = await sb.from('registros_diarios').insert(vals).select();
+  console.log('Insert registros resultado:', insRes.data, insRes.error);
+  if(insRes.error){
+    toast('Error al guardar: ' + insRes.error.message, 'rojo');
+    console.error('Error detalle:', JSON.stringify(insRes.error));
+  } else {
+    toast('Registro guardado correctamente', 'verde');
+    ['r-ga','r-gp','r-gn','r-pas','r-pad','r-fc','r-peso','r-cintura','r-hba1c','r-ldl','r-tg','r-notas'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.value='';
+    });
+    await cargarRegistros();
+    irA('dashboard');
+  }
+  btn.disabled=false;btn.textContent='💾 Guardar registro';
+}
+
+function renderHistorial(){
+  if(!registros.length){
+    document.getElementById('tabla-historial').innerHTML='<div class="empty"><span>📋</span><p>Aún no tiene registros.<br>Use <strong>Registrar hoy</strong> para comenzar.</p></div>';
+    return;
+  }
+  const metas=getMetas(perfil?.tipo_diabetes||'no');
+  const filas=registros.map(r=>{
+    const gb=r.glucosa_ayuno?(estadoVal(r.glucosa_ayuno,metas.gluc_ay.min,metas.gluc_ay.max)==='verde'?'b-verde':estadoVal(r.glucosa_ayuno,metas.gluc_ay.min,metas.gluc_ay.max)==='naranja'?'b-naranja':'b-rojo'):'b-gris';
+    const pb=r.presion_sistolica?(estadoVal(r.presion_sistolica,metas.pas.min,metas.pas.max)==='verde'?'b-verde':estadoVal(r.presion_sistolica,metas.pas.min,metas.pas.max)==='naranja'?'b-naranja':'b-rojo'):'b-gris';
+    return `<tr>
+      <td><strong>${r.fecha||'—'}</strong></td>
+      <td>${r.glucosa_ayuno?`<span class="badge ${gb}">${r.glucosa_ayuno}</span>`:'—'}</td>
+      <td>${r.glucosa_postprandial||'—'}</td>
+      <td>${r.presion_sistolica?`<span class="badge ${pb}">${r.presion_sistolica}/${r.presion_diastolica||'?'}</span>`:'—'}</td>
+      <td>${r.frecuencia_cardiaca||'—'}</td>
+      <td>${r.peso||'—'}</td>
+      <td>${r.cintura||'—'}</td>
+      <td>${r.hba1c||'—'}</td>
+      <td>${r.colesterol_ldl||'—'}</td>
+      <td>${r.trigliceridos||'—'}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.75rem;">${r.notas||'—'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('tabla-historial').innerHTML=`<table><thead><tr><th>Fecha</th><th>Gluc. ayuno</th><th>Gluc. post.</th><th>Presión</th><th>FC</th><th>Peso</th><th>Cintura</th><th>HbA1c</th><th>LDL</th><th>TG</th><th>Notas</th></tr></thead><tbody>${filas}</tbody></table>`;
+}
+
+async function generarRecomendacionIA(){
+  document.getElementById('ai-loading').style.display='flex';
+  document.getElementById('ai-texto').style.display='none';
+  const metas=getMetas(perfil?.tipo_diabetes||'no');
+  const ultimos5=registros.slice(0,5);
+  const resumen=ultimos5.map(r=>`Fecha ${r.fecha}: glucosa ayuno ${r.glucosa_ayuno||'NR'} mg/dL, glucosa post ${r.glucosa_postprandial||'NR'}, presión ${r.presion_sistolica||'NR'}/${r.presion_diastolica||'NR'} mmHg, peso ${r.peso||'NR'} kg, HbA1c ${r.hba1c||'NR'}%, LDL ${r.colesterol_ldl||'NR'} mg/dL, TG ${r.trigliceridos||'NR'} mg/dL, FC ${r.frecuencia_cardiaca||'NR'} lpm`).join('\n');
+  const cond={dm1:'Diabetes Tipo 1',dm2:'Diabetes Tipo 2',pre:'Prediabetes',no:'Sin diabetes'}[perfil?.tipo_diabetes||'no'];
+  const prompt=`Eres un asistente médico de apoyo en el consultorio del Dr. Ramses Castañeda Valenzuela, Médico General y Diabetólogo en Colima, México.
+
+Condición del paciente: ${cond}
+Nombre: ${perfil?.nombre||'Paciente'}
+
+Metas según ADA Standards of Care 2026:
+- Glucosa en ayuno: ${metas.gluc_ay.min}-${metas.gluc_ay.max} mg/dL
+- Presión sistólica: <${metas.pas.max} mmHg
+- HbA1c: <${metas.hba1c.max}%
+- LDL: <${metas.ldl.max} mg/dL
+
+Últimos registros del paciente:
+${resumen}
+
+Proporciona un análisis breve y amigable en español (máximo 4 oraciones) que:
+1. Mencione qué valores están en meta (si aplica)
+2. Identifique valores fuera de meta con contexto clínico simple
+3. Dé 1-2 recomendaciones prácticas concretas
+4. Si algo requiere atención médica urgente, indícalo claramente
+
+Usa un tono cálido, claro y no alarmista. NO uses asteriscos ni markdown. Escribe en párrafos corridos.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:400,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await resp.json();
+    const texto=data.content?.[0]?.text||'No se pudo generar el análisis en este momento.';
+    document.getElementById('ai-loading').style.display='none';
+    document.getElementById('ai-texto').style.display='block';
+    document.getElementById('ai-texto').textContent=texto;
+  }catch(e){
+    document.getElementById('ai-loading').style.display='none';
+    document.getElementById('ai-texto').style.display='block';
+    document.getElementById('ai-texto').textContent='Análisis no disponible en este momento. Sus datos están siendo guardados correctamente.';
+  }
+}
+
+function irA(id){
+  document.querySelectorAll('.pantalla').forEach(p=>p.classList.remove('activa'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('activo'));
+  document.getElementById('p-'+id).classList.add('activa');
+  event?.target?.closest('.sidebar-item')?.classList.add('activo');
+}
+
+async function cerrarSesion(){await sb.auth.signOut();window.location.href='auth.html';}
+
+function toast(msg,tipo=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(tipo||'');
+  t.classList.add('v');setTimeout(()=>t.classList.remove('v'),3500);
+}
+
+init();
+</script>
+</body></html>
