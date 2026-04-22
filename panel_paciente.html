@@ -230,35 +230,37 @@ tbody tr:hover{background:var(--pale);}
           <div class="form-group2"><label class="form-label2">Fecha del registro</label><input class="form-input2" type="date" id="r-fecha"></div>
         </div>
 
-        <div class="seccion-titulo">🩸 Glucosa en ayuno</div>
-        <div class="form-grid-2">
-          <div class="form-group2"><label class="form-label2">Glucosa en ayuno (mg/dL)</label><input class="form-input2" type="number" id="r-ga" placeholder="80-130"></div>
-          <div class="form-group2"><label class="form-label2">Glucosa antes de dormir (mg/dL)</label><input class="form-input2" type="number" id="r-gn" placeholder="90-150"></div>
-        </div>
-
-        <div class="seccion-titulo">🍽️ Glucosa después de alimentos</div>
+        <div class="seccion-titulo">🩸 Monitoreo de glucosa</div>
         <div id="registros-comidas">
-          <div class="comida-row" data-idx="0" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;">
-            <div class="form-group2">
-              <label class="form-label2">Tiempo de comida</label>
-              <select class="form-input2 comida-tipo">
-                <option value="">Seleccionar</option>
-                <option value="desayuno">🌅 Desayuno</option>
-                <option value="comida">☀️ Comida</option>
-                <option value="cena">🌙 Cena</option>
-                <option value="colacion">🍎 Colación</option>
-              </select>
+          <div class="comida-row" data-idx="0" style="margin-bottom:14px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;">
+              <div class="form-group2">
+                <label class="form-label2">Tiempo de comida</label>
+                <select class="form-input2 comida-tipo">
+                  <option value="">Seleccionar</option>
+                  <option value="ayuno">⭕ Ayuno</option>
+                  <option value="desayuno">🌅 Desayuno</option>
+                  <option value="comida">☀️ Comida</option>
+                  <option value="cena">🌙 Cena</option>
+                  <option value="colacion">🍎 Colación</option>
+                  <option value="antes_dormir">🛌 Antes de dormir</option>
+                </select>
+              </div>
+              <div class="form-group2">
+                <label class="form-label2">Glucosa (mg/dL)</label>
+                <input class="form-input2 comida-valor" type="number" placeholder="ej: 120">
+              </div>
+              <div class="form-group2">
+                <label class="form-label2">Hora</label>
+                <input class="form-input2 comida-hora" type="time">
+              </div>
+              <div style="padding-bottom:2px;">
+                <button onclick="quitarComida(this)" style="background:#fdecea;color:#c0392b;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;font-size:0.9rem;display:none;">✕</button>
+              </div>
             </div>
             <div class="form-group2">
-              <label class="form-label2">Glucosa (mg/dL)</label>
-              <input class="form-input2 comida-valor" type="number" placeholder="&lt;180">
-            </div>
-            <div class="form-group2">
-              <label class="form-label2">Hora</label>
-              <input class="form-input2 comida-hora" type="time">
-            </div>
-            <div style="padding-bottom:2px;">
-              <button onclick="quitarComida(this)" style="background:#fdecea;color:#c0392b;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;font-size:0.9rem;display:none;">✕</button>
+              <label class="form-label2">Describe los alimentos que consumiste (opcional)</label>
+              <textarea class="form-input2 comida-alimentos" rows="2" placeholder="Ej: 2 tortillas con frijoles, 1 vaso de leche..." style="resize:vertical;width:100%;min-height:60px;"></textarea>
             </div>
           </div>
         </div>
@@ -684,7 +686,9 @@ async function guardarRegistro(){
     var tipo = row.querySelector('.comida-tipo').value;
     var valor = parseInt(row.querySelector('.comida-valor').value)||0;
     var hora = row.querySelector('.comida-hora').value || null;
-    if(tipo && valor){ glucosasComidas.push({tipo:tipo, valor:valor, hora:hora}); }
+    var alimentosEl = row.querySelector('.comida-alimentos');
+    var alimentos = alimentosEl ? alimentosEl.value.trim() : '';
+    if(tipo && valor){ glucosasComidas.push({tipo:tipo, valor:valor, hora:hora, alimentos:alimentos||null}); }
   });
 
   var hora_actual = new Date().toTimeString().slice(0,5);
@@ -693,8 +697,7 @@ async function guardarRegistro(){
     user_id:userId,
     fecha:document.getElementById('r-fecha').value,
     hora_registro: hora_actual,
-    glucosa_ayuno:parseInt(document.getElementById('r-ga').value)||null,
-    glucosa_nocturna:parseInt(document.getElementById('r-gn').value)||null,
+    glucosa_ayuno: glucosasComidas.find(function(g){return g.tipo==='ayuno';})?.valor || null,
     glucosas_comidas: glucosasComidas.length > 0 ? JSON.stringify(glucosasComidas) : null,
     presion_sistolica:parseInt(document.getElementById('r-pas').value)||null,
     presion_diastolica:parseInt(document.getElementById('r-pad').value)||null,
@@ -723,10 +726,10 @@ async function guardarRegistro(){
     console.error('Error detalle:', JSON.stringify(insRes.error));
   } else {
     toast('Registro guardado correctamente', 'verde');
-    ['r-ga','r-gn','r-pas','r-pad','r-fc','r-peso','r-cintura','r-hba1c','r-col-total','r-ldl','r-hdl','r-tg','r-bun','r-creatinina','r-ego-proteinas','r-ego-glucosa','r-notas'].forEach(function(id){
+    ['r-pas','r-pad','r-fc','r-peso','r-cintura','r-hba1c','r-col-total','r-ldl','r-hdl','r-tg','r-bun','r-creatinina','r-ego-proteinas','r-ego-glucosa','r-notas'].forEach(function(id){
       var el=document.getElementById(id); if(el) el.value='';
     });
-    document.querySelectorAll('.comida-tipo,.comida-valor,.comida-hora').forEach(function(el){el.value='';}); 
+    document.querySelectorAll('.comida-tipo,.comida-valor,.comida-hora,.comida-alimentos').forEach(function(el){el.value='';}); 
     var crows=document.querySelectorAll('.comida-row'); for(var ci=1;ci<crows.length;ci++) crows[ci].remove();
     var primerBtn=document.querySelector('.comida-row button'); if(primerBtn) primerBtn.style.display='none';
     await cargarRegistros();
@@ -837,21 +840,28 @@ async function cerrarSesion(){await sb.auth.signOut();window.location.href='auth
 
 function agregarComida(){
   var container=document.getElementById('registros-comidas');
-  var idx=container.querySelectorAll('.comida-row').length;
   var div=document.createElement('div');
   div.className='comida-row';
-  div.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;';
-  div.innerHTML='<div class="form-group2"><label class="form-label2">Tiempo de comida</label>'+
+  div.style.cssText='margin-bottom:14px;border-top:1px solid #f0f4f8;padding-top:14px;';
+  div.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;">'+
+    '<div class="form-group2"><label class="form-label2">Tiempo de comida</label>'+
     '<select class="form-input2 comida-tipo"><option value="">Seleccionar</option>'+
+    '<option value="ayuno">Ayuno</option>'+
     '<option value="desayuno">Desayuno</option><option value="comida">Comida</option>'+
-    '<option value="cena">Cena</option><option value="colacion">Colacion</option></select></div>'+
+    '<option value="cena">Cena</option><option value="colacion">Colacion</option>'+
+    '<option value="antes_dormir">Antes de dormir</option></select></div>'+
     '<div class="form-group2"><label class="form-label2">Glucosa (mg/dL)</label>'+
-    '<input class="form-input2 comida-valor" type="number" placeholder="menor a 180"></div>'+
+    '<input class="form-input2 comida-valor" type="number" placeholder="ej: 120"></div>'+
     '<div class="form-group2"><label class="form-label2">Hora</label>'+
     '<input class="form-input2 comida-hora" type="time"></div>'+
     '<div style="padding-bottom:2px;"><button onclick="quitarComida(this)" '+
-    'style="background:#fdecea;color:#c0392b;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;font-weight:700;">x</button></div>';
+    'style="background:#fdecea;color:#c0392b;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;font-weight:700;">✕</button></div>'+
+    '</div>'+
+    '<div class="form-group2"><label class="form-label2">Describe los alimentos que consumiste (opcional)</label>'+
+    '<textarea class="form-input2 comida-alimentos" rows="2" placeholder="Ej: 2 tortillas con frijoles, 1 vaso de leche..." style="resize:vertical;width:100%;min-height:60px;"></textarea></div>';
   container.appendChild(div);
+  // Mostrar botón quitar en primera fila
   var primerBtn=document.querySelector('.comida-row button');
   if(primerBtn) primerBtn.style.display='block';
 }
