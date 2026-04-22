@@ -113,7 +113,7 @@ tbody tr:hover{background:var(--pale);cursor:pointer;}
     <div class="modal-header">
       <div>
         <h3 id="modal-nombre">Paciente</h3>
-        <p style="font-size:0.83rem;color:var(--gris);margin-top:4px;" id="modal-info"></p>
+        <div id="modal-info" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:0.82rem;color:var(--gris);"></div>
       </div>
       <button class="btn-cerrar" onclick="cerrarModal()">✕ Cerrar</button>
     </div>
@@ -125,14 +125,16 @@ tbody tr:hover{background:var(--pale);cursor:pointer;}
     </div>
     <div class="modal-tabs">
       <button class="modal-tab activo" onclick="cambiarModalTab('registros',this)">📋 Registros</button>
-      <button class="modal-tab" onclick="cambiarModalTab('grafica',this)">📈 Gráfica</button>
+      <button class="modal-tab" onclick="cambiarModalTab('grafica',this)">📈 Gráficas</button>
       <button class="modal-tab" onclick="cambiarModalTab('herramientas',this)">🩺 Herramientas</button>
     </div>
     <div class="modal-content activo" id="mc-registros">
       <div style="overflow-x:auto;" id="modal-tabla-registros"></div>
     </div>
     <div class="modal-content" id="mc-grafica">
-      <canvas id="modal-chart" height="140"></canvas>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;" id="grafica-botones"></div>
+      <canvas id="modal-chart" height="160"></canvas>
+      <p style="font-size:0.75rem;color:#94a3b8;margin-top:8px;text-align:center;" id="grafica-meta"></p>
     </div>
     <div class="modal-content" id="mc-herramientas">
       <div id="modal-herramientas-lista"></div>
@@ -146,7 +148,7 @@ tbody tr:hover{background:var(--pale);cursor:pointer;}
 const SUPABASE_URL='https://mhejapkehcyezgndglpq.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oZWphcGtlaGN5ZXpnbmRnbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDg3NDUsImV4cCI6MjA5MjM4NDc0NX0.ycFQN-Gm6D5V6TJ0PfEReWHD55sqK-cZvYATqVTGuOk';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let todosLosPacientes=[];let modalChart=null;
+let todosLosPacientes=[];let modalChart=null;let modalRegsData=[];
 
 document.getElementById('fecha-hoy').textContent=new Date().toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
@@ -221,7 +223,15 @@ async function abrirPaciente(uid){
   const paciente=todosLosPacientes.find(p=>p.id===uid);
   if(!paciente)return;
   document.getElementById('modal-nombre').textContent=paciente.nombre||'Paciente';
-  document.getElementById('modal-info').textContent=`📞 ${paciente.telefono||'Sin teléfono'} · 🎂 ${paciente.fecha_nacimiento||'Sin fecha'} · Registrado: ${paciente.created_at?.split('T')[0]||'—'}`;
+  // Obtener correo del usuario
+  const emailPaciente = paciente.email || '—';
+  document.getElementById('modal-info').innerHTML=
+    '<span style="background:#f0f4f8;border-radius:8px;padding:3px 10px;">📞 '+(paciente.telefono||'Sin teléfono')+'</span>'+
+    '<span style="background:#f0f4f8;border-radius:8px;padding:3px 10px;">✉️ '+(paciente.email||'Sin correo')+'</span>'+
+    '<span style="background:#f0f4f8;border-radius:8px;padding:3px 10px;">🎂 '+(paciente.fecha_nacimiento||'Sin fecha')+'</span>'+
+    '<span style="background:#f0f4f8;border-radius:8px;padding:3px 10px;">🩺 '+({dm1:'Diabetes T1',dm2:'Diabetes T2',pre:'Prediabetes',no:'Sin DM'}[paciente.tipo_diabetes||'no']||'—')+'</span>'+
+    '<span style="background:#f0f4f8;border-radius:8px;padding:3px 10px;">📅 Reg: '+(paciente.created_at?.split('T')[0]||'—')+'</span>';
+  modalRegsData = [];
 
   const {data:registros}=await sb.from('registros_diarios').select('*').eq('user_id',uid).order('fecha',{ascending:false}).limit(30);
   const regs=registros||[];
@@ -234,21 +244,57 @@ async function abrirPaciente(uid){
   document.getElementById('m-ultimo').textContent=regs[0]?.fecha||'Sin datos';
 
   // Tabla registros
+  modalRegsData = regs;
   const filas=regs.length?regs.map(r=>{
-    const gBadge=r.glucosa_ayuno?(r.glucosa_ayuno<=130?'badge-verde':r.glucosa_ayuno<=180?'badge-naranja':'badge-rojo'):'';
-    const pBadge=r.presion_sistolica?(r.presion_sistolica<130?'badge-verde':r.presion_sistolica<140?'badge-naranja':'badge-rojo'):'';
-    return `<tr><td>${r.fecha}</td><td>${r.glucosa_ayuno?`<span class="badge ${gBadge}">${r.glucosa_ayuno}</span>`:'—'}</td><td>${r.presion_sistolica?`<span class="badge ${pBadge}">${r.presion_sistolica}/${r.presion_diastolica||'?'}</span>`:'—'}</td><td>${r.peso||'—'}</td><td>${r.hba1c||'—'}</td><td>${r.colesterol_ldl||'—'}</td><td>${r.trigliceridos||'—'}</td><td>${r.frecuencia_cardiaca||'—'}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.notas||'—'}</td></tr>`;
-  }).join(''):'<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--gris)">Sin registros</td></tr>';
-  document.getElementById('modal-tabla-registros').innerHTML=`<table class="tabla-modal"><thead><tr><th>Fecha</th><th>Glucosa ayuno</th><th>Gluc. post.</th><th>Presión</th><th>Notas</th></tr></thead><tbody>${filas}</tbody></table>`;
+    const gB=r.glucosa_ayuno?(r.glucosa_ayuno<=130?'badge-verde':r.glucosa_ayuno<=180?'badge-naranja':'badge-rojo'):'';
+    const pB=r.presion_sistolica?(r.presion_sistolica<130?'badge-verde':r.presion_sistolica<140?'badge-naranja':'badge-rojo'):'';
+    return '<tr>'+
+      '<td>'+r.fecha+'</td>'+
+      '<td>'+(r.hora_registro||'—')+'</td>'+
+      '<td>'+(r.glucosa_ayuno?'<span class="badge '+gB+'">'+r.glucosa_ayuno+'</span>':'—')+'</td>'+
+      '<td>'+(r.presion_sistolica?'<span class="badge '+pB+'">'+r.presion_sistolica+'/'+(r.presion_diastolica||'?')+'</span>':'—')+'</td>'+
+      '<td>'+(r.frecuencia_cardiaca||'—')+'</td>'+
+      '<td>'+(r.peso||'—')+'</td>'+
+      '<td>'+(r.hba1c||'—')+'</td>'+
+      '<td>'+(r.colesterol_total||'—')+'</td>'+
+      '<td>'+(r.colesterol_ldl||'—')+'</td>'+
+      '<td>'+(r.colesterol_hdl||'—')+'</td>'+
+      '<td>'+(r.trigliceridos||'—')+'</td>'+
+      '<td>'+(r.creatinina||'—')+'</td>'+
+      '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(r.notas||'—')+'</td>'+
+      '</tr>';
+  }).join(''):'<tr><td colspan="13" style="text-align:center;padding:20px;color:var(--gris)">Sin registros</td></tr>';
+  document.getElementById('modal-tabla-registros').innerHTML='<table class="tabla-modal"><thead><tr>'+
+    '<th>Fecha</th><th>Hora</th><th>Glucosa ayuno</th><th>Presión</th><th>FC</th>'+
+    '<th>Peso</th><th>HbA1c</th><th>Col. Total</th><th>LDL</th><th>HDL</th>'+
+    '<th>TG</th><th>Creat.</th><th>Notas</th>'+
+    '</tr></thead><tbody>'+filas+'</tbody></table>';
 
-  // Gráfica
-  if(modalChart)modalChart.destroy();
-  const ultimos=([...regs].reverse().slice(-14));
-  const ctx=document.getElementById('modal-chart').getContext('2d');
-  modalChart=new Chart(ctx,{type:'line',data:{labels:ultimos.map(r=>r.fecha?.slice(5)),datasets:[
-    {label:'Glucosa ayuno',data:ultimos.map(r=>r.glucosa_ayuno||null),borderColor:'rgba(19,70,160,0.8)',backgroundColor:'rgba(19,70,160,0.1)',borderWidth:2,tension:0.3,fill:true,spanGaps:true},
-    {label:'Presión sistólica',data:ultimos.map(r=>r.presion_sistolica||null),borderColor:'rgba(192,57,43,0.8)',backgroundColor:'rgba(192,57,43,0.05)',borderWidth:2,tension:0.3,fill:false,spanGaps:true}
-  ]},options:{responsive:true,plugins:{legend:{display:true,position:'top'}},scales:{y:{beginAtZero:false,grid:{color:'#f0f4f8'}}}}});
+  // Construir botones de gráficas
+  var graficasDisp = [
+    {campo:'glucosa_ayuno',    label:'Glucosa ayuno',  color:'rgba(19,70,160,0.9)',  metaMax:130, metaMin:80},
+    {campo:'presion_sistolica',label:'Presión',        color:'rgba(192,57,43,0.9)', metaMax:130},
+    {campo:'frecuencia_cardiaca',label:'Frec. cardiaca',color:'rgba(220,38,127,0.9)',metaMax:100,metaMin:60},
+    {campo:'peso',             label:'Peso (kg)',       color:'rgba(46,158,107,0.9)'},
+    {campo:'hba1c',            label:'HbA1c',          color:'rgba(124,58,237,0.9)',  metaMax:7.0},
+    {campo:'colesterol_total', label:'Col. Total',     color:'rgba(234,88,12,0.9)',   metaMax:200},
+    {campo:'colesterol_ldl',   label:'LDL',            color:'rgba(230,126,34,0.9)', metaMax:100},
+    {campo:'colesterol_hdl',   label:'HDL',            color:'rgba(46,158,107,0.9)', metaMin:40},
+    {campo:'trigliceridos',    label:'Triglicéridos',  color:'rgba(217,70,239,0.9)', metaMax:150},
+    {campo:'creatinina',       label:'Creatinina',     color:'rgba(20,184,166,0.9)', metaMax:1.2},
+    {campo:'bun',              label:'BUN',            color:'rgba(59,130,246,0.9)', metaMax:20, metaMin:7},
+    {campo:'cintura',          label:'Cintura (cm)',   color:'rgba(168,85,247,0.9)'},
+  ];
+  var botonesHTML = graficasDisp.map(function(g,i){
+    return '<button onclick="cambiarGraficaMedico('+i+')" class="gbtn'+(i===0?' gbtn-activo':'')+'" style="'+
+      'padding:5px 12px;border-radius:16px;font-family:DM Sans,sans-serif;font-size:0.76rem;font-weight:600;cursor:pointer;'+
+      'border:2px solid #dce6f7;background:'+(i===0?'#1346a0':'white')+';color:'+(i===0?'white':'#4a5568')+';">'+
+      g.label+'</button>';
+  }).join('');
+  document.getElementById('grafica-botones').innerHTML = botonesHTML;
+  window._graficasDisp = graficasDisp;
+  window._graficaRegs = regs;
+  renderGraficaMedico(0);
 
   // Herramientas
   const {data:herrs}=await sb.from('resultados_herramientas').select('*').eq('user_id',uid).order('created_at',{ascending:false});
@@ -256,6 +302,63 @@ async function abrirPaciente(uid){
   document.getElementById('modal-herramientas-lista').innerHTML=hLista;
 
   document.getElementById('modal-overlay').classList.add('visible');
+}
+
+function cambiarGraficaMedico(idx){
+  document.querySelectorAll('.gbtn').forEach(function(b,i){
+    b.style.background = i===idx?'#1346a0':'white';
+    b.style.color = i===idx?'white':'#4a5568';
+    b.classList.toggle('gbtn-activo', i===idx);
+  });
+  renderGraficaMedico(idx);
+}
+
+function renderGraficaMedico(idx){
+  var config = window._graficasDisp[idx];
+  var regs = window._graficaRegs || [];
+  if(modalChart){ modalChart.destroy(); modalChart=null; }
+
+  var datos = [...regs].reverse();
+  var labels = datos.map(function(r){ return r.fecha?r.fecha.slice(5):''; });
+  var vals = datos.map(function(r){ return r[config.campo]||null; });
+
+  // Meta label
+  var metaStr = '';
+  if(config.metaMax && config.metaMin) metaStr = 'Meta: '+config.metaMin+' - '+config.metaMax;
+  else if(config.metaMax) metaStr = 'Meta: <'+config.metaMax;
+  else if(config.metaMin) metaStr = 'Meta: >'+config.metaMin;
+  document.getElementById('grafica-meta').textContent = metaStr;
+
+  var datasets = [{
+    label: config.label,
+    data: vals,
+    borderColor: config.color,
+    backgroundColor: config.color.replace('0.9','0.08'),
+    borderWidth: 2.5,
+    pointRadius: 4,
+    tension: 0.3,
+    fill: true,
+    spanGaps: true
+  }];
+  if(config.metaMax){
+    datasets.push({label:'Límite sup.',data:labels.map(function(){return config.metaMax;}),
+      borderColor:'rgba(230,126,34,0.6)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false});
+  }
+  if(config.metaMin){
+    datasets.push({label:'Límite inf.',data:labels.map(function(){return config.metaMin;}),
+      borderColor:'rgba(46,158,107,0.5)',borderWidth:1.5,borderDash:[4,4],pointRadius:0,fill:false});
+  }
+
+  var ctx = document.getElementById('modal-chart').getContext('2d');
+  modalChart = new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:datasets},
+    options:{
+      responsive:true,
+      plugins:{legend:{display:true,position:'top'}},
+      scales:{y:{beginAtZero:false,grid:{color:'#f0f4f8'}}}
+    }
+  });
 }
 
 function cerrarModal(){
