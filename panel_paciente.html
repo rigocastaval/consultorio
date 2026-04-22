@@ -348,6 +348,13 @@ tbody tr:hover{background:var(--pale);}
         <div class="form-grid-2">
           <textarea class="form-input2 form-textarea2" id="r-notas" placeholder="Síntomas, actividad física, qué comió, ajustes de medicamento..."></textarea>
         </div>
+        <div style="background:#fdf4ff;border:1.5px solid #e9d5ff;border-radius:14px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.93rem;font-weight:600;color:#7c3aed;">
+            <input type="checkbox" id="r-embarazada" onchange="actualizarMetasEmbarazo()" style="width:18px;height:18px;accent-color:#7c3aed;flex-shrink:0;">
+            🤰 Estoy embarazada
+          </label>
+          <span id="embarazo-nota" style="display:none;font-size:0.78rem;color:#7c3aed;background:#ede9fe;border-radius:8px;padding:3px 10px;font-weight:600;">Metas ajustadas para embarazo (ADA 2026)</span>
+        </div>
         <button class="btn-guardar" onclick="guardarRegistro()" id="btn-guardar">💾 Guardar registro</button>
       </div>
     </div>
@@ -407,25 +414,56 @@ let diabSel=null;
 document.getElementById('r-fecha').value=new Date().toISOString().split('T')[0];
 
 // METAS según condición
+// embarazada: variable global
+var esEmbarazada = false;
+
+function actualizarMetasEmbarazo(){
+  esEmbarazada = document.getElementById('r-embarazada').checked;
+  var nota = document.getElementById('embarazo-nota');
+  if(nota) nota.style.display = esEmbarazada ? 'inline-block' : 'none';
+}
+
 function getMetas(cond){
+  // Metas para embarazo (ADA SCD 2026 - Tabla 15.2)
+  if(esEmbarazada){
+    return {
+      gluc_ay:{min:60,max:95,label:'Embarazo: ayuno <95 mg/dL (ADA 2026)'},
+      gluc_post1h:{min:0,max:140,label:'Embarazo: <140 mg/dL a 1h (ADA 2026)'},
+      gluc_post2h:{min:0,max:120,label:'Embarazo: <120 mg/dL a 2h (ADA 2026)'},
+      pas:{min:90,max:130,label:'Meta embarazo: <130 mmHg'},
+      hba1c:{min:0,max:6.5,label:'Embarazo: <6.0-7.0% (ADA 2026)'},
+      ldl:{min:0,max:100,label:'Meta: <100 mg/dL'},
+      tg:{min:0,max:150,label:'Normal: <150 mg/dL'},
+      fc:{min:60,max:100,label:'Normal: 60-100 lpm'},
+    };
+  }
+  // Metas DM Tipo 1 o Tipo 2
   if(cond==='dm1'||cond==='dm2') return {
-    gluc_ay:{min:80,max:130,label:'Meta DM: 80-130 mg/dL'},
+    gluc_ay:{min:80,max:130,label:'DM preprandial: 80-130 mg/dL (ADA 2026)'},
+    gluc_post1h:{min:0,max:180,label:'DM postprandial: <180 mg/dL (ADA 2026)'},
+    gluc_post2h:{min:0,max:180,label:'DM postprandial: <180 mg/dL (ADA 2026)'},
     pas:{min:90,max:130,label:'Meta DM: <130 mmHg'},
     hba1c:{min:0,max:7.0,label:'Meta DM: <7.0% (ADA 2026)'},
     ldl:{min:0,max:100,label:'Meta DM: <100 mg/dL'},
     tg:{min:0,max:150,label:'Normal: <150 mg/dL'},
     fc:{min:60,max:100,label:'Normal: 60-100 lpm'},
   };
+  // Prediabetes
   if(cond==='pre') return {
-    gluc_ay:{min:80,max:100,label:'Meta: 80-100 mg/dL'},
+    gluc_ay:{min:70,max:100,label:'Prediabetes: 100-125 mg/dL en ayuno'},
+    gluc_post1h:{min:0,max:140,label:'Normal: <140 mg/dL a 1h'},
+    gluc_post2h:{min:0,max:140,label:'Prediabetes: 140-199 mg/dL a 2h'},
     pas:{min:90,max:130,label:'Normal: <130 mmHg'},
-    hba1c:{min:0,max:5.7,label:'Normal: <5.7%'},
+    hba1c:{min:0,max:6.4,label:'Prediabetes: 5.7-6.4%'},
     ldl:{min:0,max:130,label:'Óptimo: <130 mg/dL'},
     tg:{min:0,max:150,label:'Normal: <150 mg/dL'},
     fc:{min:60,max:100,label:'Normal: 60-100 lpm'},
   };
+  // Sin diabetes
   return {
-    gluc_ay:{min:70,max:100,label:'Normal: 70-100 mg/dL'},
+    gluc_ay:{min:70,max:100,label:'Normal: 70-100 mg/dL en ayuno'},
+    gluc_post1h:{min:0,max:140,label:'Normal: <140 mg/dL a 1h postprandial'},
+    gluc_post2h:{min:0,max:140,label:'Normal: <140 mg/dL a 2h postprandial'},
     pas:{min:90,max:120,label:'Óptima: <120 mmHg'},
     hba1c:{min:0,max:5.7,label:'Normal: <5.7%'},
     ldl:{min:0,max:130,label:'Óptimo: <130 mg/dL'},
@@ -639,7 +677,11 @@ function renderDashboard(){
     card.className='stat-card '+est;
     document.getElementById(metaId).innerHTML=`<span class="meta-${est}">${est==='verde'?'✅ En meta':est==='naranja'?'⚠️ Revisar':'🔴 Fuera de meta'}</span>`;
   };
-  setCard('s-gluc','s-gluc-m',ultimo?.glucosa_ayuno,metas.gluc_ay);
+  var esPost = ultimo && ultimo.glucosas_comidas && 
+    JSON.parse(typeof ultimo.glucosas_comidas==='string'?ultimo.glucosas_comidas:JSON.stringify(ultimo.glucosas_comidas))
+    .some(function(g){return g.tipo&&g.tipo.startsWith('despues');});
+  var metaGluc = esPost ? metas.gluc_post1h : metas.gluc_ay;
+  setCard('s-gluc','s-gluc-m',ultimo?.glucosa_ayuno,metaGluc);
   setCard('s-pas','s-pas-m',ultimo?.presion_sistolica,metas.pas);
   setCard('s-hba1c','s-hba1c-m',ultimo?.hba1c,metas.hba1c);
   setCard('s-ldl','s-ldl-m',ultimo?.colesterol_ldl,metas.ldl);
@@ -660,7 +702,7 @@ function renderDashboard(){
   const ultimos=rev.slice(-21);
   const labels=ultimos.map(r=>r.fecha?.slice(5));
 
-  renderChart('ch-gluc',labels,ultimos.map(r=>r.glucosa_ayuno||null),'rgba(19,70,160,0.9)','rgba(19,70,160,0.1)',metas.gluc_ay.max,metas.gluc_ay.min,'Glucosa (mg/dL)',metas.gluc_ay.label,'cm-gluc');
+  renderChart('ch-gluc',labels,ultimos.map(r=>r.glucosa_ayuno||null),'rgba(19,70,160,0.9)','rgba(19,70,160,0.1)',metas.gluc_ay.max,metas.gluc_ay.min,'Glucosa en ayuno (mg/dL)',metas.gluc_ay.label,'cm-gluc');
   renderChart('ch-pas',labels,ultimos.map(r=>r.presion_sistolica||null),'rgba(192,57,43,0.9)','rgba(192,57,43,0.08)',metas.pas.max,null,'Presión sistólica (mmHg)',metas.pas.label,'cm-pas');
   renderChart('ch-fc',labels,ultimos.map(r=>r.frecuencia_cardiaca||null),'rgba(220,38,127,0.9)','rgba(220,38,127,0.06)',metas.fc.max,metas.fc.min,'Frec. cardiaca (lpm)',metas.fc.label,'cm-fc');
   renderChart('ch-peso',labels,ultimos.map(r=>r.peso||null),'rgba(46,158,107,0.9)','rgba(46,158,107,0.08)',null,null,'Peso (kg)','Registre su peso regularmente','cm-peso');
