@@ -132,8 +132,8 @@ tbody tr:hover{background:var(--pale);}
 .toast.verde{background:var(--verde);}
 .toast.rojo{background:var(--rojo);}
 /* Carga inicial */
-.app,.app>*{visibility:hidden;}
-.app.lista,.app.lista>*{visibility:visible;}
+.app{opacity:0;transition:opacity 0.3s;}
+.app.lista{opacity:1;}
 
 /* EMPTY */
 .empty{text-align:center;padding:40px 20px;color:var(--gris);}
@@ -354,99 +354,80 @@ function estadoVal(val,min,max){
   return'naranja';
 }
 
-function mostrarErrorCarga(msg){
+function mostrarApp(){
   document.querySelector('.app').classList.add('lista');
-  document.getElementById('p-dashboard').innerHTML =
-    '<div style="text-align:center;padding:60px 20px;">' +
-    '<div style="font-size:3rem;margin-bottom:16px;">!</div>' +
-    '<h2 style="font-family:Playfair Display,serif;margin-bottom:12px;">Algo salió mal</h2>' +
-    '<p style="color:#4a5568;margin-bottom:24px;">' + msg + '</p>' +
-    '<button onclick="location.reload()" style="background:#1346a0;color:white;border:none;padding:12px 24px;border-radius:12px;font-family:DM Sans,sans-serif;font-weight:700;cursor:pointer;margin-right:10px;">Reintentar</button>' +
-    '<button onclick="sb.auth.signOut().then(()=>window.location.replace('auth.html'))" style="background:#f0f4f8;color:#4a5568;border:2px solid #dce6f7;padding:12px 24px;border-radius:12px;font-family:DM Sans,sans-serif;font-weight:700;cursor:pointer;">Cerrar sesión</button>' +
+}
+
+function mostrarErrorCarga(msg){
+  mostrarApp();
+  var d = document.getElementById('p-dashboard');
+  d.innerHTML = '<div style="text-align:center;padding:60px 20px;">' +
+    '<p style="font-size:2rem;margin-bottom:12px;">!</p>' +
+    '<h2 style="font-family:Playfair Display,serif;margin-bottom:10px;">Algo salio mal</h2>' +
+    '<p style="color:#4a5568;margin-bottom:20px;">' + msg + '</p>' +
+    '<button onclick="location.reload()" style="background:#1346a0;color:white;border:none;padding:11px 22px;border-radius:10px;font-weight:700;cursor:pointer;margin-right:8px;">Reintentar</button>' +
+    '<button onclick="sb.auth.signOut().then(function(){location.replace(\'auth.html\')})" style="background:#f0f4f8;color:#4a5568;border:2px solid #dce6f7;padding:11px 22px;border-radius:10px;font-weight:700;cursor:pointer;">Salir</button>' +
     '</div>';
 }
 
 async function init(){
-  // Anti-loop: contar intentos en sessionStorage
-  const intentos = parseInt(sessionStorage.getItem('_rc_intentos') || '0');
-  if(intentos >= 3){
-    sessionStorage.removeItem('_rc_intentos');
-    await sb.auth.signOut();
-    window.location.replace('auth.html');
-    return;
-  }
-  sessionStorage.setItem('_rc_intentos', intentos + 1);
-
   try{
-    const { data, error } = await sb.auth.getSession();
-    if(error) throw error;
-    if(!data?.session){
-      sessionStorage.removeItem('_rc_intentos');
+    var sesResult = await sb.auth.getSession();
+    if(sesResult.error || !sesResult.data || !sesResult.data.session){
       window.location.replace('auth.html');
       return;
     }
-    await cargarPerfil(data.session.user.id, data.session.user);
-  } catch(e){
-    console.error('Error en init:', e);
-    mostrarErrorCarga('Error al conectar. Recargue la página.');
-  }
-}
+    var user = sesResult.data.session.user;
+    userId = user.id;
 
-async function cargarPerfil(uid, userAuth){
-  userId = uid;
+    // Intentar cargar perfil, con 1 reintento si no aparece aun
+    var perfil_data = null;
+    for(var i = 0; i < 2; i++){
+      var res = await sb.from('profiles').select('*').eq('id', user.id).single();
+      if(res.data){ perfil_data = res.data; break; }
+      if(i === 0) await new Promise(function(r){ setTimeout(r, 1200); });
+    }
 
-  try{
-    const { data:p, error } = await sb.from('profiles').select('*').eq('id', uid).single();
-
-    // Caso 1: perfil no existe aun (usuario recien registrado, trigger en proceso)
-    if(!p || error?.code === 'PGRST116'){
-      const meta = userAuth?.user_metadata || {};
-      const { data:nuevo, error:errInsert } = await sb.from('profiles').upsert({
-        id: uid,
-        nombre: meta.nombre || userAuth?.email?.split('@')[0] || 'Paciente',
+    // Si no existe, crearlo (usuario recien registrado)
+    if(!perfil_data){
+      var meta = user.user_metadata || {};
+      var upsertRes = await sb.from('profiles').upsert({
+        id: user.id,
+        nombre: meta.nombre || (user.email ? user.email.split('@')[0] : 'Paciente'),
         rol: 'paciente',
         perfil_completo: false
       }).select().single();
-
-      if(errInsert){
-        // Esperar 1s y reintentar una sola vez mas
-        await new Promise(r => setTimeout(r, 1000));
-        const { data:reintento } = await sb.from('profiles').select('*').eq('id', uid).single();
-        if(!reintento){
-          mostrarErrorCarga('No se pudo cargar su perfil. Por favor intente de nuevo.');
-          return;
-        }
-        perfil = reintento;
-      } else {
-        perfil = nuevo || { id: uid, rol: 'paciente', perfil_completo: false };
-      }
-    }
-    // Caso 2: error real de red o RLS
-    else if(error && error.code !== 'PGRST116'){
-      console.error('Error perfil:', error);
-      mostrarErrorCarga('Error de conexión. Recargue la página.');
-      return;
-    }
-    // Caso 3: perfil cargado correctamente
-    else{
-      perfil = p;
+      perfil_data = upsertRes.data || {
+        id: user.id,
+        nombre: user.email ? user.email.split('@')[0] : 'Paciente',
+        rol: 'paciente',
+        perfil_completo: false
+      };
     }
 
-    // Exito: limpiar contador anti-loop
-    sessionStorage.removeItem('_rc_intentos');
-    document.querySelector('.app').classList.add('lista');
+    perfil = perfil_data;
 
-  const nom=p.nombre?.split(' ')[0]||'Paciente';
-  document.getElementById('nav-nombre').textContent=p.nombre||'';
-  document.getElementById('saludo-nombre').textContent='Hola, '+nom+' 👋';
-  document.getElementById('saludo-fecha').textContent=new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const condLabel={dm1:'Diabetes T1',dm2:'Diabetes T2',pre:'Prediabetes',no:'Sin diabetes'};
-  document.getElementById('nav-cond').textContent=condLabel[p.tipo_diabetes||'no']||'—';
+    // Mostrar app SIEMPRE — nunca dejar en blanco
+    mostrarApp();
 
-  if(!p.perfil_completo){
-    document.getElementById('modal-bg').classList.add('visible');
-  } else {
-    await cargarRegistros();
+    // Configurar UI
+    var nom = (perfil.nombre || 'Paciente').split(' ')[0];
+    document.getElementById('nav-nombre').textContent = perfil.nombre || '';
+    document.getElementById('saludo-nombre').textContent = 'Hola, ' + nom + '!';
+    document.getElementById('saludo-fecha').textContent = new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    var condLabel = {dm1:'Diabetes T1', dm2:'Diabetes T2', pre:'Prediabetes', no:'Sin diabetes'};
+    document.getElementById('nav-cond').textContent = condLabel[perfil.tipo_diabetes || 'no'] || '--';
+
+    if(!perfil.perfil_completo){
+      document.getElementById('modal-bg').classList.add('visible');
+    } else {
+      await cargarRegistros();
+    }
+
+  } catch(e){
+    console.error('Error init:', e);
+    mostrarApp();
+    mostrarErrorCarga('Error al cargar. Verifique su conexion e intente de nuevo.');
   }
 }
 
