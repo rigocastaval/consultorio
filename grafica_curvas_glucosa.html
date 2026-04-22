@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curvas de Glucosa | Dr. Ramses Castañeda</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{--azul:#1346a0;--verde:#2e9e6b;--naranja:#e67e22;--rojo:#c0392b;--gris:#4a5568;--borde:#dce6f7;--pale:#f4f7fe;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#f0f4fb;color:#1e2a3a;}
+nav{background:linear-gradient(135deg,#0c2d6e,#1346a0);height:56px;padding:0 4%;display:flex;align-items:center;justify-content:space-between;}
+nav a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.85rem;}
+.nav-titulo{font-family:'Playfair Display',serif;font-size:1rem;color:white;font-weight:700;}
+.contenido{max-width:960px;margin:28px auto;padding:0 18px 60px;}
+.header{margin-bottom:20px;}
+.header h1{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;margin-bottom:4px;}
+.header p{font-size:0.88rem;color:var(--gris);}
+.filtro-fecha{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+.filtro-fecha label{font-size:0.85rem;font-weight:600;color:var(--gris);}
+.filtro-fecha input{padding:8px 12px;border:2px solid var(--borde);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;}
+.filtro-fecha input:focus{border-color:var(--azul);}
+.btn-filtrar{padding:9px 20px;background:var(--azul);color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:700;cursor:pointer;}
+.btn-filtrar:hover{opacity:0.9;}
+.card{background:white;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(19,70,160,0.09);margin-bottom:16px;}
+.card h2{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:6px;}
+.card-sub{font-size:0.8rem;color:var(--gris);margin-bottom:20px;}
+
+/* Gráfica de curvas */
+.curvas-wrap{position:relative;width:100%;overflow-x:auto;}
+#curvas-chart-wrap{min-width:600px;}
+canvas#curvas-chart{width:100%;}
+
+/* Iconos de comidas debajo */
+.comidas-bar{display:flex;position:relative;min-width:600px;margin-top:0;height:90px;border-top:2px solid #e2e8f0;}
+.comida-icono{position:absolute;display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);padding-top:8px;}
+.comida-icono .ico{font-size:1.6rem;margin-bottom:4px;}
+.comida-icono .lbl{font-size:0.68rem;font-weight:700;color:var(--gris);text-align:center;line-height:1.2;}
+.comida-icono .gluc-val{font-size:0.72rem;color:var(--azul);font-weight:700;margin-bottom:2px;}
+
+/* Leyenda metas */
+.leyenda-metas{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;}
+.leyenda-item{display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--gris);}
+.leyenda-linea{width:24px;height:3px;border-radius:2px;}
+
+/* Stats resumen del día */
+.dia-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px;}
+.dia-stat{background:var(--pale);border-radius:12px;padding:12px;text-align:center;}
+.dia-stat .val{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--azul);}
+.dia-stat .lbl{font-size:0.72rem;color:var(--gris);font-weight:600;}
+
+.empty{text-align:center;padding:48px;color:var(--gris);}
+.empty p{font-size:0.9rem;line-height:1.7;}
+
+/* Selector de fecha */
+.dias-btn{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.dia-btn{padding:6px 14px;border:2px solid var(--borde);border-radius:16px;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;background:white;color:var(--gris);transition:all 0.2s;}
+.dia-btn.activo{background:var(--azul);color:white;border-color:var(--azul);}
+</style>
+</head>
+<body>
+<nav>
+  <a href="panel_paciente.html">← Volver al dashboard</a>
+  <span class="nav-titulo">Dr. Ramses Castañeda · Curvas de Glucosa</span>
+</nav>
+
+<div class="contenido">
+  <div class="header">
+    <h1>📊 Curvas de Glucosa del Día</h1>
+    <p>Visualice el comportamiento de su glucosa a lo largo del día, por comida.</p>
+  </div>
+
+  <div class="card">
+    <div class="filtro-fecha">
+      <label>Ver día:</label>
+      <input type="date" id="fecha-sel">
+      <button class="btn-filtrar" onclick="cargarDia()">Ver curvas</button>
+    </div>
+
+    <div class="dias-btn" id="dias-recientes"></div>
+
+    <div class="leyenda-metas">
+      <div class="leyenda-item"><div class="leyenda-linea" style="background:#1346a0;"></div> Glucosa registrada</div>
+      <div class="leyenda-item"><div class="leyenda-linea" style="background:#e67e22;border-top:2px dashed #e67e22;height:0;"></div> Límite superior (130 mg/dL en ayuno / 180 post)</div>
+      <div class="leyenda-item"><div class="leyenda-linea" style="background:#2e9e6b;"></div> Glucosa normal</div>
+    </div>
+
+    <div class="dia-stats" id="dia-stats"></div>
+
+    <div id="curvas-contenido">
+      <div class="empty"><p>Seleccione una fecha para ver las curvas de glucosa del día.</p></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://mhejapkehcyezgndglpq.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oZWphcGtlaGN5ZXpnbmRnbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDg3NDUsImV4cCI6MjA5MjM4NDc0NX0.ycFQN-Gm6D5V6TJ0PfEReWHD55sqK-cZvYATqVTGuOk';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+
+var chartRef = null;
+var userId = null;
+var perfilCond = 'no';
+
+// Íconos y etiquetas por tipo de comida
+var COMIDA_CONFIG = {
+  ayuno:            {ico:'⭕', lbl:'Ayuno',           orden:0},
+  antes_desayuno:   {ico:'🌅', lbl:'Antes\ndesayuno', orden:1},
+  despues_desayuno: {ico:'🍳', lbl:'Después\ndesayuno', orden:2},
+  antes_comida:     {ico:'☀️', lbl:'Antes\ncomida',   orden:3},
+  despues_comida:   {ico:'🍽️', lbl:'Después\ncomida', orden:4},
+  antes_cena:       {ico:'🌆', lbl:'Antes\ncena',     orden:5},
+  despues_cena:     {ico:'🌙', lbl:'Después\ncena',   orden:6},
+  antes_colacion:   {ico:'🍎', lbl:'Antes\ncolación', orden:7},
+  despues_colacion: {ico:'✅', lbl:'Después\ncolación', orden:8},
+  antes_dormir:     {ico:'🛌', lbl:'Antes\ndormir',   orden:9},
+  madrugada:        {ico:'🌚', lbl:'Madrugada',       orden:10},
+};
+
+// Metas según condición
+function getMeta(tipo, cond){
+  if(tipo === 'ayuno' || tipo === 'antes_desayuno' || tipo === 'antes_comida' || tipo === 'antes_cena'){
+    return cond === 'no' ? 100 : 130;
+  }
+  return cond === 'no' ? 140 : 180;
+}
+
+async function init(){
+  var {data:{session}} = await sb.auth.getSession();
+  if(!session){ window.location.replace('auth.html'); return; }
+  userId = session.user.id;
+
+  var {data:p} = await sb.from('profiles').select('tipo_diabetes').eq('id',userId).single();
+  if(p) perfilCond = p.tipo_diabetes || 'no';
+
+  // Fecha de hoy por defecto
+  var hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('fecha-sel').value = hoy;
+
+  // Cargar días con registros de glucosa
+  var {data:regs} = await sb.from('registros_diarios')
+    .select('fecha, glucosas_comidas')
+    .eq('user_id', userId)
+    .not('glucosas_comidas','is',null)
+    .order('fecha',{ascending:false})
+    .limit(30);
+
+  // Días únicos con datos
+  var diasConDatos = [...new Set((regs||[]).map(r=>r.fecha))].slice(0,7);
+  var botonesHTML = diasConDatos.map(function(d){
+    return '<button class="dia-btn'+(d===hoy?' activo':'')+'" onclick="selDia(\''+d+'\',this)">'+d.slice(5)+'</button>';
+  }).join('');
+  document.getElementById('dias-recientes').innerHTML = diasConDatos.length ?
+    '<span style="font-size:0.78rem;font-weight:600;color:var(--gris);align-self:center;">Días con registros:</span>' + botonesHTML :
+    '<span style="font-size:0.82rem;color:#94a3b8;">Sin registros de glucosa aún. Registre sus mediciones del día.</span>';
+
+  // Cargar hoy automáticamente
+  cargarDia();
+}
+
+function selDia(fecha, btn){
+  document.querySelectorAll('.dia-btn').forEach(b=>b.classList.remove('activo'));
+  btn.classList.add('activo');
+  document.getElementById('fecha-sel').value = fecha;
+  cargarDia();
+}
+
+async function cargarDia(){
+  var fecha = document.getElementById('fecha-sel').value;
+  if(!fecha) return;
+
+  var {data:regs} = await sb.from('registros_diarios')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('fecha', fecha);
+
+  // Recopilar TODAS las mediciones de glucosa del día
+  var mediciones = [];
+
+  (regs||[]).forEach(function(reg){
+    // Glucosas de comidas (JSON)
+    if(reg.glucosas_comidas){
+      var comidas = typeof reg.glucosas_comidas === 'string' ?
+        JSON.parse(reg.glucosas_comidas) : reg.glucosas_comidas;
+      comidas.forEach(function(c){
+        mediciones.push({
+          tipo: c.tipo,
+          valor: parseFloat(c.valor),
+          hora: c.hora || reg.hora_registro || null,
+          alimentos: c.alimentos || null,
+          config: COMIDA_CONFIG[c.tipo] || {ico:'📊', lbl:c.tipo, orden:5}
+        });
+      });
+    }
+    // Glucosa en ayuno legacy
+    if(reg.glucosa_ayuno && !mediciones.find(m=>m.tipo==='ayuno'||m.tipo==='antes_desayuno')){
+      mediciones.push({
+        tipo:'ayuno', valor:reg.glucosa_ayuno,
+        hora: reg.hora_registro || '07:00',
+        config: COMIDA_CONFIG['ayuno']
+      });
+    }
+  });
+
+  if(mediciones.length === 0){
+    document.getElementById('dia-stats').innerHTML='';
+    document.getElementById('curvas-contenido').innerHTML=
+      '<div class="empty"><p>No hay mediciones de glucosa registradas para <strong>'+fecha+'</strong>.<br>Vaya a <em>Registrar hoy</em> y agregue sus mediciones del día.</p></div>';
+    return;
+  }
+
+  // Ordenar por orden de comida o por hora
+  mediciones.sort(function(a,b){
+    if(a.hora && b.hora) return a.hora.localeCompare(b.hora);
+    return (a.config.orden||0) - (b.config.orden||0);
+  });
+
+  renderCurvas(mediciones, fecha);
+}
+
+function renderCurvas(mediciones, fecha){
+  // Stats del día
+  var vals = mediciones.map(m=>m.valor);
+  var prom = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+  var max = Math.max.apply(null,vals);
+  var min = Math.min.apply(null,vals);
+  var enMeta = mediciones.filter(function(m){
+    var meta = getMeta(m.tipo, perfilCond);
+    return m.valor <= meta;
+  }).length;
+
+  document.getElementById('dia-stats').innerHTML =
+    '<div class="dia-stat"><div class="val">'+mediciones.length+'</div><div class="lbl">Mediciones del día</div></div>'+
+    '<div class="dia-stat"><div class="val" style="color:'+(prom<=130?'var(--verde)':prom<=180?'var(--naranja)':'var(--rojo)')+'">'+prom+'</div><div class="lbl">Glucosa promedio (mg/dL)</div></div>'+
+    '<div class="dia-stat"><div class="val" style="color:var(--rojo)">'+max+'</div><div class="lbl">Máxima del día</div></div>'+
+    '<div class="dia-stat"><div class="val" style="color:var(--verde)">'+min+'</div><div class="lbl">Mínima del día</div></div>'+
+    '<div class="dia-stat"><div class="val" style="color:var(--verde)">'+enMeta+'/'+mediciones.length+'</div><div class="lbl">En meta</div></div>';
+
+  // Construir datos para Chart.js
+  var labels = mediciones.map(function(m){
+    return (m.hora || '') + '\n' + m.config.lbl.replace('\n',' ');
+  });
+  var datos = mediciones.map(m=>m.valor);
+
+  // Línea de meta dinámica (varía según tipo de medición)
+  var metasLine = mediciones.map(function(m){ return getMeta(m.tipo, perfilCond); });
+
+  // Proyección pico: si hay un "antes" sin su "después" correspondiente, proyectar +50
+  var datosProyeccion = mediciones.map(function(m,i){
+    // Si es "antes_X", agregar pico proyectado entre este punto y el siguiente
+    return null; // solo para la línea de referencia
+  });
+
+  // Construir datasets
+  var datasets = [
+    {
+      label: 'Glucosa registrada',
+      data: datos,
+      borderColor: 'rgba(19,70,160,0.9)',
+      backgroundColor: 'rgba(19,70,160,0.08)',
+      borderWidth: 3,
+      pointRadius: 7,
+      pointHoverRadius: 10,
+      pointBackgroundColor: mediciones.map(function(m){
+        var meta = getMeta(m.tipo, perfilCond);
+        return m.valor <= meta ? 'rgba(46,158,107,0.9)' : m.valor <= meta*1.2 ? 'rgba(230,126,34,0.9)' : 'rgba(192,57,43,0.9)';
+      }),
+      pointBorderColor: 'white',
+      pointBorderWidth: 2,
+      tension: 0.4,
+      fill: true,
+      spanGaps: false,
+      order: 1
+    },
+    {
+      label: 'Meta glucosa',
+      data: metasLine,
+      borderColor: 'rgba(230,126,34,0.7)',
+      borderWidth: 2,
+      borderDash: [8,4],
+      pointRadius: 0,
+      fill: false,
+      tension: 0,
+      order: 2
+    },
+    {
+      label: 'Glucosa normal',
+      data: labels.map(function(){ return perfilCond==='no'?70:80; }),
+      borderColor: 'rgba(46,158,107,0.5)',
+      borderWidth: 1.5,
+      borderDash: [4,4],
+      pointRadius: 0,
+      fill: false,
+      tension: 0,
+      order: 3
+    }
+  ];
+
+  // Agregar puntos de pico proyectado entre antes y después de comidas
+  var parejas = [
+    ['antes_desayuno','despues_desayuno'],
+    ['antes_comida','despues_comida'],
+    ['antes_cena','despues_cena'],
+    ['antes_colacion','despues_colacion'],
+  ];
+  var picoData = new Array(mediciones.length).fill(null);
+  var picoLabels = labels.slice();
+
+  parejas.forEach(function(par){
+    var idxAntes = mediciones.findIndex(m=>m.tipo===par[0]);
+    var idxDespues = mediciones.findIndex(m=>m.tipo===par[1]);
+    if(idxAntes !== -1 && idxDespues !== -1){
+      // Pico proyectado = promedio de ambos + 40, en posición intermedia (fracción)
+      // No se puede insertar un punto extra en Chart.js fácilmente,
+      // pero sí podemos agregar una curva de relleno visual entre los puntos
+    }
+  });
+
+  // Renderizar
+  if(chartRef){ chartRef.destroy(); chartRef=null; }
+
+  document.getElementById('curvas-contenido').innerHTML =
+    '<div class="curvas-wrap">'+
+    '<div id="curvas-chart-wrap"><canvas id="curvas-chart"></canvas></div>'+
+    '<div class="comidas-bar" id="comidas-bar"></div>'+
+    '</div>';
+
+  var ctx = document.getElementById('curvas-chart').getContext('2d');
+  chartRef = new Chart(ctx,{
+    type:'line',
+    data:{labels:labels, datasets:datasets},
+    options:{
+      responsive:true,
+      interaction:{mode:'index', intersect:false},
+      plugins:{
+        legend:{display:true, position:'top', labels:{font:{size:11}}},
+        tooltip:{
+          callbacks:{
+            label: function(ctx){
+              if(ctx.datasetIndex===0){
+                var m = mediciones[ctx.dataIndex];
+                var meta = getMeta(m.tipo, perfilCond);
+                var estado = m.valor<=meta?'✅ En meta':m.valor<=meta*1.2?'⚠️ Revisar':'🔴 Fuera de meta';
+                var txt = ctx.dataset.label+': '+ctx.parsed.y+' mg/dL · '+estado;
+                if(m.alimentos) txt += ' · '+m.alimentos;
+                return txt;
+              }
+              return ctx.dataset.label+': '+ctx.parsed.y+' mg/dL';
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          grid:{color:'#f0f4f8'},
+          ticks:{font:{size:10}, maxRotation:0}
+        },
+        y:{
+          beginAtZero:false,
+          min: Math.max(40, Math.min.apply(null,datos)-30),
+          grid:{color:'#f0f4f8'},
+          ticks:{
+            callback: function(v){ return v+' mg/dL'; },
+            font:{size:10}
+          }
+        }
+      }
+    }
+  });
+
+  // Dibujar iconos de comidas debajo del eje X
+  var barEl = document.getElementById('comidas-bar');
+  var chartArea = chartRef.chartArea;
+  var nPuntos = mediciones.length;
+
+  // Esperar a que Chart.js termine de renderizar
+  setTimeout(function(){
+    var ca = chartRef.chartArea;
+    var anchoTotal = ca.right - ca.left;
+    var htmlIconos = '';
+    mediciones.forEach(function(m,i){
+      var x = ca.left + (i/(nPuntos-1||1)) * anchoTotal;
+      var colorVal = m.valor <= getMeta(m.tipo,perfilCond) ? 'var(--verde)' : m.valor <= getMeta(m.tipo,perfilCond)*1.2 ? 'var(--naranja)' : 'var(--rojo)';
+      htmlIconos += '<div class="comida-icono" style="left:'+x+'px;">'+
+        '<div class="gluc-val" style="color:'+colorVal+'">'+m.valor+'</div>'+
+        '<div class="ico">'+m.config.ico+'</div>'+
+        '<div class="lbl">'+m.config.lbl.replace('\n','<br>')+'</div>'+
+        (m.hora?'<div style="font-size:0.65rem;color:#94a3b8;">'+m.hora+'</div>':'')+'</div>';
+    });
+    barEl.innerHTML = htmlIconos;
+    barEl.style.paddingLeft = ca.left+'px';
+    barEl.style.paddingRight = (barEl.offsetWidth - ca.right)+'px';
+    barEl.style.position = 'relative';
+  }, 200);
+}
+
+init();
+</script>
+</body>
+</html>

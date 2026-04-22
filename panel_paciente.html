@@ -169,6 +169,7 @@ tbody tr:hover{background:var(--pale);}
     <div class="sidebar-item" onclick="irA('registrar')"><span class="ico">➕</span> Registrar hoy</div>
     <div class="sidebar-item" onclick="irA('historial')"><span class="ico">📋</span> Mi historial</div>
     <div class="sidebar-sep">Herramientas</div>
+    <div class="sidebar-item" onclick="window.open('grafica_curvas_glucosa.html','_blank')"><span class="ico">📊</span> Curvas de glucosa</div>
     <a href="instructivo_insulina_dm1.html" class="sidebar-item"><span class="ico">💉</span> Guía de insulina</a>
     <a href="herramienta_imc.html" class="sidebar-item"><span class="ico">⚖️</span> Calculadora IMC</a>
     <a href="herramienta_hba1c.html" class="sidebar-item"><span class="ico">🔬</span> Conversor HbA1c</a>
@@ -210,6 +211,21 @@ tbody tr:hover{background:var(--pale);}
         <div class="stat-card" onclick="abrirGrafica('peso')" style="cursor:pointer;"><div class="stat-val" id="s-imc">—</div><div class="stat-lbl">IMC / Peso</div><div class="stat-meta" id="s-imc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
         <div class="stat-card" onclick="abrirGrafica('hba1c')" style="cursor:pointer;"><div class="stat-val" id="s-hba1c">—</div><div class="stat-lbl">HbA1c (%)</div><div class="stat-meta" id="s-hba1c-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
         <div class="stat-card" onclick="abrirGrafica('colesterol_ldl')" style="cursor:pointer;"><div class="stat-val" id="s-ldl">—</div><div class="stat-lbl">Colesterol LDL</div><div class="stat-meta" id="s-ldl-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+      </div>
+
+      <!-- Tarjeta especial: Curvas de glucosa del día -->
+      <div class="chart-card" style="cursor:pointer;border:2px solid var(--azul);margin-bottom:16px;" onclick="window.open('grafica_curvas_glucosa.html','_blank')">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <h4 style="font-size:1rem;">📊 Curvas de glucosa del día</h4>
+          <span style="font-size:0.72rem;color:var(--azul);font-weight:700;background:var(--azul-claro);padding:3px 10px;border-radius:10px;">Ver curvas →</span>
+        </div>
+        <p style="font-size:0.83rem;color:var(--gris);line-height:1.6;">Visualice el comportamiento de su glucosa a lo largo del día — antes y después de cada comida, con hora de medición e íconos por tiempo de comida.</p>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+          <span style="font-size:0.75rem;background:#e8f0fd;color:var(--azul);border-radius:8px;padding:3px 10px;">🌅 Antes de desayunar</span>
+          <span style="font-size:0.75rem;background:#e8f0fd;color:var(--azul);border-radius:8px;padding:3px 10px;">🍳 Después de desayunar</span>
+          <span style="font-size:0.75rem;background:#e8f0fd;color:var(--azul);border-radius:8px;padding:3px 10px;">☀️ Antes/después de comer</span>
+          <span style="font-size:0.75rem;background:#e8f0fd;color:var(--azul);border-radius:8px;padding:3px 10px;">🌙 Cena · Colación · Madrugada</span>
+        </div>
       </div>
 
       <div class="charts-grid">

@@ -21,7 +21,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--blanco);color:var(--gris-
 @keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(14,165,233,0.4)}70%{box-shadow:0 0 0 12px rgba(14,165,233,0)}100%{box-shadow:0 0 0 0 rgba(14,165,233,0)}}
 .fade-up{animation:fadeUp 0.7s ease both;}
 .fade-up-d1{animation-delay:0.1s;}.fade-up-d2{animation-delay:0.2s;}.fade-up-d3{animation-delay:0.3s;}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--borde);padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--borde);padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;transition:top 0.3s;}
 .nav-logo{font-family:'Playfair Display',serif;font-weight:700;font-size:1.05rem;color:var(--azul);text-decoration:none;line-height:1.2;}
 .nav-logo span{display:block;font-size:0.65rem;font-family:'DM Sans',sans-serif;font-weight:400;color:var(--gris);letter-spacing:1.5px;text-transform:uppercase;}
 .nav-links{display:flex;gap:28px;align-items:center;}
@@ -31,7 +31,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
 .nav-cta:hover{background:var(--azul-med)!important;transform:translateY(-1px);}
 .nav-toggle{display:none;cursor:pointer;flex-direction:column;gap:5px;}
 .nav-toggle span{width:24px;height:2px;background:var(--azul);border-radius:2px;}
-.hero{min-height:100vh;background:linear-gradient(135deg,#0c2d6e 0%,#1346a0 45%,#1a73c8 100%);display:flex;align-items:center;padding:96px 5% 64px;position:relative;overflow:hidden;}
+.hero{min-height:100vh;background:linear-gradient(135deg,#0c2d6e 0%,#1346a0 45%,#1a73c8 100%);display:flex;align-items:center;padding:110px 5% 64px;position:relative;overflow:hidden;}
 .hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
 .hero-blob{position:absolute;width:520px;height:520px;background:radial-gradient(circle,rgba(14,165,233,0.18) 0%,transparent 70%);border-radius:50%;top:-100px;right:-80px;}
 .hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1;width:100%;}
@@ -140,7 +140,7 @@ footer a{color:#7dd3fc;text-decoration:none;}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div id="session-bar" style="background:linear-gradient(90deg,#0c2d6e,#1346a0);padding:9px 5%;display:flex;align-items:center;justify-content:center;gap:16px;font-size:0.82rem;color:white;font-family:'DM Sans',sans-serif;font-weight:500;flex-wrap:wrap;">
+<div id="session-bar" style="position:fixed;top:0;left:0;right:0;z-index:101;background:rgba(12,45,110,0.97);padding:6px 5%;display:flex;align-items:center;justify-content:center;gap:16px;font-size:0.79rem;color:white;font-family:'DM Sans',sans-serif;font-weight:500;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,0.12);">
   <span>👤 <span id="session-prefix">Navegando como </span><strong id="session-nombre">Invitado</strong></span>
   <span id="session-actions-loggedin" style="display:none;display:flex;align-items:center;gap:12px;">
     <span style="opacity:0.4;">|</span>
@@ -176,7 +176,7 @@ footer a{color:#7dd3fc;text-decoration:none;}
       <p class="hero-desc fade-up fade-up-d2">Médico General y Diabetólogo con enfoque en el control integral de la diabetes y enfermedades crónicas. Atención personalizada, educación en salud y acompañamiento continuo para usted y su familia.</p>
       <div class="hero-btns fade-up fade-up-d3">
         <a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20agendar%20una%20cita" target="_blank" class="btn-primary">📅 Agendar cita por WhatsApp</a>
-        <a href="auth.html" class="btn-secondary">🔐 Crear cuenta gratuita</a>
+        <a href="auth.html" class="btn-secondary">🔐 Iniciar sesión</a>
       </div>
     </div>
         <div class="hero-photo-wrap fade-up fade-up-d1" style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.2);border-radius:24px;padding:32px 28px;">
@@ -258,8 +258,8 @@ footer a{color:#7dd3fc;text-decoration:none;}
       </div>
 
       <div style="display:flex;gap:14px;flex-wrap:wrap;">
-        <a href="auth.html" style="background:white;color:#1346a0;padding:14px 28px;border-radius:30px;font-weight:700;font-size:0.92rem;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,0.2);">🔐 Crear cuenta gratuita</a>
-        <a href="auth.html" style="background:rgba(255,255,255,0.12);color:white;padding:14px 28px;border-radius:30px;font-weight:600;font-size:0.92rem;text-decoration:none;border:1.5px solid rgba(255,255,255,0.3);">Ya tengo cuenta →</a>
+        <a href="auth.html" style="background:white;color:#1346a0;padding:14px 28px;border-radius:30px;font-weight:700;font-size:0.92rem;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,0.2);">🔐 Iniciar sesión o registrarse</a>
+        
       </div>
     </div>
 
@@ -496,6 +496,17 @@ const _sb=supabase.createClient(_SB_URL,_SB_KEY);
   }
 })();
 async function cerrarSesionNav(){await _sb.auth.signOut();location.reload();}
+// Ajustar posición del nav según si session-bar es visible
+function ajustarNav(){
+  var bar = document.getElementById('session-bar');
+  var nav = document.getElementById('nav');
+  if(bar && nav){
+    var barH = bar.offsetHeight;
+    nav.style.top = barH + 'px';
+  }
+}
+window.addEventListener('load', ajustarNav);
+window.addEventListener('resize', ajustarNav);
 </script>
 
 </body>

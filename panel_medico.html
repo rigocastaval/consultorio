@@ -222,15 +222,25 @@ function filtrarPacientes(){
 async function abrirPaciente(uid){
   const paciente=todosLosPacientes.find(p=>p.id===uid);
   if(!paciente)return;
-  document.getElementById('modal-nombre').textContent=paciente.nombre||'Paciente';
   // Obtener correo del usuario
   const emailPaciente = paciente.email || '—';
+  // Calcular edad
+  var edadStr = '';
+  if(paciente.fecha_nacimiento){
+    var hoy = new Date();
+    var nac = new Date(paciente.fecha_nacimiento);
+    var edad = hoy.getFullYear() - nac.getFullYear();
+    var m = hoy.getMonth() - nac.getMonth();
+    if(m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+    edadStr = ' · ' + edad + ' años';
+  }
+  document.getElementById('modal-nombre').textContent = (paciente.nombre||'Paciente') + edadStr;
   document.getElementById('modal-info').innerHTML=
-    '<span style="background:#f0f4f8;border-radius:8px;padding:3px 10px;">📞 '+(paciente.telefono||'Sin teléfono')+'</span>'+
-    '<span style="background:#f0f4f8;border-radius:8px;padding:3px 10px;">✉️ '+(paciente.email||'Sin correo')+'</span>'+
-    '<span style="background:#f0f4f8;border-radius:8px;padding:3px 10px;">🎂 '+(paciente.fecha_nacimiento||'Sin fecha')+'</span>'+
-    '<span style="background:#f0f4f8;border-radius:8px;padding:3px 10px;">🩺 '+({dm1:'Diabetes T1',dm2:'Diabetes T2',pre:'Prediabetes',no:'Sin DM'}[paciente.tipo_diabetes||'no']||'—')+'</span>'+
-    '<span style="background:#f0f4f8;border-radius:8px;padding:3px 10px;">📅 Reg: '+(paciente.created_at?.split('T')[0]||'—')+'</span>';
+    '<span style="background:#f0f4f8;border-radius:8px;padding:4px 12px;font-size:0.82rem;">📞 '+(paciente.telefono||'Sin teléfono')+'</span>'+
+    '<span style="background:#f0f4f8;border-radius:8px;padding:4px 12px;font-size:0.82rem;">✉️ '+(paciente.email||'Sin correo')+'</span>'+
+    '<span style="background:#f0f4f8;border-radius:8px;padding:4px 12px;font-size:0.82rem;">🎂 '+(paciente.fecha_nacimiento||'Sin fecha de nacimiento')+'</span>'+
+    '<span style="background:#f0f4f8;border-radius:8px;padding:4px 12px;font-size:0.82rem;">🩺 '+({dm1:'Diabetes T1',dm2:'Diabetes T2',pre:'Prediabetes',no:'Sin DM'}[paciente.tipo_diabetes||'no']||'—')+'</span>'+
+    '<span style="background:#f0f4f8;border-radius:8px;padding:4px 12px;font-size:0.82rem;">📅 Reg: '+(paciente.created_at?.split('T')[0]||'—')+'</span>';
   modalRegsData = [];
 
   const {data:registros}=await sb.from('registros_diarios').select('*').eq('user_id',uid).order('fecha',{ascending:false}).limit(30);
