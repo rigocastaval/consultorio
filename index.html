@@ -136,13 +136,39 @@ footer a{color:#7dd3fc;text-decoration:none;}
   section{padding:60px 5%;}
   .tool-iframe-wrap{padding-bottom:140%;}
 }
+
+/* ── MENÚ HAMBURGUESA ── */
+.hamburger{background:none;border:none;cursor:pointer;padding:8px;display:flex;flex-direction:column;gap:5px;border-radius:8px;transition:background 0.2s;}
+.hamburger:hover{background:rgba(19,70,160,0.08);}
+.hamburger span{display:block;width:22px;height:2px;background:#1346a0;border-radius:2px;}
+.menu-lateral{position:fixed;top:0;right:-320px;width:300px;height:100vh;background:white;z-index:500;box-shadow:-4px 0 24px rgba(0,0,0,0.15);transition:right 0.3s ease;overflow-y:auto;display:flex;flex-direction:column;}
+.menu-lateral.abierto{right:0;}
+.menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:499;}
+.menu-overlay.visible{display:block;}
+.menu-header{background:linear-gradient(135deg,#0c2d6e,#1346a0);padding:28px 24px 20px;color:white;position:relative;}
+.menu-header .logo{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;margin-bottom:3px;}
+.menu-header .sub{font-size:0.72rem;opacity:0.75;}
+.menu-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.15);border:none;color:white;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.menu-items{flex:1;padding:12px 0;}
+.menu-item{display:flex;align-items:center;gap:14px;padding:13px 24px;text-decoration:none;color:#1e2a3a;font-size:0.88rem;font-weight:600;transition:background 0.15s;border-left:3px solid transparent;}
+.menu-item:hover{background:#f4f7fe;border-left-color:#1346a0;color:#1346a0;}
+.menu-item .ico{font-size:1.1rem;width:22px;text-align:center;}
+.menu-sep{height:1px;background:#f0f4f8;margin:8px 0;}
+.menu-sep-label{font-size:0.67rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;padding:10px 24px 4px;}
+.menu-cta{margin:16px;background:linear-gradient(135deg,#1346a0,#1a5cc8);color:white;border:none;border-radius:14px;padding:14px;text-align:center;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;text-decoration:none;display:block;}
+.nav-agendar{background:linear-gradient(135deg,#1346a0,#1a5cc8);color:white;padding:8px 18px;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;text-decoration:none;}
+.red-card{background:white;border-radius:18px;padding:24px;text-align:center;box-shadow:0 2px 12px rgba(19,70,160,0.08);transition:transform 0.2s,box-shadow 0.2s;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.red-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(19,70,160,0.15);}
+.red-nombre{font-weight:700;font-size:0.95rem;color:#1e2a3a;}
+.red-desc{font-size:0.8rem;color:#4a5568;line-height:1.5;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
 <div id="session-bar" style="position:fixed;top:0;left:0;right:0;z-index:101;background:rgba(12,45,110,0.97);padding:6px 5%;display:flex;align-items:center;justify-content:center;gap:16px;font-size:0.79rem;color:white;font-family:'DM Sans',sans-serif;font-weight:500;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,0.12);">
   <span>👤 <span id="session-prefix">Navegando como </span><strong id="session-nombre">Invitado</strong></span>
-  <span id="session-actions-loggedin" style="display:none;display:flex;align-items:center;gap:12px;">
+  <span id="session-actions-loggedin" style="display:none;align-items:center;gap:12px;">
     <span style="opacity:0.4;">|</span>
     <a href="panel_paciente.html" id="session-link" style="color:#7dd3fc;font-weight:700;text-decoration:none;">📊 Mi dashboard</a>
     <span style="opacity:0.4;">|</span>
@@ -151,22 +177,61 @@ footer a{color:#7dd3fc;text-decoration:none;}
   <span id="session-actions-guest" style="display:flex;align-items:center;gap:12px;">
     <span style="opacity:0.4;">|</span>
     <a href="auth.html" style="color:#7dd3fc;font-weight:700;text-decoration:none;">Iniciar sesión</a>
-    <span style="opacity:0.4;">|</span>
-    <a href="auth.html" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:4px 12px;border-radius:14px;font-weight:600;text-decoration:none;font-size:0.78rem;">Registrarse gratis</a>
   </span>
 </div>
-<nav id="nav">
-  <a href="#" class="nav-logo">Dr. Ramses Castañeda<span>Médico General · Diabetólogo · Colima</span></a>
-  <div class="nav-links" id="navLinks">
-    <a href="#quien-soy">Quién soy</a>
-    <a href="#servicios">Servicios</a>
-    <a href="#herramientas">Herramientas</a>
-    <a href="#tipos-diabetes">Diabetes</a>
-    <a href="#consejos">Consejos</a>
-    <a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20agendar%20una%20cita" target="_blank" class="nav-cta">📅 Agendar cita</a>
+<nav id="nav" style="position:fixed;left:0;right:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #dce6f7;padding:0 5%;height:56px;display:flex;align-items:center;justify-content:space-between;">
+  <a href="index.html" style="font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:#1346a0;text-decoration:none;line-height:1.2;">Dr. Ramses Castañeda<span style="display:block;font-size:0.62rem;font-family:'DM Sans',sans-serif;font-weight:400;color:#4a5568;letter-spacing:1.5px;text-transform:uppercase;">Médico General · Diabetólogo · Colima</span></a>
+  <div class="nav-solo">
+    <a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20agendar%20una%20cita" target="_blank" class="nav-agendar">📅 Agendar cita</a>
+    <button class="hamburger" onclick="abrirMenu()" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
   </div>
-  <div class="nav-toggle" id="navToggle" onclick="toggleNav()"><span></span><span></span><span></span></div>
 </nav>
+<div class="menu-overlay" id="menu-overlay" onclick="cerrarMenu()"></div>
+<aside class="menu-lateral" id="menu-lateral">
+  <div class="menu-header">
+    <button class="menu-close" onclick="cerrarMenu()">✕</button>
+    <div class="logo">Dr. Ramses Castañeda</div>
+    <div class="sub">Médico General · Diabetólogo · Colima</div>
+  </div>
+  <nav class="menu-items">
+    <div class="menu-sep-label">Conócenos</div>
+    <a href="index.html#quien-soy" class="menu-item" onclick="cerrarMenu()"><span class="ico">👨‍⚕️</span> Quién soy</a>
+    <a href="index.html#servicios" class="menu-item" onclick="cerrarMenu()"><span class="ico">🩺</span> Servicios</a>
+    <a href="index.html#contacto-page" class="menu-item" onclick="cerrarMenu()"><span class="ico">📍</span> Contáctame</a>
+
+    <div class="menu-sep"></div>
+    <div class="menu-sep-label">Portal del paciente</div>
+    <a href="auth.html" class="menu-item"><span class="ico">🔐</span> Registro inteligente</a>
+    <a href="panel_paciente.html" class="menu-item"><span class="ico">📊</span> Mi dashboard</a>
+
+    <div class="menu-sep"></div>
+    <div class="menu-sep-label">Educación en salud</div>
+    <a href="que_es_diabetes.html" class="menu-item"><span class="ico">🩸</span> ¿Qué es la diabetes?</a>
+    <a href="metas_glucosa.html" class="menu-item"><span class="ico">🎯</span> Metas de glucosa ADA</a>
+
+    <div class="menu-sep"></div>
+    <div class="menu-sep-label">Herramientas</div>
+    <a href="herramienta_imc.html" class="menu-item"><span class="ico">⚖️</span> Calculadora IMC</a>
+    <a href="herramienta_hba1c.html" class="menu-item"><span class="ico">🔬</span> Conversor HbA1c</a>
+    <a href="herramienta_riesgo_diabetes.html" class="menu-item"><span class="ico">🩺</span> Riesgo de diabetes</a>
+    <a href="herramienta_riesgo_cardiovascular.html" class="menu-item"><span class="ico">🫀</span> Riesgo cardiovascular</a>
+    <a href="herramienta_neuropatia.html" class="menu-item"><span class="ico">🦶</span> Neuropatía</a>
+    <a href="herramienta_metas.html" class="menu-item"><span class="ico">🎯</span> Mis metas</a>
+    <a href="herramienta_cockcroft.html" class="menu-item"><span class="ico">🫘</span> Filtración glomerular</a>
+
+    <div class="menu-sep"></div>
+    <div class="menu-sep-label">Consejos de salud</div>
+    <a href="consejo_hipoglucemia.html" class="menu-item"><span class="ico">⚠️</span> Hipoglucemia</a>
+    <a href="consejo_alimentos.html" class="menu-item"><span class="ico">🥗</span> Alimentación</a>
+    <a href="consejo_ejercicio.html" class="menu-item"><span class="ico">🏃</span> Ejercicio</a>
+    <a href="consejo_pie_diabetico.html" class="menu-item"><span class="ico">🦶</span> Pie diabético</a>
+    <a href="consejo_insulina.html" class="menu-item"><span class="ico">💉</span> Insulina</a>
+    <a href="consejo_monitoreo.html" class="menu-item"><span class="ico">📱</span> Monitoreo</a>
+  </nav>
+  <a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20agendar%20una%20cita" target="_blank" class="menu-cta">📅 Agendar cita por WhatsApp</a>
+</aside>
 
 <section class="hero" id="inicio">
   <div class="hero-blob"></div>
@@ -228,7 +293,6 @@ footer a{color:#7dd3fc;text-decoration:none;}
     </div>
   </div>
 </section>
-
 
 <section id="mi-portal" style="background:linear-gradient(135deg,#0c2d6e 0%,#1346a0 60%,#1a73c8 100%);padding:80px 5%;overflow:hidden;position:relative;">
   <div style="position:absolute;top:-80px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(14,165,233,0.2),transparent 70%);border-radius:50%;"></div>
@@ -293,6 +357,7 @@ footer a{color:#7dd3fc;text-decoration:none;}
 
   </div>
 </section>
+
 <section id="servicios">
   <div class="section-inner">
     <div class="section-label">Lo que ofrezco</div>
@@ -310,348 +375,114 @@ footer a{color:#7dd3fc;text-decoration:none;}
   </div>
 </section>
 
-
-<section id="tipos-diabetes" style="background:white;padding:80px 5%;">
+<section class="redes-section" id="redes-sociales">
   <div style="max-width:1100px;margin:0 auto;">
-    <div style="font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1346a0;margin-bottom:10px;">Educación en salud</div>
-    <h2 style="font-family:Playfair Display,serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:#1e2a3a;line-height:1.2;margin-bottom:16px;">¿Qué es la diabetes?</h2>
-    <div style="width:48px;height:4px;background:linear-gradient(90deg,#1346a0,#0ea5e9);border-radius:2px;margin-bottom:32px;"></div>
-    <p style="font-size:1rem;color:#4a5568;line-height:1.75;max-width:760px;margin-bottom:40px;">La diabetes mellitus es una enfermedad crónica que se caracteriza por niveles elevados de glucosa (azúcar) en la sangre. Ocurre cuando el cuerpo no produce suficiente insulina, no la utiliza correctamente, o ambas cosas. Existen varios tipos, cada uno con causas, características y tratamientos distintos.</p>
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;">
-
-      <!-- DM Tipo 1 -->
-      <div style="background:#f4f7fe;border-radius:20px;padding:28px;border-top:4px solid #1346a0;">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#1346a0,#0ea5e9);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:18px;">💉</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.15rem;font-weight:700;color:#1e2a3a;margin-bottom:12px;">Diabetes Tipo 1</h3>
-        <p style="font-size:0.88rem;color:#4a5568;line-height:1.7;margin-bottom:14px;">Es una enfermedad autoinmune en la que el sistema inmune destruye las células beta del páncreas, que son las encargadas de producir insulina. Sin insulina, la glucosa no puede entrar a las células y se acumula en la sangre.</p>
-        <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#1346a0;margin-bottom:6px;">¿A quién afecta?</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Generalmente se diagnostica en niños, adolescentes y adultos jóvenes, aunque puede aparecer a cualquier edad.</p>
-        </div>
-        <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#1346a0;margin-bottom:6px;">Síntomas principales</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Sed excesiva, orinar frecuentemente, pérdida de peso sin causa aparente, visión borrosa, fatiga extrema, náuseas.</p>
-        </div>
-        <div style="background:white;border-radius:12px;padding:14px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#1346a0;margin-bottom:6px;">Tratamiento</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Requiere insulina de por vida. No existe cura, pero con un buen control se puede llevar una vida plena. Es fundamental el conteo de hidratos de carbono y el monitoreo frecuente de glucosa.</p>
-        </div>
-      </div>
-
-      <!-- DM Tipo 2 -->
-      <div style="background:#f4f7fe;border-radius:20px;padding:28px;border-top:4px solid #2e9e6b;">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#2e9e6b,#27ae60);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:18px;">🩸</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.15rem;font-weight:700;color:#1e2a3a;margin-bottom:12px;">Diabetes Tipo 2</h3>
-        <p style="font-size:0.88rem;color:#4a5568;line-height:1.7;margin-bottom:14px;">Es el tipo más común de diabetes. El páncreas aún produce insulina, pero las células del cuerpo no responden a ella adecuadamente (resistencia a la insulina). Con el tiempo, el páncreas puede ir perdiendo su capacidad de producción.</p>
-        <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#2e9e6b;margin-bottom:6px;">¿A quién afecta?</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Principalmente adultos mayores de 40 años, aunque cada vez es más común en jóvenes. Se asocia con sobrepeso, sedentarismo y antecedentes familiares.</p>
-        </div>
-        <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#2e9e6b;margin-bottom:6px;">Síntomas principales</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Muchas personas no tienen síntomas al inicio. Puede haber sed, fatiga, visión borrosa, heridas que cicatrizan lentamente, infecciones frecuentes.</p>
-        </div>
-        <div style="background:white;border-radius:12px;padding:14px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#2e9e6b;margin-bottom:6px;">Tratamiento</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Cambios en el estilo de vida (alimentación y ejercicio), medicamentos orales, y en algunos casos insulina. Es reversible en etapas tempranas con pérdida de peso significativa.</p>
-        </div>
-      </div>
-
-      <!-- Prediabetes -->
-      <div style="background:#f4f7fe;border-radius:20px;padding:28px;border-top:4px solid #e67e22;">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#e67e22,#d35400);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:18px;">⚠️</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.15rem;font-weight:700;color:#1e2a3a;margin-bottom:12px;">Prediabetes</h3>
-        <p style="font-size:0.88rem;color:#4a5568;line-height:1.7;margin-bottom:14px;">Los niveles de glucosa están más altos de lo normal, pero no lo suficiente para ser considerados diabetes tipo 2. Es una señal de alerta importante: sin intervención, el 70% de las personas con prediabetes desarrollará diabetes tipo 2.</p>
-        <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#e67e22;margin-bottom:6px;">¿Cómo se detecta?</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Glucosa en ayuno 100-125 mg/dL, glucosa a las 2h post-carga 140-199 mg/dL, o HbA1c entre 5.7% y 6.4%.</p>
-        </div>
-        <div style="background:white;border-radius:12px;padding:14px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#e67e22;margin-bottom:6px;">La buena noticia</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Con cambios en el estilo de vida — perder entre 5-7% del peso y hacer 150 minutos de ejercicio moderado a la semana — se puede prevenir o retrasar significativamente el desarrollo de diabetes tipo 2.</p>
-        </div>
-      </div>
-
-      <!-- Diabetes Gestacional -->
-      <div style="background:#f4f7fe;border-radius:20px;padding:28px;border-top:4px solid #7c3aed;">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#7c3aed,#6d28d9);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:18px;">🤰</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.15rem;font-weight:700;color:#1e2a3a;margin-bottom:12px;">Diabetes Gestacional</h3>
-        <p style="font-size:0.88rem;color:#4a5568;line-height:1.7;margin-bottom:14px;">Se presenta por primera vez durante el embarazo en mujeres que no tenían diabetes previamente. Ocurre porque las hormonas del embarazo generan resistencia a la insulina que el páncreas no puede compensar.</p>
-        <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#7c3aed;margin-bottom:6px;">¿Cuándo ocurre?</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Generalmente entre las semanas 24 y 28 del embarazo. Se detecta con una prueba de tolerancia a la glucosa.</p>
-        </div>
-        <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#7c3aed;margin-bottom:6px;">Riesgos</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Bebé grande (macrosomía), hipoglucemia neonatal, parto prematuro, y mayor riesgo de que la madre desarrolle DM2 en el futuro.</p>
-        </div>
-        <div style="background:white;border-radius:12px;padding:14px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#7c3aed;margin-bottom:6px;">Metas de glucosa (ADA SCD 2026)</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Ayuno: &lt;95 mg/dL · 1h postprandial: &lt;140 mg/dL · 2h postprandial: &lt;120 mg/dL. Generalmente se controla con dieta y ejercicio; en algunos casos se requiere insulina.</p>
-        </div>
-      </div>
-
-      <!-- LADA -->
-      <div style="background:#f4f7fe;border-radius:20px;padding:28px;border-top:4px solid #0ea5e9;">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:18px;">🔬</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.15rem;font-weight:700;color:#1e2a3a;margin-bottom:12px;">LADA (Diabetes Autoinmune Latente del Adulto)</h3>
-        <p style="font-size:0.88rem;color:#4a5568;line-height:1.7;margin-bottom:14px;">Es una forma de diabetes tipo 1 que se presenta en adultos de forma lenta y progresiva. Frecuentemente se diagnostica como diabetes tipo 2, pero tiene un origen autoinmune. Se confirma con anticuerpos anti-GAD positivos.</p>
-        <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#0ea5e9;margin-bottom:6px;">¿Cómo sospecharla?</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Adulto delgado diagnosticado con DM2 que no responde bien a medicamentos orales, con pérdida de control glucémico progresiva sin causa aparente.</p>
-        </div>
-        <div style="background:white;border-radius:12px;padding:14px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#0ea5e9;margin-bottom:6px;">Tratamiento</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Eventualmente requerirá insulina. Es importante no retrasar su inicio para preservar la función de las células beta restantes.</p>
-        </div>
-      </div>
-
-      <!-- MODY -->
-      <div style="background:#f4f7fe;border-radius:20px;padding:28px;border-top:4px solid #c0392b;">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#c0392b,#e74c3c);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:18px;">🧬</div>
-        <h3 style="font-family:Playfair Display,serif;font-size:1.15rem;font-weight:700;color:#1e2a3a;margin-bottom:12px;">MODY (Diabetes Monogénica)</h3>
-        <p style="font-size:0.88rem;color:#4a5568;line-height:1.7;margin-bottom:14px;">Es un tipo raro de diabetes causado por mutaciones en un solo gen que afecta la función de las células beta. Representa el 1-5% de todos los casos de diabetes. Existen más de 13 subtipos con características clínicas distintas.</p>
-        <div style="background:white;border-radius:12px;padding:14px;margin-bottom:12px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#c0392b;margin-bottom:6px;">¿Cómo sospecharla?</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">Diabetes en menores de 25 años, con fuerte historia familiar en varias generaciones, sin obesidad y con anticuerpos negativos.</p>
-        </div>
-        <div style="background:white;border-radius:12px;padding:14px;">
-          <p style="font-size:0.82rem;font-weight:700;color:#c0392b;margin-bottom:6px;">Importancia del diagnóstico</p>
-          <p style="font-size:0.82rem;color:#4a5568;line-height:1.5;">El subtipo MODY 2 puede no requerir tratamiento farmacológico. El MODY 3 responde muy bien a las sulfonilureas. El diagnóstico correcto cambia completamente el manejo.</p>
-        </div>
-      </div>
-
+    <div style="text-align:center;margin-bottom:40px;">
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1346a0;margin-bottom:10px;">Sígueme en redes</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;color:#1e2a3a;margin-bottom:14px;">Información útil, sin tecnicismos</h2>
+      <p style="font-size:0.97rem;color:#4a5568;max-width:580px;margin:0 auto;line-height:1.75;">En mis redes encontrarás información sobre la diabetes y la salud con un <strong>aire fresco y sin terminología médica confusa</strong>. Temas prácticos para el día a día, explicados de forma sencilla.</p>
     </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;max-width:900px;margin:0 auto;">
 
-    <!-- Tabla comparativa -->
-    <div style="margin-top:40px;background:#f4f7fe;border-radius:20px;padding:28px;overflow-x:auto;">
-      <h3 style="font-family:Playfair Display,serif;font-size:1.2rem;font-weight:700;color:#1e2a3a;margin-bottom:20px;">Metas de glucosa según ADA Standards of Care 2026</h3>
-      <table style="width:100%;border-collapse:collapse;font-size:0.83rem;min-width:600px;">
-        <thead>
-          <tr style="background:#1346a0;color:white;">
-            <th style="padding:11px 14px;text-align:left;font-weight:600;">Condición</th>
-            <th style="padding:11px 14px;text-align:center;">HbA1c</th>
-            <th style="padding:11px 14px;text-align:center;">Glucosa preprandial</th>
-            <th style="padding:11px 14px;text-align:center;">Glucosa postprandial</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="background:white;">
-            <td style="padding:11px 14px;font-weight:600;color:#1e2a3a;">Persona sin diabetes</td>
-            <td style="padding:11px 14px;text-align:center;color:#2e9e6b;font-weight:700;">&lt; 5.7%</td>
-            <td style="padding:11px 14px;text-align:center;">70 – 100 mg/dL</td>
-            <td style="padding:11px 14px;text-align:center;">&lt; 140 mg/dL (1h)</td>
-          </tr>
-          <tr style="background:#f9fafb;">
-            <td style="padding:11px 14px;font-weight:600;color:#1e2a3a;">Prediabetes</td>
-            <td style="padding:11px 14px;text-align:center;color:#e67e22;font-weight:700;">5.7 – 6.4%</td>
-            <td style="padding:11px 14px;text-align:center;">100 – 125 mg/dL</td>
-            <td style="padding:11px 14px;text-align:center;">140 – 199 mg/dL (2h)</td>
-          </tr>
-          <tr style="background:white;">
-            <td style="padding:11px 14px;font-weight:600;color:#1e2a3a;">DM1 o DM2 — adulto general</td>
-            <td style="padding:11px 14px;text-align:center;color:#1346a0;font-weight:700;">&lt; 7.0%</td>
-            <td style="padding:11px 14px;text-align:center;">80 – 130 mg/dL</td>
-            <td style="padding:11px 14px;text-align:center;">&lt; 180 mg/dL (1-2h)</td>
-          </tr>
-          <tr style="background:#f9fafb;">
-            <td style="padding:11px 14px;font-weight:600;color:#1e2a3a;">DM — adulto mayor sano</td>
-            <td style="padding:11px 14px;text-align:center;color:#1346a0;font-weight:700;">&lt; 7.0 – 7.5%</td>
-            <td style="padding:11px 14px;text-align:center;">80 – 130 mg/dL</td>
-            <td style="padding:11px 14px;text-align:center;">&lt; 180 mg/dL</td>
-          </tr>
-          <tr style="background:white;">
-            <td style="padding:11px 14px;font-weight:600;color:#1e2a3a;">DM — adulto mayor complejo</td>
-            <td style="padding:11px 14px;text-align:center;color:#e67e22;font-weight:700;">&lt; 8.0%</td>
-            <td style="padding:11px 14px;text-align:center;">90 – 150 mg/dL</td>
-            <td style="padding:11px 14px;text-align:center;">&lt; 200 mg/dL</td>
-          </tr>
-          <tr style="background:#f9fafb;">
-            <td style="padding:11px 14px;font-weight:600;color:#1e2a3a;">Embarazo con DM1 o DM2</td>
-            <td style="padding:11px 14px;text-align:center;color:#7c3aed;font-weight:700;">&lt; 6.0 – 7.0%</td>
-            <td style="padding:11px 14px;text-align:center;">&lt; 95 mg/dL</td>
-            <td style="padding:11px 14px;text-align:center;">&lt; 140 mg/dL (1h) / &lt; 120 mg/dL (2h)</td>
-          </tr>
-          <tr style="background:white;">
-            <td style="padding:11px 14px;font-weight:600;color:#1e2a3a;">Diabetes gestacional (DMG)</td>
-            <td style="padding:11px 14px;text-align:center;color:#7c3aed;font-weight:700;">—</td>
-            <td style="padding:11px 14px;text-align:center;">&lt; 95 mg/dL</td>
-            <td style="padding:11px 14px;text-align:center;">&lt; 140 mg/dL (1h) / &lt; 120 mg/dL (2h)</td>
-          </tr>
-        </tbody>
-      </table>
-      <p style="font-size:0.75rem;color:#94a3b8;margin-top:12px;">Fuente: ADA Standards of Care in Diabetes 2026, Tabla 6.3 y Figura 6.1. Las metas deben individualizarse según el paciente.</p>
-    </div>
-  </div>
-</section>
-<section id="herramientas">
-  <div class="section-inner">
-    <div class="section-label">Para mis pacientes</div>
-    <h2 class="section-title">Herramientas educativas</h2>
-    <div class="divider"></div>
-    <p class="section-sub">Recursos interactivos gratuitos para que usted pueda calcular, evaluar y aprender sobre su salud desde casa.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:20px;margin-top:36px;">
+      <a href="https://www.tiktok.com/@dr.ramsescastaneda?_t=8oYV7eCLz77&_r=1" target="_blank" class="red-card" style="border-top:4px solid #000000;">
+        <svg class="red-logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="12" fill="#000"/>
+          <path d="M34.3 16.9c-1.8-.3-3.3-1.4-4.2-3V26c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8c.3 0 .6 0 .9.1v4.1c-.3-.1-.6-.1-.9-.1-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4V10h4c.4 2.8 2.6 5 5.2 5.4v1.5z" fill="white"/>
+        </svg>
+        <div class="red-nombre">TikTok</div>
+        <div class="red-desc">Videos cortos y directos sobre diabetes, glucosa y hábitos saludables</div>
+      </a>
 
-      <div style="background:white;border-radius:20px;padding:26px;border:1.5px solid #dce6f7;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(19,70,160,0.15)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#1346a0,#0ea5e9);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px;">💉</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:8px;">Guía de insulina y conteo de carbohidratos</h3>
-        <p style="font-size:0.85rem;color:#4a5568;line-height:1.6;margin-bottom:16px;">Para pacientes con DM1. Aprenda a contar carbohidratos y calcule su dosis de insulina ultrarrápida.</p>
-        <a href="instructivo_insulina_dm1.html" style="display:inline-flex;align-items:center;gap:6px;background:#1346a0;color:white;padding:10px 18px;border-radius:20px;font-size:0.83rem;font-weight:700;text-decoration:none;">Abrir herramienta →</a>
-      </div>
+      <a href="https://www.facebook.com/share/7hmg6ehXKVBBEhsF/?mibextid=qi2Omg" target="_blank" class="red-card" style="border-top:4px solid #1877F2;">
+        <svg class="red-logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="12" fill="#1877F2"/>
+          <path d="M26.5 38V25.5h4.2l.6-4.8H26.5v-3.1c0-1.4.4-2.3 2.3-2.3H31.5V11c-.5-.1-2-.2-3.8-.2-3.8 0-6.4 2.3-6.4 6.5v3.4H17v4.8h4.3V38h5.2z" fill="white"/>
+        </svg>
+        <div class="red-nombre">Facebook</div>
+        <div class="red-desc">Artículos, consejos y noticias sobre salud metabólica</div>
+      </a>
 
-      <div style="background:white;border-radius:20px;padding:26px;border:1.5px solid #dce6f7;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(19,70,160,0.15)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#1346a0,#0ea5e9);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px;">⚖️</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:8px;">Calculadora de IMC</h3>
-        <p style="font-size:0.85rem;color:#4a5568;line-height:1.6;margin-bottom:16px;">Calcule su índice de masa corporal e interprete su resultado con recomendaciones personalizadas.</p>
-        <a href="herramienta_imc.html" style="display:inline-flex;align-items:center;gap:6px;background:#1346a0;color:white;padding:10px 18px;border-radius:20px;font-size:0.83rem;font-weight:700;text-decoration:none;">Abrir herramienta →</a>
-      </div>
+      <a href="https://youtube.com/@dr.ramsescastanedadiabetol6294?si=s0Sa113l_h6FWUh0" target="_blank" class="red-card" style="border-top:4px solid #FF0000;">
+        <svg class="red-logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="12" fill="#FF0000"/>
+          <path d="M38.5 17.5s-.4-2.5-1.5-3.6c-1.4-1.5-3-.5-3-.5S28.8 13 24 13s-10 .5-10 .5-1.6-1-3 .5c-1.1 1.1-1.5 3.6-1.5 3.6S9 20.3 9 24s.5 6.5.5 6.5 .4 2.5 1.5 3.6c1.4 1.5 3.3 1.4 3.3 1.4S18 35.9 24 36s10-.5 10-.5 1.6.1 3-1.4c1.1-1.1 1.5-3.6 1.5-3.6s.5-2.8.5-6.5-.5-6.5-.5-6.5zm-16 11v-9l8 4.5-8 4.5z" fill="white"/>
+        </svg>
+        <div class="red-nombre">YouTube</div>
+        <div class="red-desc">Explicaciones en video sobre el control de la diabetes</div>
+      </a>
 
-      <div style="background:white;border-radius:20px;padding:26px;border:1.5px solid #dce6f7;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(19,70,160,0.15)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#1346a0,#0ea5e9);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px;">🩺</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:8px;">¿Cuál es mi riesgo de diabetes?</h3>
-        <p style="font-size:0.85rem;color:#4a5568;line-height:1.6;margin-bottom:16px;">Cuestionario basado en el test FINDRISC para evaluar su riesgo de desarrollar diabetes tipo 2.</p>
-        <a href="herramienta_riesgo_diabetes.html" style="display:inline-flex;align-items:center;gap:6px;background:#1346a0;color:white;padding:10px 18px;border-radius:20px;font-size:0.83rem;font-weight:700;text-decoration:none;">Abrir herramienta →</a>
-      </div>
-
-      <div style="background:white;border-radius:20px;padding:26px;border:1.5px solid #dce6f7;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(19,70,160,0.15)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#c0392b,#e74c3c);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px;">🫀</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:8px;">Riesgo cardiovascular</h3>
-        <p style="font-size:0.85rem;color:#4a5568;line-height:1.6;margin-bottom:16px;">Identifique sus factores de riesgo cardiovascular y reciba recomendaciones personalizadas.</p>
-        <a href="herramienta_riesgo_cardiovascular.html" style="display:inline-flex;align-items:center;gap:6px;background:#c0392b;color:white;padding:10px 18px;border-radius:20px;font-size:0.83rem;font-weight:700;text-decoration:none;">Abrir herramienta →</a>
-      </div>
-
-      <div style="background:white;border-radius:20px;padding:26px;border:1.5px solid #dce6f7;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(19,70,160,0.15)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#7c3aed,#6d28d9);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px;">🔬</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:8px;">Conversor HbA1c ↔ Glucosa</h3>
-        <p style="font-size:0.85rem;color:#4a5568;line-height:1.6;margin-bottom:16px;">Convierta su HbA1c a glucosa promedio estimada o viceversa, con interpretación clínica.</p>
-        <a href="herramienta_hba1c.html" style="display:inline-flex;align-items:center;gap:6px;background:#7c3aed;color:white;padding:10px 18px;border-radius:20px;font-size:0.83rem;font-weight:700;text-decoration:none;">Abrir herramienta →</a>
-      </div>
-
-      <div style="background:white;border-radius:20px;padding:26px;border:1.5px solid #dce6f7;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(19,70,160,0.15)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#e67e22,#d35400);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px;">🦶</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:8px;">¿Tengo síntomas de neuropatía?</h3>
-        <p style="font-size:0.85rem;color:#4a5568;line-height:1.6;margin-bottom:16px;">Cuestionario para identificar posibles síntomas de daño en nervios causado por la diabetes.</p>
-        <a href="herramienta_neuropatia.html" style="display:inline-flex;align-items:center;gap:6px;background:#e67e22;color:white;padding:10px 18px;border-radius:20px;font-size:0.83rem;font-weight:700;text-decoration:none;">Abrir herramienta →</a>
-      </div>
-
-      <div style="background:white;border-radius:20px;padding:26px;border:1.5px solid #dce6f7;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(19,70,160,0.15)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
-        <div style="width:52px;height:52px;background:linear-gradient(135deg,#2e9e6b,#27ae60);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:16px;">🎯</div>
-        <h3 style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:8px;">Mis metas de control metabólico</h3>
-        <p style="font-size:0.85rem;color:#4a5568;line-height:1.6;margin-bottom:16px;">Compare sus resultados de laboratorio con las metas recomendadas e identifique áreas de mejora.</p>
-        <a href="herramienta_metas.html" style="display:inline-flex;align-items:center;gap:6px;background:#2e9e6b;color:white;padding:10px 18px;border-radius:20px;font-size:0.83rem;font-weight:700;text-decoration:none;">Abrir herramienta →</a>
-      </div>
+      <a href="https://www.instagram.com/dr.ramsescastaneda?igsh=MWE5dGhqc2l5ZGN5aw==" target="_blank" class="red-card" style="border-top:4px solid #E1306C;">
+        <svg class="red-logo" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#FFDC80"/>
+              <stop offset="26%" stop-color="#FCAF45"/>
+              <stop offset="50%" stop-color="#F77737"/>
+              <stop offset="74%" stop-color="#F56040"/>
+              <stop offset="87%" stop-color="#FD1D1D"/>
+              <stop offset="100%" stop-color="#E1306C"/>
+            </linearGradient>
+          </defs>
+          <rect width="48" height="48" rx="12" fill="url(#igGrad)"/>
+          <rect x="11" y="11" width="26" height="26" rx="7" stroke="white" stroke-width="2.5" fill="none"/>
+          <circle cx="24" cy="24" r="6.5" stroke="white" stroke-width="2.5" fill="none"/>
+          <circle cx="32.5" cy="15.5" r="1.8" fill="white"/>
+        </svg>
+        <div class="red-nombre">Instagram</div>
+        <div class="red-desc">Infografías, tips y el día a día del consultorio</div>
+      </a>
 
     </div>
   </div>
 </section>
 
-<section id="consejos">
-  <div class="section-inner">
-    <div class="section-label">Educación en salud</div>
-    <h2 class="section-title">Consejos para su bienestar</h2>
-    <div class="divider"></div>
-    <p class="section-sub">Información confiable y práctica para ayudarle a vivir mejor con diabetes o prevenirla.</p>
-    <div class="blog-grid">
-      <div class="blog-card fade-up"><div class="blog-banner" style="background:linear-gradient(135deg,#e8f0fd,#c7d9f8);">🩸</div><div class="blog-body"><div class="blog-cat">Diabetes Tipo 1</div><h3>¿Qué es la hipoglucemia y cómo actuar?</h3><p>Aprenda a reconocer los síntomas de azúcar baja, qué hacer en ese momento y cómo prevenirla en su día a día.</p><a href="consejo_hipoglucemia.html" class="blog-link">Leer más →</a></div></div>
-      <div class="blog-card fade-up fade-up-d1"><div class="blog-banner" style="background:linear-gradient(135deg,#e4f7ef,#b6edda);">🍽️</div><div class="blog-body"><div class="blog-cat">Nutrición</div><h3>Los 10 alimentos que más suben la glucosa</h3><p>Conozca qué alimentos tienen más carbohidratos y cómo incluirlos en su dieta sin perder el control de su azúcar.</p><a href="consejo_alimentos.html" class="blog-link">Leer más →</a></div></div>
-      <div class="blog-card fade-up fade-up-d2"><div class="blog-banner" style="background:linear-gradient(135deg,#fef3e8,#fddab5);">🏃</div><div class="blog-body"><div class="blog-cat">Actividad física</div><h3>Ejercicio y diabetes: lo que debe saber</h3><p>El ejercicio ayuda a controlar el azúcar, pero requiere precauciones. Descubra cómo moverse de forma segura.</p><a href="consejo_ejercicio.html" class="blog-link">Leer más →</a></div></div>
-      <div class="blog-card fade-up"><div class="blog-banner" style="background:linear-gradient(135deg,#fdecea,#f9c0bc);">🦶</div><div class="blog-body"><div class="blog-cat">Prevención</div><h3>Cuidado del pie diabético: guía básica</h3><p>Pequeños hábitos diarios pueden prevenir complicaciones graves. Aprenda cómo revisar y cuidar sus pies correctamente.</p><a href="consejo_pie_diabetico.html" class="blog-link">Leer más →</a></div></div>
-      <div class="blog-card fade-up fade-up-d1"><div class="blog-banner" style="background:linear-gradient(135deg,#ede9fe,#c4b5fd);">💊</div><div class="blog-body"><div class="blog-cat">Tratamiento</div><h3>¿Cómo conservar correctamente la insulina?</h3><p>Una insulina mal conservada pierde efectividad. Conozca las reglas básicas de almacenamiento y manejo.</p><a href="consejo_insulina.html" class="blog-link">Leer más →</a></div></div>
-      <div class="blog-card fade-up fade-up-d2"><div class="blog-banner" style="background:linear-gradient(135deg,#e0f2fe,#bae6fd);">📊</div><div class="blog-body"><div class="blog-cat">Monitoreo</div><h3>¿Con qué frecuencia debo medirme el azúcar?</h3><p>La frecuencia varía según el tipo de diabetes y tratamiento. Aprenda cuándo y cómo registrar sus glucemias.</p><a href="consejo_monitoreo.html" class="blog-link">Leer más →</a></div></div>
+<section id="contacto-page" style="background:linear-gradient(135deg,#0c2d6e,#1346a0);padding:60px 5%;color:white;">
+  <div style="max-width:800px;margin:0 auto;text-align:center;">
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;margin-bottom:12px;">📍 Contáctame</h2>
+    <p style="font-size:0.97rem;opacity:0.85;margin-bottom:32px;line-height:1.7;">Atención con cita previa. Escríbeme por WhatsApp para agendar tu consulta.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px;">
+      <div style="background:rgba(255,255,255,0.1);border-radius:16px;padding:20px;">
+        <div style="font-size:1.5rem;margin-bottom:8px;">📍</div>
+        <div style="font-weight:700;margin-bottom:4px;">Dirección</div>
+        <div style="font-size:0.85rem;opacity:0.85;line-height:1.6;">Av. Gonzalo de Sandoval 350A<br>Las Víboras, Colima, Col. 28040</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:16px;padding:20px;">
+        <div style="font-size:1.5rem;margin-bottom:8px;">🕐</div>
+        <div style="font-weight:700;margin-bottom:4px;">Horario</div>
+        <div style="font-size:0.85rem;opacity:0.85;line-height:1.6;">Lunes, Miércoles y Viernes<br>4:00 pm – 8:00 pm</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:16px;padding:20px;">
+        <div style="font-size:1.5rem;margin-bottom:8px;">📱</div>
+        <div style="font-weight:700;margin-bottom:4px;">WhatsApp</div>
+        <div style="font-size:0.85rem;opacity:0.85;">312 135 5297</div>
+      </div>
     </div>
+    <a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20agendar%20una%20cita" target="_blank" style="display:inline-flex;align-items:center;gap:10px;background:white;color:#1346a0;padding:14px 32px;border-radius:30px;font-weight:700;font-size:0.97rem;text-decoration:none;box-shadow:0 4px 20px rgba(0,0,0,0.2);">📅 Agendar cita por WhatsApp</a>
   </div>
 </section>
 
-<section id="contacto">
-  <div class="section-inner">
-    <div class="section-label">Agendar cita</div>
-    <h2 class="section-title">Contácteme</h2>
-    <div class="divider" style="background:linear-gradient(90deg,#7dd3fc,#38bdf8);"></div>
-    <p class="section-sub">Atención únicamente con cita previa. Consulte los horarios disponibles y contácteme.</p>
-    <div class="contacto-grid">
-      <div class="contacto-info fade-up">
-        <div class="contacto-item">
-          <span class="cont-icono">📍</span>
-          <div class="cont-texto">
-            <strong>Dirección</strong>
-            <p>Av. Gonzalo de Sandoval 350A<br>Las Víboras, Colima, Col. 28040</p>
-            <a href="https://www.google.com/maps/search/?api=1&query=Av.+Gonzalo+de+Sandoval+350A,+Las+Víboras,+Colima,+Col.+28040,+México" target="_blank" class="map-btn">🗺️ Ver en Google Maps</a>
-          </div>
-        </div>
-        <div class="contacto-item">
-          <span class="cont-icono">📞</span>
-          <div class="cont-texto">
-            <strong>Teléfono / WhatsApp</strong>
-            <p><a href="tel:+523121355297">312 135 5297</a></p>
-          </div>
-        </div>
-        <div class="contacto-item">
-          <span class="cont-icono">🕐</span>
-          <div class="cont-texto">
-            <strong>Horario de consulta</strong>
-            <p>Lunes, Miércoles y Viernes<br>4:00 pm – 8:00 pm</p>
-            <div class="horario-badge">⚠️ Únicamente con cita previa</div>
-          </div>
-        </div>
-      </div>
-      <div class="form-card fade-up fade-up-d1">
-        <h3>Solicitar cita</h3>
-        <p class="form-sub">Le responderemos a la brevedad para confirmar su cita.</p>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Nombre completo</label><input class="form-input" type="text" placeholder="Su nombre"></div>
-          <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" type="tel" placeholder="312 000 0000"></div>
-        </div>
-        <div class="form-group"><label class="form-label">Correo electrónico</label><input class="form-input" type="email" placeholder="correo@ejemplo.com"></div>
-        <div class="form-group"><label class="form-label">Motivo de consulta</label>
-          <select class="form-select"><option value="">Seleccione una opción</option><option>Control de Diabetes Tipo 1</option><option>Control de Diabetes Tipo 2</option><option>Consulta general</option><option>Educación diabetológica</option><option>Revisión de resultados</option><option>Otro</option></select>
-        </div>
-        <div class="form-group"><label class="form-label">Mensaje adicional (opcional)</label><textarea class="form-textarea" placeholder="Cuénteme brevemente su situación o dudas..."></textarea></div>
-        <button class="btn-form" onclick="enviarFormulario()">Enviar solicitud de cita →</button>
-        <div class="form-success" id="formSuccess">✅ ¡Mensaje enviado! Le contactaremos pronto para confirmar su cita.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <strong>Dr. Ramses Rodrigo Castañeda Valenzuela</strong><br>
-  Médico General · Diabetólogo · Colima, Colima, México<br>
-  📞 312 135 5297 · 📍 Av. Gonzalo de Sandoval 350A, Las Víboras, Colima<br><br>
-  <small>Este sitio web es de carácter informativo y educativo. No sustituye la consulta médica presencial.<br>Para emergencias, acuda a urgencias o llame al 911.</small>
+<footer style="background:#07183d;color:rgba(255,255,255,0.6);padding:24px 5%;text-align:center;font-size:0.8rem;line-height:1.8;">
+  <div style="margin-bottom:8px;color:rgba(255,255,255,0.85);font-weight:600;">Dr. Ramses Rodrigo Castañeda Valenzuela</div>
+  <div>Médico General · Diabetólogo · Cédula Prof. 6823687 · Colima, México</div>
+  <div style="margin-top:8px;font-size:0.75rem;">Este sitio es informativo y no sustituye la consulta médica. <a href="auth.html" style="color:#7dd3fc;">Portal del paciente</a></div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-function toggleNav(){document.getElementById('navLinks').classList.toggle('open');}
-document.querySelectorAll('.nav-links a').forEach(a=>{a.addEventListener('click',()=>{document.getElementById('navLinks').classList.remove('open');});});
-window.addEventListener('scroll',()=>{document.getElementById('nav').style.boxShadow=window.scrollY>20?'0 4px 20px rgba(0,0,0,0.1)':'none';});
-function enviarFormulario(){
-  const nombre=document.querySelector('.form-input[placeholder="Su nombre"]')?.value||'';
-  const tel=document.querySelector('.form-input[placeholder="312 000 0000"]')?.value||'';
-  const email=document.querySelector('.form-input[type="email"]')?.value||'';
-  const motivo=document.querySelector('.form-select')?.value||'';
-  const mensaje=document.querySelector('.form-textarea')?.value||'';
-  if(!nombre||!tel){alert('Por favor ingrese su nombre y teléfono.');return;}
-  const asunto=encodeURIComponent('Solicitud de cita - '+nombre);
-  const cuerpo=encodeURIComponent(
-    'Solicitud de cita desde el sitio web del consultorio\n\n'+
-    'Nombre: '+nombre+'\n'+
-    'Teléfono: '+tel+'\n'+
-    'Correo: '+(email||'No proporcionado')+'\n'+
-    'Motivo: '+(motivo||'No especificado')+'\n'+
-    'Mensaje: '+(mensaje||'Sin mensaje adicional')+'\n\n'+
-    'Enviado desde: rigocastaval.github.io/consultorio'
-  );
-  window.location.href='mailto:dr.ramescastaneda@gmail.com?subject='+asunto+'&body='+cuerpo;
-  const s=document.getElementById('formSuccess');
-  s.style.display='block';
-  setTimeout(()=>{s.style.display='none';},5000);
+// Menú hamburguesa
+function abrirMenu(){
+  document.getElementById('menu-lateral').classList.add('abierto');
+  document.getElementById('menu-overlay').classList.add('visible');
+  document.body.style.overflow='hidden';
 }
-const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:0.1});
-document.querySelectorAll('.fade-up:not(.hero .fade-up)').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(24px)';el.style.transition='opacity 0.6s ease,transform 0.6s ease';observer.observe(el);});
-</script>
+function cerrarMenu(){
+  document.getElementById('menu-lateral').classList.remove('abierto');
+  document.getElementById('menu-overlay').classList.remove('visible');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')cerrarMenu();});
 
-<script>
+// Sesión
 const _SB_URL='https://mhejapkehcyezgndglpq.supabase.co';
 const _SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oZWphcGtlaGN5ZXpnbmRnbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDg3NDUsImV4cCI6MjA5MjM4NDc0NX0.ycFQN-Gm6D5V6TJ0PfEReWHD55sqK-cZvYATqVTGuOk';
 const _sb=supabase.createClient(_SB_URL,_SB_KEY);
@@ -667,22 +498,23 @@ const _sb=supabase.createClient(_SB_URL,_SB_KEY);
       }
       document.getElementById('session-actions-loggedin').style.display='flex';
       document.getElementById('session-actions-guest').style.display='none';
-      document.getElementById('session-prefix').textContent='Navegando como ';
     }
   }
 })();
 async function cerrarSesionNav(){await _sb.auth.signOut();location.reload();}
-// Ajustar posición del nav según si session-bar es visible
+
+// Ajustar nav
 function ajustarNav(){
-  var bar = document.getElementById('session-bar');
-  var nav = document.getElementById('nav');
-  if(bar && nav){
-    var barH = bar.offsetHeight;
-    nav.style.top = barH + 'px';
-  }
+  var bar=document.getElementById('session-bar');
+  var nav=document.getElementById('nav');
+  if(bar&&nav) nav.style.top=bar.offsetHeight+'px';
 }
-window.addEventListener('load', ajustarNav);
-window.addEventListener('resize', ajustarNav);
+window.addEventListener('load',ajustarNav);
+window.addEventListener('resize',ajustarNav);
+
+// Animaciones
+const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:0.1});
+document.querySelectorAll('.fade-up').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(24px)';el.style.transition='opacity 0.6s ease,transform 0.6s ease';observer.observe(el);});
 </script>
 
 </body>
