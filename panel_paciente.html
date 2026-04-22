@@ -1220,8 +1220,7 @@ function renderCurvasEnResumen(){
   var comidas = typeof ultReg.glucosas_comidas === 'string' ? JSON.parse(ultReg.glucosas_comidas) : ultReg.glucosas_comidas;
   comidas.sort(function(a,b){ return (COMIDA_ORDEN[a.tipo]||5)-(COMIDA_ORDEN[b.tipo]||5); });
 
-  var labels = comidas.map(function(c){ return (c.hora||'') + '
-' + (COMIDA_ICO[c.tipo]||c.tipo); });
+  var labels = comidas.map(function(c){ return (c.hora||'') + '\n' + (COMIDA_ICO[c.tipo]||c.tipo); });
   var vals = comidas.map(function(c){ return parseFloat(c.valor)||null; });
   var metas = getMetas(perfil?.tipo_diabetes||'no');
   var metaLine = comidas.map(function(c){
