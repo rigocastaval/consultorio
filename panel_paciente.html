@@ -447,52 +447,105 @@ function siguienteOnboarding(){
 }
 
 async function guardarOnboarding(){
-  const est=parseFloat(document.getElementById('ob-estatura').value)||null;
-  await sb.from('profiles').update({
-    tiene_diabetes:diabSel!=='no',
-    tipo_diabetes:diabSel,
-    perfil_completo:true,
-    ...(est&&{estatura:est})
-  }).eq('id',userId);
-  perfil.tipo_diabetes=diabSel;perfil.perfil_completo=true;
-  if(est)perfil.estatura=est;
+  const est = parseFloat(document.getElementById('ob-estatura').value) || null;
+  if(!diabSel){ toast('Seleccione una opcion de diabetes','rojo'); return; }
+  
+  const datos = {
+    id: userId,
+    tiene_diabetes: diabSel !== 'no',
+    tipo_diabetes: diabSel,
+    perfil_completo: true
+  };
+  if(est) datos.estatura = est;
+
+  // Usar upsert en lugar de update — funciona aunque la fila ya exista
+  const { data, error } = await sb.from('profiles').upsert(datos).select().single();
+  
+  if(error){
+    console.error('Error guardando onboarding:', error);
+    toast('Error al guardar: ' + error.message, 'rojo');
+    return;
+  }
+
+  // Actualizar perfil local
+  perfil = data || { ...perfil, ...datos };
+  
   document.getElementById('modal-bg').classList.remove('visible');
-  const condLabel={dm1:'Diabetes T1',dm2:'Diabetes T2',pre:'Prediabetes',no:'Sin diabetes'};
-  document.getElementById('nav-cond').textContent=condLabel[diabSel]||'—';
+  const condLabel = {dm1:'Diabetes T1', dm2:'Diabetes T2', pre:'Prediabetes', no:'Sin diabetes'};
+  document.getElementById('nav-cond').textContent = condLabel[diabSel] || '--';
   await cargarRegistros();
 }
 
+
 async function guardarOnboardingSinEstatura(){
-  await sb.from('profiles').update({
-    tiene_diabetes:diabSel!=='no',
-    tipo_diabetes:diabSel,
-    perfil_completo:true
-  }).eq('id',userId);
-  perfil.tipo_diabetes=diabSel;perfil.perfil_completo=true;
+  if(!diabSel){ toast('Seleccione una opcion de diabetes','rojo'); return; }
+  
+  const datos = {
+    id: userId,
+    tiene_diabetes: diabSel !== 'no',
+    tipo_diabetes: diabSel,
+    perfil_completo: true
+  };
+
+  const { data, error } = await sb.from('profiles').upsert(datos).select().single();
+  
+  if(error){
+    console.error('Error guardando perfil:', error);
+    toast('Error al guardar: ' + error.message, 'rojo');
+    return;
+  }
+
+  perfil = data || { ...perfil, ...datos };
   document.getElementById('modal-bg').classList.remove('visible');
   await cargarRegistros();
 }
 
 async function cargarRegistros(){
-  const {data}=await sb.from('registros_diarios').select('*').eq('user_id',userId).order('fecha',{ascending:false}).limit(60);
-  registros=data||[];
-  renderDashboard();
-  renderHistorial();
-  if(registros.length>0)generarRecomendacionIA();
-  else{
+  var res = await sb.from('registros_diarios')
+    .select('*')
+    .eq('user_id', userId)
+    .order('fecha', {ascending: false})
+    .limit(60);
+
+  if(res.error){
+    console.error('Error cargando registros:', res.error);
     document.getElementById('ai-loading').style.display='none';
     document.getElementById('ai-texto').style.display='block';
-    document.getElementById('ai-texto').innerHTML='Aún no tiene registros. Agregue su primera medición en la pestaña <strong>Registrar hoy</strong> para recibir su análisis personalizado.';
+    document.getElementById('ai-texto').textContent='Error al cargar registros: ' + res.error.message;
+    return;
+  }
+
+  registros = res.data || [];
+  console.log('Registros cargados:', registros.length);
+  renderDashboard();
+  renderHistorial();
+
+  if(registros.length > 0){
+    generarRecomendacionIA();
+  } else {
+    document.getElementById('ai-loading').style.display='none';
+    document.getElementById('ai-texto').style.display='block';
+    document.getElementById('ai-texto').innerHTML='Aún no tiene registros. Agregue su primera medición en la pestaña <strong>Registrar hoy</strong>.';
   }
 }
 
 function renderDashboard(){
   const metas=getMetas(perfil?.tipo_diabetes||'no');
-  const ultimo=registros[0];
+  var ultimo = registros && registros.length > 0 ? registros[0] : null;
+
+  // Si no hay registros mostrar mensaje en stats
+  if(!ultimo){
+    ['s-gluc','s-pas','s-hba1c','s-imc','s-ldl','s-fc'].forEach(function(id){
+      document.getElementById(id).textContent = '--';
+    });
+    ['s-gluc-m','s-pas-m','s-hba1c-m','s-imc-m','s-ldl-m','s-fc-m'].forEach(function(id){
+      document.getElementById(id).textContent = 'Sin registros';
+    });
+  }
 
   // Stats cards
-  const setCard=(id,metaId,val,meta)=>{
-    document.getElementById(id).textContent=val||'—';
+  var setCard = function(id,metaId,val,meta){
+    document.getElementById(id).textContent = val || '--';
     if(!val){document.getElementById(metaId).textContent=meta.label;return;}
     const est=estadoVal(val,meta.min,meta.max);
     const card=document.getElementById(id).closest('.stat-card');
@@ -531,9 +584,33 @@ function renderDashboard(){
 }
 
 function renderChart(id,labels,data,borderColor,bgColor,refMax,refMin,label,metaLabel,metaId){
-  if(chartRefs[id])chartRefs[id].destroy();
-  if(metaId)document.getElementById(metaId).textContent='Meta: '+metaLabel;
-  const ctx=document.getElementById(id).getContext('2d');
+  // Destruir gráfica anterior si existe
+  if(chartRefs[id]){
+    chartRefs[id].destroy();
+    chartRefs[id] = null;
+  }
+  // Limpiar canvas completamente
+  var canvas = document.getElementById(id);
+  var parent = canvas.parentNode;
+  var newCanvas = document.createElement('canvas');
+  newCanvas.id = id;
+  newCanvas.height = canvas.height || 130;
+  parent.replaceChild(newCanvas, canvas);
+
+  if(metaId) document.getElementById(metaId).textContent = 'Meta: ' + metaLabel;
+
+  // Si no hay datos, mostrar mensaje
+  var datosFiltrados = (data || []).filter(function(v){ return v !== null && v !== undefined; });
+  if(datosFiltrados.length === 0){
+    newCanvas.style.display = 'none';
+    var msg = document.createElement('p');
+    msg.style.cssText = 'text-align:center;padding:30px;color:#94a3b8;font-size:0.85rem;';
+    msg.textContent = 'Sin datos registrados aun';
+    parent.appendChild(msg);
+    return;
+  }
+
+  const ctx = newCanvas.getContext('2d');
   const datasets=[{label,data,borderColor,backgroundColor:bgColor,borderWidth:2.5,pointRadius:3.5,pointBackgroundColor:borderColor,tension:0.35,fill:true,spanGaps:true}];
   if(refMax)datasets.push({label:'Límite superior',data:labels.map(()=>refMax),borderColor:'rgba(230,126,34,0.6)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false});
   if(refMin)datasets.push({label:'Límite inferior',data:labels.map(()=>refMin),borderColor:'rgba(46,158,107,0.5)',borderWidth:1.5,borderDash:[4,4],pointRadius:0,fill:false});
@@ -561,13 +638,19 @@ async function guardarRegistro(){
   const tieneAlgo=Object.entries(vals).some(([k,v])=>!['user_id','fecha','notas'].includes(k)&&v!==null);
   if(!tieneAlgo){toast('Ingrese al menos una medición','rojo');return;}
   btn.disabled=true;btn.textContent='Guardando...';
-  const {error}=await sb.from('registros_diarios').insert(vals);
-  if(error){toast('Error al guardar: '+error.message,'rojo');}
-  else{
-    toast('✅ Registro guardado','verde');
-    ['r-ga','r-gp','r-gn','r-pas','r-pad','r-fc','r-peso','r-cintura','r-hba1c','r-ldl','r-tg','r-notas'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  var insRes = await sb.from('registros_diarios').insert(vals).select();
+  console.log('Insert registros resultado:', insRes.data, insRes.error);
+  if(insRes.error){
+    toast('Error al guardar: ' + insRes.error.message, 'rojo');
+    console.error('Error detalle:', JSON.stringify(insRes.error));
+  } else {
+    toast('Registro guardado correctamente', 'verde');
+    ['r-ga','r-gp','r-gn','r-pas','r-pad','r-fc','r-peso','r-cintura','r-hba1c','r-ldl','r-tg','r-notas'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.value='';
+    });
     await cargarRegistros();
-    irA('dashboard');
+    // Pequeño delay para que la UI se actualice
+    setTimeout(function(){ irA('dashboard'); }, 100);
   }
   btn.disabled=false;btn.textContent='💾 Guardar registro';
 }
@@ -649,11 +732,20 @@ Usa un tono cálido, claro y no alarmista. NO uses asteriscos ni markdown. Escri
   }
 }
 
-function irA(id){
+function irA(id, btn){
   document.querySelectorAll('.pantalla').forEach(p=>p.classList.remove('activa'));
   document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('activo'));
-  document.getElementById('p-'+id).classList.add('activa');
-  event?.target?.closest('.sidebar-item')?.classList.add('activo');
+  var pantalla = document.getElementById('p-'+id);
+  if(pantalla) pantalla.classList.add('activa');
+  if(btn) btn.classList.add('activo');
+  // Re-renderizar dashboard cada vez que se visita
+  if(id === 'dashboard' && registros !== null){
+    renderDashboard();
+  }
+  // Re-renderizar historial cada vez que se visita
+  if(id === 'historial' && registros !== null){
+    renderHistorial();
+  }
 }
 
 async function cerrarSesion(){await sb.auth.signOut();window.location.href='auth.html';}
