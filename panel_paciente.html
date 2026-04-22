@@ -203,20 +203,28 @@ tbody tr:hover{background:var(--pale);}
         <div class="ai-contenido" id="ai-texto" style="display:none;"></div>
       </div>
 
-      <div class="stats-row" id="stats-row">
-        <div class="stat-card azul" onclick="abrirGrafica('glucosa_ayuno')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-gluc">—</div><div class="stat-lbl">Glucosa ayuno (mg/dL)</div><div class="stat-meta" id="s-gluc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
-        <div class="stat-card" onclick="abrirGrafica('presion_sistolica')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-pas">—</div><div class="stat-lbl">Presión sistólica</div><div class="stat-meta" id="s-pas-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
-        <div class="stat-card" onclick="abrirGrafica('hba1c')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-hba1c">—</div><div class="stat-lbl">HbA1c (%)</div><div class="stat-meta" id="s-hba1c-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
-        <div class="stat-card" onclick="abrirGrafica('peso')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-imc">—</div><div class="stat-lbl">IMC (kg/m²)</div><div class="stat-meta" id="s-imc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
-        <div class="stat-card" onclick="abrirGrafica('colesterol_ldl')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-ldl">—</div><div class="stat-lbl">Colesterol LDL</div><div class="stat-meta" id="s-ldl-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
-        <div class="stat-card" onclick="abrirGrafica('frecuencia_cardiaca')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-fc">—</div><div class="stat-lbl">Frec. cardiaca</div><div class="stat-meta" id="s-fc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+      <div id="stats-row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;" id="stats-row">
+        <div class="stat-card azul" onclick="abrirGrafica('glucosa_ayuno')" style="cursor:pointer;"><div class="stat-val" id="s-gluc">—</div><div class="stat-lbl">Glucosa (mg/dL)</div><div class="stat-meta" id="s-gluc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+        <div class="stat-card" onclick="abrirGrafica('presion_sistolica')" style="cursor:pointer;"><div class="stat-val" id="s-pas">—</div><div class="stat-lbl">Presión sistólica</div><div class="stat-meta" id="s-pas-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+        <div class="stat-card" onclick="abrirGrafica('frecuencia_cardiaca')" style="cursor:pointer;"><div class="stat-val" id="s-fc">—</div><div class="stat-lbl">Frec. cardiaca</div><div class="stat-meta" id="s-fc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+        <div class="stat-card" onclick="abrirGrafica('peso')" style="cursor:pointer;"><div class="stat-val" id="s-imc">—</div><div class="stat-lbl">IMC / Peso</div><div class="stat-meta" id="s-imc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+        <div class="stat-card" onclick="abrirGrafica('hba1c')" style="cursor:pointer;"><div class="stat-val" id="s-hba1c">—</div><div class="stat-lbl">HbA1c (%)</div><div class="stat-meta" id="s-hba1c-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+        <div class="stat-card" onclick="abrirGrafica('colesterol_ldl')" style="cursor:pointer;"><div class="stat-val" id="s-ldl">—</div><div class="stat-lbl">Colesterol LDL</div><div class="stat-meta" id="s-ldl-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
       </div>
 
       <div class="charts-grid">
-        <div class="chart-card"><h4>📈 Glucosa en ayuno</h4><div class="chart-meta" id="cm-gluc"></div><canvas id="ch-gluc" height="130"></canvas></div>
-        <div class="chart-card"><h4>💊 Presión arterial sistólica</h4><div class="chart-meta" id="cm-pas"></div><canvas id="ch-pas" height="130"></canvas></div>
-        <div class="chart-card"><h4>⚖️ Peso corporal (kg)</h4><div class="chart-meta" id="cm-peso"></div><canvas id="ch-peso" height="130"></canvas></div>
-        <div class="chart-card"><h4>🔬 HbA1c (%)</h4><div class="chart-meta" id="cm-hba1c"></div><canvas id="ch-hba1c" height="130"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('glucosa_ayuno')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>🩸 Glucosa</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-gluc"></div><canvas id="ch-gluc" height="120"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('presion_sistolica')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>💊 Presión arterial</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-pas"></div><canvas id="ch-pas" height="120"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('frecuencia_cardiaca')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>❤️ Frec. cardiaca</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-fc"></div><canvas id="ch-fc" height="120"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('peso')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>⚖️ Peso (kg)</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-peso"></div><canvas id="ch-peso" height="120"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('cintura')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>📏 Cintura (cm)</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-cintura"></div><canvas id="ch-cintura" height="120"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('hba1c')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>🔬 HbA1c (%)</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-hba1c"></div><canvas id="ch-hba1c" height="120"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('colesterol_total')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>🧪 Colesterol Total</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-col-total"></div><canvas id="ch-col-total" height="120"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('colesterol_ldl')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>🧪 Colesterol LDL</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-ldl"></div><canvas id="ch-ldl" height="120"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('colesterol_hdl')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>🧪 Colesterol HDL</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-hdl"></div><canvas id="ch-hdl" height="120"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('trigliceridos')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>🧪 Triglicéridos</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-tg"></div><canvas id="ch-tg" height="120"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('creatinina')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>🫘 Creatinina</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-creatinina"></div><canvas id="ch-creatinina" height="120"></canvas></div>
+        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('bun')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>🫘 BUN</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-bun"></div><canvas id="ch-bun" height="120"></canvas></div>
       </div>
     </div>
 
@@ -312,12 +320,10 @@ tbody tr:hover{background:var(--pale);}
             <label class="form-label2">Glucosa en orina</label>
             <select class="form-input2" id="r-ego-glucosa">
               <option value="">Seleccionar</option>
-              <option value="negativo">Negativo</option>
-              <option value="trazas">Trazas</option>
-              <option value="1+">1+</option>
-              <option value="2+">2+</option>
-              <option value="3+">3+</option>
-              <option value="4+">4+</option>
+              <option value="0">0 mg/dL (Negativo)</option>
+              <option value="500">500 mg/dL</option>
+              <option value="1000">1000 mg/dL</option>
+              <option value=">1000">&gt;1000 mg/dL</option>
             </select>
           </div>
         </div>
@@ -638,14 +644,18 @@ function renderDashboard(){
   const ultimos=rev.slice(-21);
   const labels=ultimos.map(r=>r.fecha?.slice(5));
 
-  renderChart('ch-gluc',labels,ultimos.map(r=>r.glucosa_ayuno||null),'rgba(19,70,160,0.9)','rgba(19,70,160,0.1)',
-    metas.gluc_ay.max,metas.gluc_ay.min,'Glucosa ayuno (mg/dL)',metas.gluc_ay.label,'cm-gluc');
-  renderChart('ch-pas',labels,ultimos.map(r=>r.presion_sistolica||null),'rgba(192,57,43,0.9)','rgba(192,57,43,0.08)',
-    metas.pas.max,null,'Presión sistólica (mmHg)',metas.pas.label,'cm-pas');
-  renderChart('ch-peso',labels,ultimos.map(r=>r.peso||null),'rgba(46,158,107,0.9)','rgba(46,158,107,0.08)',
-    null,null,'Peso (kg)','Registre su peso regularmente','cm-peso');
-  renderChart('ch-hba1c',labels,ultimos.map(r=>r.hba1c||null),'rgba(124,58,237,0.9)','rgba(124,58,237,0.08)',
-    metas.hba1c.max,null,'HbA1c (%)',metas.hba1c.label,'cm-hba1c');
+  renderChart('ch-gluc',labels,ultimos.map(r=>r.glucosa_ayuno||null),'rgba(19,70,160,0.9)','rgba(19,70,160,0.1)',metas.gluc_ay.max,metas.gluc_ay.min,'Glucosa (mg/dL)',metas.gluc_ay.label,'cm-gluc');
+  renderChart('ch-pas',labels,ultimos.map(r=>r.presion_sistolica||null),'rgba(192,57,43,0.9)','rgba(192,57,43,0.08)',metas.pas.max,null,'Presión sistólica (mmHg)',metas.pas.label,'cm-pas');
+  renderChart('ch-fc',labels,ultimos.map(r=>r.frecuencia_cardiaca||null),'rgba(220,38,127,0.9)','rgba(220,38,127,0.06)',metas.fc.max,metas.fc.min,'Frec. cardiaca (lpm)',metas.fc.label,'cm-fc');
+  renderChart('ch-peso',labels,ultimos.map(r=>r.peso||null),'rgba(46,158,107,0.9)','rgba(46,158,107,0.08)',null,null,'Peso (kg)','Registre su peso regularmente','cm-peso');
+  renderChart('ch-cintura',labels,ultimos.map(r=>r.cintura||null),'rgba(168,85,247,0.9)','rgba(168,85,247,0.06)',null,null,'Cintura (cm)','Registre su cintura regularmente','cm-cintura');
+  renderChart('ch-hba1c',labels,ultimos.map(r=>r.hba1c||null),'rgba(124,58,237,0.9)','rgba(124,58,237,0.08)',metas.hba1c.max,null,'HbA1c (%)',metas.hba1c.label,'cm-hba1c');
+  renderChart('ch-col-total',labels,ultimos.map(r=>r.colesterol_total||null),'rgba(234,88,12,0.9)','rgba(234,88,12,0.06)',200,null,'Colesterol Total (mg/dL)','Meta: <200 mg/dL','cm-col-total');
+  renderChart('ch-ldl',labels,ultimos.map(r=>r.colesterol_ldl||null),'rgba(230,126,34,0.9)','rgba(230,126,34,0.06)',metas.ldl.max,null,'Colesterol LDL (mg/dL)',metas.ldl.label,'cm-ldl');
+  renderChart('ch-hdl',labels,ultimos.map(r=>r.colesterol_hdl||null),'rgba(46,158,107,0.9)','rgba(46,158,107,0.08)',null,40,'Colesterol HDL (mg/dL)','Meta: >40 mg/dL','cm-hdl');
+  renderChart('ch-tg',labels,ultimos.map(r=>r.trigliceridos||null),'rgba(217,70,239,0.9)','rgba(217,70,239,0.06)',150,null,'Triglicéridos (mg/dL)','Meta: <150 mg/dL','cm-tg');
+  renderChart('ch-creatinina',labels,ultimos.map(r=>r.creatinina||null),'rgba(20,184,166,0.9)','rgba(20,184,166,0.06)',1.2,null,'Creatinina (mg/dL)','Normal: <1.2 mg/dL','cm-creatinina');
+  renderChart('ch-bun',labels,ultimos.map(r=>r.bun||null),'rgba(59,130,246,0.9)','rgba(59,130,246,0.06)',20,7,'BUN (mg/dL)','Normal: 7-20 mg/dL','cm-bun');
 }
 
 function renderChart(id,labels,data,borderColor,bgColor,refMax,refMin,label,metaLabel,metaId){
