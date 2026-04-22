@@ -205,13 +205,19 @@ tbody tr:hover{background:var(--pale);}
         <div class="ai-contenido" id="ai-texto" style="display:none;"></div>
       </div>
 
-      <div id="stats-row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;" id="stats-row">
-        <div class="stat-card azul" onclick="abrirGrafica('glucosa_ayuno')" style="cursor:pointer;"><div class="stat-val" id="s-gluc">—</div><div class="stat-lbl">Glucosa (mg/dL)</div><div class="stat-meta" id="s-gluc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
-        <div class="stat-card" onclick="abrirGrafica('presion_sistolica')" style="cursor:pointer;"><div class="stat-val" id="s-pas">—</div><div class="stat-lbl">Presión sistólica</div><div class="stat-meta" id="s-pas-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
-        <div class="stat-card" onclick="abrirGrafica('frecuencia_cardiaca')" style="cursor:pointer;"><div class="stat-val" id="s-fc">—</div><div class="stat-lbl">Frec. cardiaca</div><div class="stat-meta" id="s-fc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
-        <div class="stat-card" onclick="abrirGrafica('peso')" style="cursor:pointer;"><div class="stat-val" id="s-imc">—</div><div class="stat-lbl">IMC / Peso</div><div class="stat-meta" id="s-imc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
-        <div class="stat-card" onclick="abrirGrafica('hba1c')" style="cursor:pointer;"><div class="stat-val" id="s-hba1c">—</div><div class="stat-lbl">HbA1c (%)</div><div class="stat-meta" id="s-hba1c-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
-        <div class="stat-card" onclick="abrirGrafica('colesterol_ldl')" style="cursor:pointer;"><div class="stat-val" id="s-ldl">—</div><div class="stat-lbl">Colesterol LDL</div><div class="stat-meta" id="s-ldl-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+      <div id="stats-row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px;">
+        <div class="stat-card azul"><div class="stat-val" id="s-gluc">—</div><div class="stat-lbl">Glucosa (mg/dL)</div><div class="stat-meta" id="s-gluc-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-pas">—</div><div class="stat-lbl">Presión sistólica</div><div class="stat-meta" id="s-pas-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-fc">—</div><div class="stat-lbl">Frec. cardiaca</div><div class="stat-meta" id="s-fc-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-imc">—</div><div class="stat-lbl">IMC (kg/m²)</div><div class="stat-meta" id="s-imc-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-hba1c">—</div><div class="stat-lbl">HbA1c (%)</div><div class="stat-meta" id="s-hba1c-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-ldl">—</div><div class="stat-lbl">Colesterol LDL</div><div class="stat-meta" id="s-ldl-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-hdl">—</div><div class="stat-lbl">Colesterol HDL</div><div class="stat-meta" id="s-hdl-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-tg">—</div><div class="stat-lbl">Triglicéridos</div><div class="stat-meta" id="s-tg-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-col-total">—</div><div class="stat-lbl">Col. Total</div><div class="stat-meta" id="s-col-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-creatinina">—</div><div class="stat-lbl">Creatinina</div><div class="stat-meta" id="s-creat-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-bun">—</div><div class="stat-lbl">BUN</div><div class="stat-meta" id="s-bun-m"></div></div>
+        <div class="stat-card"><div class="stat-val" id="s-cintura">—</div><div class="stat-lbl">Cintura (cm)</div><div class="stat-meta" id="s-cintura-m"></div></div>
       </div>
 
       <!-- Tarjeta especial: Curvas de glucosa del día -->
@@ -230,10 +236,10 @@ tbody tr:hover{background:var(--pale);}
       </div>
 
       <div class="charts-grid">
-        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('glucosa_ayuno')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>🩸 Glucosa</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-gluc"></div><canvas id="ch-gluc" height="120"></canvas></div>
-        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('presion_sistolica')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>💊 Presión arterial</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-pas"></div><canvas id="ch-pas" height="120"></canvas></div>
-        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('frecuencia_cardiaca')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>❤️ Frec. cardiaca</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-fc"></div><canvas id="ch-fc" height="120"></canvas></div>
-        <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('peso')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>⚖️ Peso (kg)</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-peso"></div><canvas id="ch-peso" height="120"></canvas></div>
+        <div class="chart-card"><h4>🩸 Glucosa en ayuno</h4><div class="chart-meta" id="cm-gluc"></div><canvas id="ch-gluc" height="120"></canvas><button onclick="abrirGrafica('glucosa_ayuno')" style="margin-top:10px;background:#e8f0fd;color:#1346a0;border:none;border-radius:8px;padding:6px 14px;font-family:DM Sans,sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;width:100%;">📈 Ver gráfica completa</button></div>
+        <div class="chart-card"><h4>💊 Presión arterial sistólica</h4><div class="chart-meta" id="cm-pas"></div><canvas id="ch-pas" height="120"></canvas><button onclick="abrirGrafica('presion_sistolica')" style="margin-top:10px;background:#e8f0fd;color:#1346a0;border:none;border-radius:8px;padding:6px 14px;font-family:DM Sans,sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;width:100%;">📈 Ver gráfica completa</button></div>
+        <div class="chart-card"><h4>❤️ Frecuencia cardiaca</h4><div class="chart-meta" id="cm-fc"></div><canvas id="ch-fc" height="120"></canvas><button onclick="abrirGrafica('frecuencia_cardiaca')" style="margin-top:10px;background:#e8f0fd;color:#1346a0;border:none;border-radius:8px;padding:6px 14px;font-family:DM Sans,sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;width:100%;">📈 Ver gráfica completa</button></div>
+        <div class="chart-card"><h4>⚖️ Peso corporal</h4><div class="chart-meta" id="cm-peso"></div><canvas id="ch-peso" height="120"></canvas><button onclick="abrirGrafica('peso')" style="margin-top:10px;background:#e8f0fd;color:#1346a0;border:none;border-radius:8px;padding:6px 14px;font-family:DM Sans,sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;width:100%;">📈 Ver gráfica completa</button></div>
         <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('cintura')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>📏 Cintura (cm)</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-cintura"></div><canvas id="ch-cintura" height="120"></canvas></div>
         <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('hba1c')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>🔬 HbA1c (%)</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-hba1c"></div><canvas id="ch-hba1c" height="120"></canvas></div>
         <div class="chart-card" style="cursor:pointer;" onclick="abrirGrafica('colesterol_total')"><div style="display:flex;justify-content:space-between;align-items:center;"><h4>🧪 Colesterol Total</h4><span style="font-size:0.72rem;color:var(--azul);font-weight:600;">📈 Ver completa</span></div><div class="chart-meta" id="cm-col-total"></div><canvas id="ch-col-total" height="120"></canvas></div>
@@ -371,15 +377,55 @@ tbody tr:hover{background:var(--pale);}
 
     <!-- RESUMEN -->
     <div class="pantalla" id="p-resumen">
-      <div class="page-title">📝 Mi resumen de salud</div>
-      <div class="page-sub">Basado en tus registros más recientes</div>
+      <style>
+        @media print {
+          nav, .sidebar, #p-dashboard, #p-registrar, #p-historial,
+          .tabs-nav, .btn-imprimir-wrap { display: none !important; }
+          .app { display: block !important; }
+          .main { padding: 0 !important; }
+          #p-resumen { display: block !important; }
+          body { background: white !important; font-size: 11pt; }
+          .resumen-seccion { break-inside: avoid; page-break-inside: avoid; }
+          .resumen-tabla-row { break-inside: avoid; }
+          @page { size: A4; margin: 15mm 12mm; }
+          .no-print { display: none !important; }
+          .print-header { display: block !important; }
+        }
+        .print-header { display: none; border-bottom: 2px solid #1346a0; padding-bottom: 14px; margin-bottom: 20px; }
+      </style>
 
-      <!-- Intro -->
-      <div style="background:linear-gradient(135deg,#0c2d6e,#1346a0);color:white;border-radius:20px;padding:24px 28px;margin-bottom:20px;">
-        <div style="font-size:1.05rem;font-weight:700;margin-bottom:10px;">¿Por qué es importante conocer tu estado de salud?</div>
-        <p style="font-size:0.88rem;line-height:1.8;opacity:0.9;margin-bottom:12px;">El monitoreo regular de tus marcadores de salud te permite detectar cambios a tiempo y actuar antes de que aparezcan complicaciones. Este resumen es una herramienta de orientación basada en tus registros y en las guías de la <strong>American Diabetes Association (ADA) Standards of Care 2026</strong>.</p>
-        <div style="background:rgba(255,255,255,0.12);border-radius:12px;padding:12px 16px;font-size:0.82rem;line-height:1.6;border-left:3px solid rgba(255,255,255,0.4);">
-          ⚠️ <strong>Aviso importante:</strong> Este resumen es únicamente informativo. Nunca sustituye la evaluación, diagnóstico ni tratamiento de un profesional de la salud. Ante cualquier duda, consulte al Dr. Castañeda.
+      <!-- Header solo visible al imprimir -->
+      <div class="print-header">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div style="font-size:1.1rem;font-weight:700;color:#1346a0;">Dr. Ramses Rodrigo Castañeda Valenzuela</div>
+            <div style="font-size:0.82rem;color:#4a5568;">Médico General · Diabetólogo · Cédula Prof. 6823687</div>
+            <div style="font-size:0.82rem;color:#4a5568;">Av. Gonzalo de Sandoval 350A, Las Víboras, Colima, Col. 28040</div>
+            <div style="font-size:0.82rem;color:#4a5568;">WhatsApp: 312 135 5297</div>
+          </div>
+          <div style="text-align:right;font-size:0.8rem;color:#94a3b8;">
+            <div>Resumen de salud del paciente</div>
+            <div id="print-fecha-gen"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div class="page-title">📝 Mi resumen de salud</div>
+          <div class="page-sub">Basado en tus registros más recientes · ADA Standards of Care 2026</div>
+        </div>
+        <div class="btn-imprimir-wrap no-print">
+          <button onclick="window.print()" style="background:#f0f4f8;border:2px solid #dce6f7;color:#1346a0;padding:9px 18px;border-radius:10px;font-family:DM Sans,sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;">🖨️ Imprimir / Guardar PDF</button>
+        </div>
+      </div>
+
+      <!-- Intro con colores claros -->
+      <div class="resumen-seccion" style="background:#e8f0fd;border:1.5px solid #c7d9f8;border-radius:16px;padding:20px 24px;margin-bottom:20px;">
+        <div style="font-size:1rem;font-weight:700;color:#1346a0;margin-bottom:8px;">¿Por qué es importante conocer tu estado de salud?</div>
+        <p style="font-size:0.87rem;line-height:1.8;color:#1e2a3a;margin-bottom:10px;">El monitoreo regular de tus marcadores de salud te permite detectar cambios a tiempo y actuar antes de que aparezcan complicaciones. Este resumen es una herramienta de orientación basada en tus registros y en las guías de la <strong>American Diabetes Association (ADA) Standards of Care 2026</strong>.</p>
+        <div style="background:#fff3cd;border-radius:10px;padding:10px 14px;font-size:0.82rem;line-height:1.6;color:#856404;border-left:3px solid #e67e22;">
+          ⚠️ <strong>Aviso importante:</strong> Este resumen es únicamente informativo. Nunca sustituye la evaluación, diagnóstico ni tratamiento de un profesional de la salud. Ante cualquier duda, consulte con su médico.
         </div>
       </div>
 
@@ -707,6 +753,13 @@ function renderDashboard(){
   setCard('s-hba1c','s-hba1c-m',ultimo?.hba1c,metas.hba1c);
   setCard('s-ldl','s-ldl-m',ultimo?.colesterol_ldl,metas.ldl);
   setCard('s-fc','s-fc-m',ultimo?.frecuencia_cardiaca,metas.fc);
+  // Nuevas stat cards
+  if(document.getElementById('s-hdl')) setCard('s-hdl','s-hdl-m',ultimo?.colesterol_hdl,{min:40,max:999,label:'Meta: >40 mg/dL'});
+  if(document.getElementById('s-tg')) setCard('s-tg','s-tg-m',ultimo?.trigliceridos,{min:0,max:150,label:'Normal: <150 mg/dL'});
+  if(document.getElementById('s-col-total')) setCard('s-col-total','s-col-m',ultimo?.colesterol_total,{min:0,max:200,label:'Normal: <200 mg/dL'});
+  if(document.getElementById('s-creatinina')) setCard('s-creatinina','s-creat-m',ultimo?.creatinina,{min:0.5,max:1.2,label:'Normal: 0.6-1.2 mg/dL'});
+  if(document.getElementById('s-bun')) setCard('s-bun','s-bun-m',ultimo?.bun,{min:7,max:20,label:'Normal: 7-20 mg/dL'});
+  if(document.getElementById('s-cintura')) setCard('s-cintura','s-cintura-m',ultimo?.cintura,{min:0,max:88,label:'Meta: <88 cm (F) / <102 cm (M)'});
 
   // IMC
   if(ultimo?.peso&&perfil?.estatura){
@@ -911,6 +964,20 @@ Usa un tono cálido, claro y no alarmista. NO uses asteriscos ni markdown. Escri
 
 // ─── RESUMEN COMPLETO DE SALUD ────────────────────────────────
 function renderResumen(){
+  // Actualizar fecha de generación para impresión
+  var fechaEl = document.getElementById('print-fecha-gen');
+  if(fechaEl) fechaEl.textContent = 'Generado: ' + new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  // Agregar nombre del paciente al print header
+  var printHeader = document.querySelector('.print-header');
+  if(printHeader && perfil){
+    var pacEl = document.createElement('div');
+    pacEl.style.cssText = 'margin-top:10px;padding-top:10px;border-top:1px solid #dce6f7;font-size:0.88rem;color:#1e2a3a;';
+    pacEl.innerHTML = '<strong>Paciente: '+perfil.nombre+'</strong>' + (perfil.fecha_nacimiento ? ' &nbsp;·&nbsp; Fecha de nacimiento: '+perfil.fecha_nacimiento : '') + ' &nbsp;·&nbsp; Condición: '+({dm1:'Diabetes Tipo 1',dm2:'Diabetes Tipo 2',pre:'Prediabetes',no:'Sin diabetes'}[perfil.tipo_diabetes||'no']||'—');
+    if(!printHeader.querySelector('.paciente-info')){
+      pacEl.className = 'paciente-info';
+      printHeader.appendChild(pacEl);
+    }
+  }
   var metas = getMetas(perfil?.tipo_diabetes || 'no');
   var cond = perfil?.tipo_diabetes || 'no';
   var condLabel = {dm1:'Diabetes Tipo 1', dm2:'Diabetes Tipo 2', pre:'Prediabetes', no:'Sin diabetes'}[cond] || 'Sin diabetes';
@@ -979,9 +1046,17 @@ function renderResumen(){
     html += '<p style="color:#94a3b8;font-size:0.88rem;">Sin registros de glucosa aún.</p>';
   }
 
-  // Enlace a curvas
-  html += '<a href="grafica_curvas_glucosa.html" target="_blank" style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;background:#e8f0fd;color:#1346a0;padding:8px 16px;border-radius:10px;font-size:0.82rem;font-weight:700;text-decoration:none;">📊 Ver curvas de glucosa del día →</a>';
+  // Canvas de curvas de glucosa integrado en el resumen
+  html += '<div style="margin-top:16px;">';
+  html += '<div style="font-size:0.85rem;font-weight:700;color:#1346a0;margin-bottom:10px;">📊 Últimas curvas de glucosa del día</div>';
+  html += '<div id="resumen-curvas-wrap" style="background:#f4f7fe;border-radius:12px;padding:16px;min-height:80px;">';
+  html += '<canvas id="resumen-curvas-chart" height="120"></canvas>';
+  html += '<div id="resumen-curvas-empty" style="text-align:center;color:#94a3b8;font-size:0.85rem;padding:20px;">Sin mediciones de glucosa registradas aún.</div>';
   html += '</div>';
+  html += '</div>';
+  html += '</div>';
+  // Renderizar curvas después de que el DOM esté listo
+  setTimeout(function(){ renderCurvasEnResumen(); }, 100);
 
   // ── Secciones de otros marcadores ──
   var secciones = [
@@ -1062,14 +1137,30 @@ function renderResumen(){
     var bg = i%2===0 ? 'white' : '#f9fafb';
     if(!item.val){ html += '<tr style="background:'+bg+';"><td style="padding:10px 14px;color:#1e2a3a;font-weight:600;">'+item.lbl+'</td><td style="padding:10px 14px;text-align:center;color:#94a3b8;">Sin datos</td><td style="padding:10px 14px;text-align:center;color:#94a3b8;">'+item.min+(item.max<900?'-'+item.max:'+')+' '+item.unidad+'</td><td style="padding:10px 14px;text-align:center;">⬜ Sin datos</td></tr>'; return; }
     var est2 = item.invertido ? (item.val>=item.min?'bien':item.val>=item.min*0.85?'cuidado':'malo') : estado(item.val, item.min, item.max);
-    var icono = est2==='bien' ? '✅' : est2==='cuidado' ? '⚠️' : '🔴';
     var metaStr = item.max >= 900 ? '>'+item.min+' '+item.unidad : item.min>0 ? item.min+'-'+item.max+' '+item.unidad : '<'+item.max+' '+item.unidad;
-    html += '<tr style="background:'+bg+';"><td style="padding:10px 14px;color:#1e2a3a;font-weight:600;">'+item.lbl+'</td><td style="padding:10px 14px;text-align:center;font-weight:700;color:'+colorEst(est2)+'">'+item.val+' '+item.unidad+'</td><td style="padding:10px 14px;text-align:center;color:#4a5568;font-size:0.78rem;">'+metaStr+'</td><td style="padding:10px 14px;text-align:center;font-size:1.1rem;">'+icono+' <span style="font-size:0.75rem;font-weight:700;color:'+colorEst(est2)+'">'+labelEst(est2)+'</span></td></tr>';
+    var iconoSolo = est2==='bien' ? '✅' : est2==='cuidado' ? '⚠️' : '🔴';
+    var labelSolo = est2==='bien' ? 'En meta' : est2==='cuidado' ? 'Revisar' : 'Atención';
+    html += '<tr style="background:'+bg+';"><td style="padding:10px 14px;color:#1e2a3a;font-weight:600;">'+item.lbl+'</td><td style="padding:10px 14px;text-align:center;font-weight:700;color:'+colorEst(est2)+'">'+item.val+' '+item.unidad+'</td><td style="padding:10px 14px;text-align:center;color:#4a5568;font-size:0.78rem;">'+metaStr+'</td><td style="padding:10px 14px;text-align:center;"><span style="font-size:1.1rem;">'+iconoSolo+'</span><br><span style="font-size:0.72rem;font-weight:700;color:'+colorEst(est2)+'">'+labelSolo+'</span></td></tr>';
   });
 
   html += '</tbody></table></div>';
-  html += '<p style="font-size:0.75rem;color:#94a3b8;margin-top:14px;line-height:1.6;">Este resumen es orientativo. Los valores deben interpretarse en conjunto con la evaluación clínica del Dr. Castañeda. Los valores de referencia corresponden a las guías ADA Standards of Care 2026.</p>';
-  html += '<a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20revisar%20mis%20resultados" target="_blank" style="display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:#1346a0;color:white;padding:12px 22px;border-radius:12px;font-size:0.88rem;font-weight:700;text-decoration:none;">💬 Consultar mis resultados con el Dr. Castañeda</a>';
+  html += '<p style="font-size:0.75rem;color:#4a5568;margin-top:14px;line-height:1.6;background:#f4f7fe;border-radius:8px;padding:10px 12px;">Este resumen es orientativo. Los valores deben interpretarse en conjunto con la evaluación clínica de su médico. Los valores de referencia corresponden a las guías <strong>ADA Standards of Care 2026</strong>.</p>';
+
+  // Botones de contacto
+  html += '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;" class="no-print">';
+  html += '<a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20revisar%20mis%20resultados" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#e8f0fd;color:#1346a0;border:2px solid #c7d9f8;padding:11px 20px;border-radius:12px;font-size:0.85rem;font-weight:700;text-decoration:none;">💬 Consultar mis resultados con el Dr. Castañeda</a>';
+  html += '</div>';
+
+  // Tarjeta del médico - visible en pantalla y en impresión
+  html += '<div class="resumen-seccion" style="margin-top:24px;background:#f4f7fe;border:1.5px solid #dce6f7;border-radius:16px;padding:20px 24px;">';
+  html += '<div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#1346a0;margin-bottom:12px;">Atención médica</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:0.85rem;color:#1e2a3a;">';
+  html += '<div><strong style="display:block;font-size:0.95rem;margin-bottom:4px;">Dr. Ramses Rodrigo Castañeda Valenzuela</strong>';
+  html += '<span style="color:#4a5568;">Médico General · Diabetólogo<br>Cédula Profesional: <strong>6823687</strong></span></div>';
+  html += '<div style="color:#4a5568;">📍 Av. Gonzalo de Sandoval 350A<br>Las Víboras, Colima, Col. 28040<br>📱 WhatsApp: <strong>312 135 5297</strong><br>🕐 Lun, Mié y Vie · 4:00 – 8:00 pm</div>';
+  html += '</div>';
+  html += '<div style="margin-top:14px;background:#fff3cd;border-radius:8px;padding:9px 12px;font-size:0.78rem;color:#856404;line-height:1.5;">⚠️ Citas únicamente con previa programación. Este documento no reemplaza la consulta médica presencial. Ante síntomas de alarma, acuda a urgencias o llame al 911.</div>';
+  html += '</div>';
   html += '</div>';
 
   document.getElementById('resumen-contenido').innerHTML = html;
@@ -1102,6 +1193,58 @@ function textoGlucosa(promAy, promPost, estAy, estPost, metas, condLabel){
 }
 
 // ─────────────────────────────────────────────────────────────
+
+function renderCurvasEnResumen(){
+  // Tomar el día más reciente con datos de glucosa
+  var hoy = new Date().toISOString().split('T')[0];
+  var canvasEl = document.getElementById('resumen-curvas-chart');
+  var emptyEl = document.getElementById('resumen-curvas-empty');
+  if(!canvasEl) return;
+
+  var COMIDA_ORDEN = {ayuno:0,antes_desayuno:1,despues_desayuno:2,antes_comida:3,despues_comida:4,antes_cena:5,despues_cena:6,antes_colacion:7,despues_colacion:8,antes_dormir:9,madrugada:10};
+  var COMIDA_ICO = {ayuno:'Ayuno',antes_desayuno:'Antes desayuno',despues_desayuno:'Después desayuno',antes_comida:'Antes comida',despues_comida:'Después comida',antes_cena:'Antes cena',despues_cena:'Después cena',antes_colacion:'Antes colación',despues_colacion:'Después colación',antes_dormir:'Antes dormir',madrugada:'Madrugada'};
+
+  // Buscar registros con glucosas_comidas en los últimos 7 días
+  var regsConGluc = registros.filter(function(r){ return r.glucosas_comidas; });
+  if(!regsConGluc.length){
+    canvasEl.style.display = 'none';
+    if(emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+
+  // Usar el día más reciente
+  var ultReg = regsConGluc[0];
+  var comidas = typeof ultReg.glucosas_comidas === 'string' ? JSON.parse(ultReg.glucosas_comidas) : ultReg.glucosas_comidas;
+  comidas.sort(function(a,b){ return (COMIDA_ORDEN[a.tipo]||5)-(COMIDA_ORDEN[b.tipo]||5); });
+
+  var labels = comidas.map(function(c){ return (c.hora||'') + '
+' + (COMIDA_ICO[c.tipo]||c.tipo); });
+  var vals = comidas.map(function(c){ return parseFloat(c.valor)||null; });
+  var metas = getMetas(perfil?.tipo_diabetes||'no');
+  var metaLine = comidas.map(function(c){
+    return c.tipo&&c.tipo.startsWith('despues') ? (metas.gluc_post1h?metas.gluc_post1h.max:180) : metas.gluc_ay.max;
+  });
+
+  if(emptyEl) emptyEl.style.display = 'none';
+  canvasEl.style.display = 'block';
+
+  if(window._resumenCurvasChart) window._resumenCurvasChart.destroy();
+  window._resumenCurvasChart = new Chart(canvasEl.getContext('2d'),{
+    type:'line',
+    data:{
+      labels:labels,
+      datasets:[
+        {label:'Glucosa del día ('+ultReg.fecha+')',data:vals,borderColor:'rgba(19,70,160,0.9)',backgroundColor:'rgba(19,70,160,0.08)',borderWidth:2.5,pointRadius:5,pointBackgroundColor:vals.map(function(v,i){ return v&&v<=metaLine[i]?'rgba(46,158,107,0.9)':v&&v<=metaLine[i]*1.15?'rgba(230,126,34,0.9)':'rgba(192,57,43,0.9)'; }),pointBorderColor:'white',pointBorderWidth:2,tension:0.4,fill:true,spanGaps:false},
+        {label:'Meta',data:metaLine,borderColor:'rgba(230,126,34,0.6)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false,tension:0}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:true,position:'top',labels:{font:{size:10}}},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.y+' mg/dL';}}}},
+      scales:{x:{ticks:{font:{size:9},maxRotation:0}},y:{beginAtZero:false,grid:{color:'#f0f4f8'},ticks:{callback:function(v){return v+' mg/dL';},font:{size:9}}}}
+    }
+  });
+}
 
 function abrirGrafica(campo){
   window.open('grafica_detalle.html?campo=' + campo, '_blank');
