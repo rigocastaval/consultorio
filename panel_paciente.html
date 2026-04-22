@@ -238,12 +238,16 @@ tbody tr:hover{background:var(--pale);}
                 <label class="form-label2">Tiempo de comida</label>
                 <select class="form-input2 comida-tipo">
                   <option value="">Seleccionar</option>
-                  <option value="ayuno">⭕ Ayuno</option>
-                  <option value="desayuno">🌅 Desayuno</option>
-                  <option value="comida">☀️ Comida</option>
-                  <option value="cena">🌙 Cena</option>
-                  <option value="colacion">🍎 Colación</option>
-                  <option value="antes_dormir">🛌 Antes de dormir</option>
+                  <option value="ayuno">🌑 En ayuno</option>
+                  <option value="antes_desayuno">🌅 Antes de desayunar</option>
+                  <option value="despues_desayuno">🍳 Después de desayunar</option>
+                  <option value="antes_comida">☀️ Antes de comer</option>
+                  <option value="despues_comida">🍽️ Después de comer</option>
+                  <option value="antes_cena">🌆 Antes de cenar</option>
+                  <option value="despues_cena">🌙 Después de cenar</option>
+                  <option value="antes_colacion">🍎 Antes de colación</option>
+                  <option value="despues_colacion">✅ Después de colación</option>
+                  <option value="madrugada">🌚 Madrugada</option>
                 </select>
               </div>
               <div class="form-group2">
@@ -847,10 +851,16 @@ function agregarComida(){
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;">'+
     '<div class="form-group2"><label class="form-label2">Tiempo de comida</label>'+
     '<select class="form-input2 comida-tipo"><option value="">Seleccionar</option>'+
-    '<option value="ayuno">Ayuno</option>'+
-    '<option value="desayuno">Desayuno</option><option value="comida">Comida</option>'+
-    '<option value="cena">Cena</option><option value="colacion">Colacion</option>'+
-    '<option value="antes_dormir">Antes de dormir</option></select></div>'+
+    '<option value="ayuno">En ayuno</option>'+
+    '<option value="antes_desayuno">Antes de desayunar</option>'+
+    '<option value="despues_desayuno">Despues de desayunar</option>'+
+    '<option value="antes_comida">Antes de comer</option>'+
+    '<option value="despues_comida">Despues de comer</option>'+
+    '<option value="antes_cena">Antes de cenar</option>'+
+    '<option value="despues_cena">Despues de cenar</option>'+
+    '<option value="antes_colacion">Antes de colacion</option>'+
+    '<option value="despues_colacion">Despues de colacion</option>'+
+    '<option value="madrugada">Madrugada</option></select></div>'+
     '<div class="form-group2"><label class="form-label2">Glucosa (mg/dL)</label>'+
     '<input class="form-input2 comida-valor" type="number" placeholder="ej: 120"></div>'+
     '<div class="form-group2"><label class="form-label2">Hora</label>'+
