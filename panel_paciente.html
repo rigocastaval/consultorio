@@ -204,12 +204,12 @@ tbody tr:hover{background:var(--pale);}
       </div>
 
       <div class="stats-row" id="stats-row">
-        <div class="stat-card azul"><div class="stat-val" id="s-gluc">—</div><div class="stat-lbl">Glucosa ayuno (mg/dL)</div><div class="stat-meta" id="s-gluc-m"></div></div>
-        <div class="stat-card"><div class="stat-val" id="s-pas">—</div><div class="stat-lbl">Presión sistólica</div><div class="stat-meta" id="s-pas-m"></div></div>
-        <div class="stat-card"><div class="stat-val" id="s-hba1c">—</div><div class="stat-lbl">HbA1c (%)</div><div class="stat-meta" id="s-hba1c-m"></div></div>
-        <div class="stat-card"><div class="stat-val" id="s-imc">—</div><div class="stat-lbl">IMC (kg/m²)</div><div class="stat-meta" id="s-imc-m"></div></div>
-        <div class="stat-card"><div class="stat-val" id="s-ldl">—</div><div class="stat-lbl">Colesterol LDL</div><div class="stat-meta" id="s-ldl-m"></div></div>
-        <div class="stat-card"><div class="stat-val" id="s-fc">—</div><div class="stat-lbl">Frec. cardiaca</div><div class="stat-meta" id="s-fc-m"></div></div>
+        <div class="stat-card azul" onclick="abrirGrafica('glucosa_ayuno')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-gluc">—</div><div class="stat-lbl">Glucosa ayuno (mg/dL)</div><div class="stat-meta" id="s-gluc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+        <div class="stat-card" onclick="abrirGrafica('presion_sistolica')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-pas">—</div><div class="stat-lbl">Presión sistólica</div><div class="stat-meta" id="s-pas-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+        <div class="stat-card" onclick="abrirGrafica('hba1c')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-hba1c">—</div><div class="stat-lbl">HbA1c (%)</div><div class="stat-meta" id="s-hba1c-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+        <div class="stat-card" onclick="abrirGrafica('peso')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-imc">—</div><div class="stat-lbl">IMC (kg/m²)</div><div class="stat-meta" id="s-imc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+        <div class="stat-card" onclick="abrirGrafica('colesterol_ldl')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-ldl">—</div><div class="stat-lbl">Colesterol LDL</div><div class="stat-meta" id="s-ldl-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
+        <div class="stat-card" onclick="abrirGrafica('frecuencia_cardiaca')" style="cursor:pointer;" title="Ver gráfica completa"><div class="stat-val" id="s-fc">—</div><div class="stat-lbl">Frec. cardiaca</div><div class="stat-meta" id="s-fc-m"></div><div style="font-size:0.68rem;color:#94a3b8;margin-top:4px;">📈 Ver gráfica</div></div>
       </div>
 
       <div class="charts-grid">
@@ -230,12 +230,39 @@ tbody tr:hover{background:var(--pale);}
           <div class="form-group2"><label class="form-label2">Fecha del registro</label><input class="form-input2" type="date" id="r-fecha"></div>
         </div>
 
-        <div class="seccion-titulo">🩸 Glucosa</div>
-        <div class="form-grid">
+        <div class="seccion-titulo">🩸 Glucosa en ayuno</div>
+        <div class="form-grid-2">
           <div class="form-group2"><label class="form-label2">Glucosa en ayuno (mg/dL)</label><input class="form-input2" type="number" id="r-ga" placeholder="80-130"></div>
-          <div class="form-group2"><label class="form-label2">Glucosa postprandial</label><input class="form-input2" type="number" id="r-gp" placeholder="&lt;180"></div>
-          <div class="form-group2"><label class="form-label2">Glucosa antes de dormir</label><input class="form-input2" type="number" id="r-gn" placeholder="90-150"></div>
+          <div class="form-group2"><label class="form-label2">Glucosa antes de dormir (mg/dL)</label><input class="form-input2" type="number" id="r-gn" placeholder="90-150"></div>
         </div>
+
+        <div class="seccion-titulo">🍽️ Glucosa después de alimentos</div>
+        <div id="registros-comidas">
+          <div class="comida-row" data-idx="0" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;">
+            <div class="form-group2">
+              <label class="form-label2">Tiempo de comida</label>
+              <select class="form-input2 comida-tipo">
+                <option value="">Seleccionar</option>
+                <option value="desayuno">🌅 Desayuno</option>
+                <option value="comida">☀️ Comida</option>
+                <option value="cena">🌙 Cena</option>
+                <option value="colacion">🍎 Colación</option>
+              </select>
+            </div>
+            <div class="form-group2">
+              <label class="form-label2">Glucosa (mg/dL)</label>
+              <input class="form-input2 comida-valor" type="number" placeholder="&lt;180">
+            </div>
+            <div class="form-group2">
+              <label class="form-label2">Hora</label>
+              <input class="form-input2 comida-hora" type="time">
+            </div>
+            <div style="padding-bottom:2px;">
+              <button onclick="quitarComida(this)" style="background:#fdecea;color:#c0392b;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;font-size:0.9rem;display:none;">✕</button>
+            </div>
+          </div>
+        </div>
+        <button onclick="agregarComida()" style="background:var(--pale);border:2px dashed var(--borde);border-radius:10px;padding:9px 18px;font-family:DM Sans,sans-serif;font-size:0.85rem;font-weight:600;color:var(--azul);cursor:pointer;width:100%;margin-bottom:4px;">+ Agregar otra medición de glucosa</button>
 
         <div class="seccion-titulo">💊 Presión arterial</div>
         <div class="form-grid">
@@ -253,8 +280,40 @@ tbody tr:hover{background:var(--pale);}
         <div class="seccion-titulo">🔬 Laboratorio (si tiene resultados)</div>
         <div class="form-grid">
           <div class="form-group2"><label class="form-label2">HbA1c (%)</label><input class="form-input2" type="number" id="r-hba1c" placeholder="ej: 7.2" step="0.1"></div>
+          <div class="form-group2"><label class="form-label2">Colesterol Total (mg/dL)</label><input class="form-input2" type="number" id="r-col-total" placeholder="&lt;200"></div>
           <div class="form-group2"><label class="form-label2">Colesterol LDL (mg/dL)</label><input class="form-input2" type="number" id="r-ldl" placeholder="&lt;100"></div>
+          <div class="form-group2"><label class="form-label2">Colesterol HDL (mg/dL)</label><input class="form-input2" type="number" id="r-hdl" placeholder="&gt;40"></div>
           <div class="form-group2"><label class="form-label2">Triglicéridos (mg/dL)</label><input class="form-input2" type="number" id="r-tg" placeholder="&lt;150"></div>
+          <div class="form-group2"><label class="form-label2">BUN (mg/dL)</label><input class="form-input2" type="number" id="r-bun" placeholder="7-20"></div>
+          <div class="form-group2"><label class="form-label2">Creatinina (mg/dL)</label><input class="form-input2" type="number" id="r-creatinina" placeholder="0.6-1.2" step="0.01"></div>
+        </div>
+
+        <div class="seccion-titulo">🧪 EGO (Examen General de Orina)</div>
+        <div class="form-grid">
+          <div class="form-group2">
+            <label class="form-label2">Proteínas en orina</label>
+            <select class="form-input2" id="r-ego-proteinas">
+              <option value="">Seleccionar</option>
+              <option value="negativo">Negativo</option>
+              <option value="trazas">Trazas</option>
+              <option value="1+">1+</option>
+              <option value="2+">2+</option>
+              <option value="3+">3+</option>
+              <option value="4+">4+</option>
+            </select>
+          </div>
+          <div class="form-group2">
+            <label class="form-label2">Glucosa en orina</label>
+            <select class="form-input2" id="r-ego-glucosa">
+              <option value="">Seleccionar</option>
+              <option value="negativo">Negativo</option>
+              <option value="trazas">Trazas</option>
+              <option value="1+">1+</option>
+              <option value="2+">2+</option>
+              <option value="3+">3+</option>
+              <option value="4+">4+</option>
+            </select>
+          </div>
         </div>
 
         <div class="seccion-titulo">📝 Notas</div>
@@ -619,19 +678,38 @@ function renderChart(id,labels,data,borderColor,bgColor,refMax,refMin,label,meta
 
 async function guardarRegistro(){
   const btn=document.getElementById('btn-guardar');
+  // Recopilar glucosas de comidas
+  var glucosasComidas = [];
+  document.querySelectorAll('.comida-row').forEach(function(row){
+    var tipo = row.querySelector('.comida-tipo').value;
+    var valor = parseInt(row.querySelector('.comida-valor').value)||0;
+    var hora = row.querySelector('.comida-hora').value || null;
+    if(tipo && valor){ glucosasComidas.push({tipo:tipo, valor:valor, hora:hora}); }
+  });
+
+  var hora_actual = new Date().toTimeString().slice(0,5);
+
   const vals={
     user_id:userId,
     fecha:document.getElementById('r-fecha').value,
+    hora_registro: hora_actual,
     glucosa_ayuno:parseInt(document.getElementById('r-ga').value)||null,
-    glucosa_postprandial:parseInt(document.getElementById('r-gp').value)||null,
+    glucosa_nocturna:parseInt(document.getElementById('r-gn').value)||null,
+    glucosas_comidas: glucosasComidas.length > 0 ? JSON.stringify(glucosasComidas) : null,
     presion_sistolica:parseInt(document.getElementById('r-pas').value)||null,
     presion_diastolica:parseInt(document.getElementById('r-pad').value)||null,
     frecuencia_cardiaca:parseInt(document.getElementById('r-fc').value)||null,
     peso:parseFloat(document.getElementById('r-peso').value)||null,
     cintura:parseInt(document.getElementById('r-cintura').value)||null,
     hba1c:parseFloat(document.getElementById('r-hba1c').value)||null,
+    colesterol_total:parseInt(document.getElementById('r-col-total').value)||null,
     colesterol_ldl:parseInt(document.getElementById('r-ldl').value)||null,
+    colesterol_hdl:parseInt(document.getElementById('r-hdl').value)||null,
     trigliceridos:parseInt(document.getElementById('r-tg').value)||null,
+    bun:parseInt(document.getElementById('r-bun').value)||null,
+    creatinina:parseFloat(document.getElementById('r-creatinina').value)||null,
+    ego_proteinas:document.getElementById('r-ego-proteinas').value||null,
+    ego_glucosa:document.getElementById('r-ego-glucosa').value||null,
     notas:document.getElementById('r-notas').value.trim()||null,
   };
   if(!vals.fecha){toast('Seleccione una fecha','rojo');return;}
@@ -645,9 +723,12 @@ async function guardarRegistro(){
     console.error('Error detalle:', JSON.stringify(insRes.error));
   } else {
     toast('Registro guardado correctamente', 'verde');
-    ['r-ga','r-gp','r-gn','r-pas','r-pad','r-fc','r-peso','r-cintura','r-hba1c','r-ldl','r-tg','r-notas'].forEach(function(id){
+    ['r-ga','r-gn','r-pas','r-pad','r-fc','r-peso','r-cintura','r-hba1c','r-col-total','r-ldl','r-hdl','r-tg','r-bun','r-creatinina','r-ego-proteinas','r-ego-glucosa','r-notas'].forEach(function(id){
       var el=document.getElementById(id); if(el) el.value='';
     });
+    document.querySelectorAll('.comida-tipo,.comida-valor,.comida-hora').forEach(function(el){el.value='';}); 
+    var crows=document.querySelectorAll('.comida-row'); for(var ci=1;ci<crows.length;ci++) crows[ci].remove();
+    var primerBtn=document.querySelector('.comida-row button'); if(primerBtn) primerBtn.style.display='none';
     await cargarRegistros();
     // Pequeño delay para que la UI se actualice
     setTimeout(function(){ irA('dashboard'); }, 100);
@@ -678,7 +759,7 @@ function renderHistorial(){
       <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.75rem;">${r.notas||'—'}</td>
     </tr>`;
   }).join('');
-  document.getElementById('tabla-historial').innerHTML=`<table><thead><tr><th>Fecha</th><th>Gluc. ayuno</th><th>Gluc. post.</th><th>Presión</th><th>FC</th><th>Peso</th><th>Cintura</th><th>HbA1c</th><th>LDL</th><th>TG</th><th>Notas</th></tr></thead><tbody>${filas}</tbody></table>`;
+  document.getElementById('tabla-historial').innerHTML=`<table><thead><tr><th>Fecha</th><th>Hora</th><th>Gluc. ayuno</th><th>Gluc. comidas</th><th>Presión</th><th>FC</th><th>Peso</th><th>HbA1c</th><th>Col. Total</th><th>LDL</th><th>HDL</th><th>TG</th><th>Creat.</th><th>Notas</th></tr></thead><tbody>${filas}</tbody></table>`;
 }
 
 async function generarRecomendacionIA(){
@@ -732,6 +813,10 @@ Usa un tono cálido, claro y no alarmista. NO uses asteriscos ni markdown. Escri
   }
 }
 
+function abrirGrafica(campo){
+  window.open('grafica_detalle.html?campo=' + campo, '_blank');
+}
+
 function irA(id, btn){
   document.querySelectorAll('.pantalla').forEach(p=>p.classList.remove('activa'));
   document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('activo'));
@@ -749,6 +834,36 @@ function irA(id, btn){
 }
 
 async function cerrarSesion(){await sb.auth.signOut();window.location.href='auth.html';}
+
+function agregarComida(){
+  var container=document.getElementById('registros-comidas');
+  var idx=container.querySelectorAll('.comida-row').length;
+  var div=document.createElement('div');
+  div.className='comida-row';
+  div.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;';
+  div.innerHTML='<div class="form-group2"><label class="form-label2">Tiempo de comida</label>'+
+    '<select class="form-input2 comida-tipo"><option value="">Seleccionar</option>'+
+    '<option value="desayuno">Desayuno</option><option value="comida">Comida</option>'+
+    '<option value="cena">Cena</option><option value="colacion">Colacion</option></select></div>'+
+    '<div class="form-group2"><label class="form-label2">Glucosa (mg/dL)</label>'+
+    '<input class="form-input2 comida-valor" type="number" placeholder="menor a 180"></div>'+
+    '<div class="form-group2"><label class="form-label2">Hora</label>'+
+    '<input class="form-input2 comida-hora" type="time"></div>'+
+    '<div style="padding-bottom:2px;"><button onclick="quitarComida(this)" '+
+    'style="background:#fdecea;color:#c0392b;border:none;border-radius:8px;padding:10px 12px;cursor:pointer;font-weight:700;">x</button></div>';
+  container.appendChild(div);
+  var primerBtn=document.querySelector('.comida-row button');
+  if(primerBtn) primerBtn.style.display='block';
+}
+
+function quitarComida(btn){
+  var row=btn.closest('.comida-row');
+  var rows=document.querySelectorAll('.comida-row');
+  if(rows.length>1){ row.remove(); }
+  if(document.querySelectorAll('.comida-row').length===1){
+    var b=document.querySelector('.comida-row button'); if(b) b.style.display='none';
+  }
+}
 
 function toast(msg,tipo=''){
   const t=document.getElementById('toast');

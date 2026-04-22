@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gráfica detallada | Dr. Ramses Castañeda</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{--azul:#1346a0;--verde:#2e9e6b;--naranja:#e67e22;--rojo:#c0392b;--gris:#4a5568;--borde:#dce6f7;--pale:#f4f7fe;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#f0f4fb;color:#1e2a3a;}
+nav{background:linear-gradient(135deg,#0c2d6e,#1346a0);height:56px;padding:0 4%;display:flex;align-items:center;justify-content:space-between;}
+nav a{color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.85rem;display:flex;align-items:center;gap:6px;}
+nav a:hover{color:white;}
+.nav-titulo{font-family:'Playfair Display',serif;font-size:1rem;color:white;font-weight:700;}
+.contenido{max-width:900px;margin:28px auto;padding:0 18px 60px;}
+.header{margin-bottom:24px;}
+.header h1{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;margin-bottom:4px;}
+.header p{font-size:0.88rem;color:var(--gris);}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat{background:white;border-radius:14px;padding:16px;text-align:center;box-shadow:0 2px 8px rgba(19,70,160,0.08);border-top:3px solid var(--borde);}
+.stat.verde{border-top-color:var(--verde);}
+.stat.naranja{border-top-color:var(--naranja);}
+.stat.rojo{border-top-color:var(--rojo);}
+.stat.azul{border-top-color:var(--azul);}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--azul);line-height:1;margin-bottom:3px;}
+.stat-lbl{font-size:0.72rem;color:var(--gris);font-weight:600;}
+.chart-card{background:white;border-radius:20px;padding:28px;box-shadow:0 2px 12px rgba(19,70,160,0.08);margin-bottom:16px;}
+.chart-card h2{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:6px;}
+.chart-meta{font-size:0.8rem;color:var(--gris);margin-bottom:20px;}
+.filtros{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.filtro-btn{padding:7px 16px;border:2px solid var(--borde);border-radius:20px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;background:white;color:var(--gris);transition:all 0.2s;}
+.filtro-btn.activo{background:var(--azul);color:white;border-color:var(--azul);}
+.tabla-card{background:white;border-radius:18px;padding:24px;box-shadow:0 2px 8px rgba(19,70,160,0.08);}
+.tabla-card h2{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:14px;}
+table{width:100%;border-collapse:collapse;font-size:0.83rem;}
+thead th{background:var(--azul);color:white;padding:10px 12px;text-align:left;font-size:0.76rem;}
+tbody td{padding:10px 12px;border-bottom:1px solid #f0f4f8;color:var(--gris);}
+tbody tr:hover{background:var(--pale);}
+.badge{display:inline-block;border-radius:7px;padding:2px 8px;font-size:0.72rem;font-weight:700;}
+.b-verde{background:#e4f7ef;color:var(--verde);}
+.b-naranja{background:#fef3e8;color:var(--naranja);}
+.b-rojo{background:#fdecea;color:var(--rojo);}
+.empty{text-align:center;padding:40px;color:var(--gris);font-size:0.9rem;}
+@media(max-width:600px){.stats-row{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="panel_paciente.html">← Volver al dashboard</a>
+  <span class="nav-titulo">Dr. Ramses Castañeda</span>
+</nav>
+
+<div class="contenido">
+  <div class="header">
+    <h1 id="titulo-pagina">Cargando...</h1>
+    <p id="subtitulo-pagina"></p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat azul"><div class="stat-val" id="st-ultimo">—</div><div class="stat-lbl">Último valor</div></div>
+    <div class="stat verde"><div class="stat-val" id="st-promedio">—</div><div class="stat-lbl">Promedio</div></div>
+    <div class="stat naranja"><div class="stat-val" id="st-max">—</div><div class="stat-lbl">Máximo</div></div>
+    <div class="stat"><div class="stat-val" id="st-registros">—</div><div class="stat-lbl">Registros totales</div></div>
+  </div>
+
+  <div class="filtros">
+    <button class="filtro-btn activo" onclick="filtrar(30,this)">Último mes</button>
+    <button class="filtro-btn" onclick="filtrar(90,this)">3 meses</button>
+    <button class="filtro-btn" onclick="filtrar(180,this)">6 meses</button>
+    <button class="filtro-btn" onclick="filtrar(9999,this)">Todo</button>
+  </div>
+
+  <div class="chart-card">
+    <h2 id="chart-titulo">Historial</h2>
+    <div class="chart-meta" id="chart-meta"></div>
+    <canvas id="mi-chart" height="180"></canvas>
+  </div>
+
+  <div class="tabla-card">
+    <h2>Todos los registros</h2>
+    <div id="tabla-registros"><div class="empty">Cargando...</div></div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://mhejapkehcyezgndglpq.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oZWphcGtlaGN5ZXpnbmRnbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDg3NDUsImV4cCI6MjA5MjM4NDc0NX0.ycFQN-Gm6D5V6TJ0PfEReWHD55sqK-cZvYATqVTGuOk';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+
+// Configuración de cada marcador
+const MARCADORES = {
+  glucosa_ayuno:    {titulo:'Glucosa en ayuno',unidad:'mg/dL',color:'rgba(19,70,160,0.9)',bg:'rgba(19,70,160,0.1)',metaMax:130,metaMin:80},
+  presion_sistolica:{titulo:'Presión arterial sistólica',unidad:'mmHg',color:'rgba(192,57,43,0.9)',bg:'rgba(192,57,43,0.08)',metaMax:130},
+  peso:             {titulo:'Peso corporal',unidad:'kg',color:'rgba(46,158,107,0.9)',bg:'rgba(46,158,107,0.08)'},
+  hba1c:            {titulo:'HbA1c',unidad:'%',color:'rgba(124,58,237,0.9)',bg:'rgba(124,58,237,0.08)',metaMax:7.0},
+  colesterol_ldl:   {titulo:'Colesterol LDL',unidad:'mg/dL',color:'rgba(230,126,34,0.9)',bg:'rgba(230,126,34,0.08)',metaMax:100},
+  frecuencia_cardiaca:{titulo:'Frecuencia cardiaca',unidad:'lpm',color:'rgba(220,38,127,0.9)',bg:'rgba(220,38,127,0.08)',metaMax:100,metaMin:60},
+  colesterol_total: {titulo:'Colesterol total',unidad:'mg/dL',color:'rgba(234,88,12,0.9)',bg:'rgba(234,88,12,0.08)',metaMax:200},
+  colesterol_hdl:   {titulo:'Colesterol HDL',unidad:'mg/dL',color:'rgba(46,158,107,0.9)',bg:'rgba(46,158,107,0.08)',metaMin:40},
+  trigliceridos:    {titulo:'Triglicéridos',unidad:'mg/dL',color:'rgba(217,70,239,0.9)',bg:'rgba(217,70,239,0.08)',metaMax:150},
+  creatinina:       {titulo:'Creatinina sérica',unidad:'mg/dL',color:'rgba(20,184,166,0.9)',bg:'rgba(20,184,166,0.08)',metaMax:1.2},
+  bun:              {titulo:'BUN',unidad:'mg/dL',color:'rgba(59,130,246,0.9)',bg:'rgba(59,130,246,0.08)',metaMax:20,metaMin:7},
+  cintura:          {titulo:'Circunferencia de cintura',unidad:'cm',color:'rgba(168,85,247,0.9)',bg:'rgba(168,85,247,0.08)'},
+};
+
+const params = new URLSearchParams(window.location.search);
+const campo = params.get('campo') || 'glucosa_ayuno';
+const config = MARCADORES[campo] || MARCADORES['glucosa_ayuno'];
+
+let todosRegistros = [];
+let chartRef = null;
+let diasFiltro = 30;
+
+async function init(){
+  document.getElementById('titulo-pagina').textContent = config.titulo;
+  document.getElementById('subtitulo-pagina').textContent = 'Historial completo de ' + config.titulo + ' (' + config.unidad + ')';
+  document.getElementById('chart-titulo').textContent = config.titulo;
+  document.getElementById('chart-meta').textContent = config.metaMax ? 'Meta: ' + (config.metaMin ? config.metaMin + '-' + config.metaMax : '<' + config.metaMax) + ' ' + config.unidad : '';
+
+  const {data:{session}} = await sb.auth.getSession();
+  if(!session){ window.location.replace('auth.html'); return; }
+
+  const {data} = await sb.from('registros_diarios')
+    .select('fecha, hora_registro, ' + campo)
+    .eq('user_id', session.user.id)
+    .not(campo, 'is', null)
+    .order('fecha', {ascending: true});
+
+  todosRegistros = (data || []).filter(r => r[campo] !== null);
+  filtrar(30, document.querySelector('.filtro-btn.activo'));
+}
+
+function filtrar(dias, btn){
+  diasFiltro = dias;
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+  btn.classList.add('activo');
+
+  var fechaCorte = new Date();
+  fechaCorte.setDate(fechaCorte.getDate() - dias);
+  var fechaStr = fechaCorte.toISOString().split('T')[0];
+
+  var filtrados = dias === 9999 ? todosRegistros :
+    todosRegistros.filter(r => r.fecha >= fechaStr);
+
+  renderStats(filtrados);
+  renderChart(filtrados);
+  renderTabla(filtrados);
+}
+
+function renderStats(datos){
+  if(!datos.length){
+    ['st-ultimo','st-promedio','st-max','st-registros'].forEach(id=>document.getElementById(id).textContent='—');
+    return;
+  }
+  var vals = datos.map(r => parseFloat(r[campo])).filter(v => !isNaN(v));
+  var ultimo = vals[vals.length-1];
+  var prom = Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10;
+  var maximo = Math.max.apply(null, vals);
+
+  document.getElementById('st-ultimo').textContent = ultimo;
+  document.getElementById('st-promedio').textContent = prom;
+  document.getElementById('st-max').textContent = maximo;
+  document.getElementById('st-registros').textContent = vals.length;
+
+  // Colorear según meta
+  var col = 'azul';
+  if(config.metaMax){
+    col = ultimo <= config.metaMax ? 'verde' : ultimo <= config.metaMax*1.15 ? 'naranja' : 'rojo';
+  }
+  document.querySelector('.stat:first-child').className = 'stat ' + col;
+}
+
+function renderChart(datos){
+  if(chartRef){ chartRef.destroy(); chartRef=null; }
+  var canvas = document.getElementById('mi-chart');
+  if(!datos.length){
+    canvas.style.display='none'; return;
+  }
+  canvas.style.display='block';
+  var labels = datos.map(r => r.fecha.slice(5) + (r.hora_registro ? ' ' + r.hora_registro : ''));
+  var vals = datos.map(r => parseFloat(r[campo])||null);
+
+  var datasets = [{
+    label: config.titulo,
+    data: vals,
+    borderColor: config.color,
+    backgroundColor: config.bg,
+    borderWidth: 2.5,
+    pointRadius: 4,
+    pointHoverRadius: 7,
+    tension: 0.3,
+    fill: true,
+    spanGaps: true
+  }];
+
+  if(config.metaMax){
+    datasets.push({label:'Límite superior',data:labels.map(()=>config.metaMax),borderColor:'rgba(230,126,34,0.6)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false});
+  }
+  if(config.metaMin){
+    datasets.push({label:'Límite inferior',data:labels.map(()=>config.metaMin),borderColor:'rgba(46,158,107,0.5)',borderWidth:1.5,borderDash:[4,4],pointRadius:0,fill:false});
+  }
+
+  chartRef = new Chart(canvas.getContext('2d'),{
+    type:'line',
+    data:{labels,datasets},
+    options:{
+      responsive:true,
+      plugins:{legend:{display:true,position:'top'}},
+      scales:{y:{beginAtZero:false,grid:{color:'#f0f4f8'}}},
+      elements:{point:{hoverRadius:7}}
+    }
+  });
+}
+
+function renderTabla(datos){
+  if(!datos.length){
+    document.getElementById('tabla-registros').innerHTML='<div class="empty">Sin registros en este periodo</div>';
+    return;
+  }
+  var inversed = [...datos].reverse();
+  var filas = inversed.map(function(r){
+    var val = parseFloat(r[campo]);
+    var cls = 'b-verde';
+    if(config.metaMax && val > config.metaMax) cls = val > config.metaMax*1.15 ? 'b-rojo' : 'b-naranja';
+    if(config.metaMin && val < config.metaMin) cls = 'b-naranja';
+    return '<tr><td>' + r.fecha + '</td><td>' + (r.hora_registro||'—') + '</td>' +
+      '<td><span class="badge ' + cls + '">' + val + ' ' + config.unidad + '</span></td>' +
+      '<td>' + (cls==='b-verde'?'✅ En meta':cls==='b-naranja'?'⚠️ Revisar':'🔴 Fuera de meta') + '</td></tr>';
+  }).join('');
+  document.getElementById('tabla-registros').innerHTML =
+    '<table><thead><tr><th>Fecha</th><th>Hora</th><th>Valor</th><th>Estado</th></tr></thead><tbody>' + filas + '</tbody></table>';
+}
+
+init();
+</script>
+</body></html>

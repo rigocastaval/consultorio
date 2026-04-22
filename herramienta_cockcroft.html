@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filtración Glomerular | Dr. Ramses Castañeda</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
+:root{--azul:#1346a0;--azul-med:#1a5cc8;--verde:#2e9e6b;--naranja:#e67e22;--rojo:#c0392b;--gris:#4a5568;--gris-oscuro:#1e2a3a;--borde:#dce6f7;--pale:#f4f7fe;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;color:var(--gris-oscuro);background:#f0f4fb;min-height:100vh;}
+.topbar{background:linear-gradient(135deg,#0c2d6e,#1346a0);padding:16px 5%;display:flex;align-items:center;justify-content:space-between;}
+.topbar a{color:rgba(255,255,255,0.8);text-decoration:none;font-size:0.85rem;}
+.topbar .logo{font-family:'Playfair Display',serif;font-size:1rem;color:#fff;font-weight:700;}
+.hero{background:linear-gradient(135deg,#e0f2fe,#bae6fd);padding:48px 5% 56px;text-align:center;}
+.hero-emoji{font-size:3.5rem;display:block;margin-bottom:14px;}
+.cat-badge{display:inline-block;background:var(--azul);color:#fff;border-radius:20px;padding:5px 16px;font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:900;color:var(--gris-oscuro);margin-bottom:10px;}
+.hero p{font-size:0.95rem;color:var(--gris);max-width:500px;margin:0 auto;line-height:1.6;}
+.calc-wrap{max-width:580px;margin:-32px auto 0;padding:0 18px 60px;}
+.card{background:white;border-radius:24px;padding:32px 28px;box-shadow:0 8px 32px rgba(19,70,160,0.12);margin-bottom:20px;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:0.85rem;font-weight:600;color:var(--gris);margin-bottom:8px;}
+.input-row{display:flex;gap:10px;align-items:center;}
+.form-input,.form-select{flex:1;width:100%;padding:13px 16px;border:2px solid var(--borde);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:600;color:var(--gris-oscuro);background:var(--pale);outline:none;transition:border-color 0.2s;}
+.form-input:focus,.form-select:focus{border-color:var(--azul);background:white;}
+.unidad{font-size:0.88rem;color:var(--gris);font-weight:600;white-space:nowrap;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.btn-calc{width:100%;padding:16px;background:linear-gradient(135deg,var(--azul),var(--azul-med));color:white;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px;transition:transform 0.15s,box-shadow 0.15s;}
+.btn-calc:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(19,70,160,0.3);}
+.resultado{display:none;text-align:center;}
+.resultado.visible{display:block;}
+.res-num{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;line-height:1;margin-bottom:4px;}
+.res-unidad{font-size:0.88rem;color:var(--gris);margin-bottom:16px;}
+.res-estadio{font-size:1.1rem;font-weight:700;margin-bottom:16px;}
+.barra-wrap{background:#e2e8f0;border-radius:20px;height:16px;overflow:hidden;margin:10px 0;}
+.barra-fill{height:100%;border-radius:20px;transition:width 0.8s ease;}
+.barra-labels{display:flex;justify-content:space-between;font-size:0.68rem;color:var(--gris);margin-top:4px;}
+.res-detalle{background:var(--pale);border-radius:14px;padding:16px;margin-top:14px;font-size:0.88rem;color:var(--gris);line-height:1.7;text-align:left;}
+.estadios-tabla{width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:8px;}
+.estadios-tabla th{background:var(--azul);color:white;padding:9px 10px;text-align:left;font-size:0.76rem;}
+.estadios-tabla td{padding:9px 10px;border-bottom:1px solid var(--borde);}
+.estadios-tabla tr:nth-child(even) td{background:var(--pale);}
+.estadios-tabla .activa td{font-weight:700;background:#fff3cd!important;}
+.chip{display:inline-block;border-radius:8px;padding:2px 9px;font-size:0.73rem;font-weight:700;}
+.chip-g{background:#e4f7ef;color:var(--verde);}
+.chip-y{background:#fef3e8;color:var(--naranja);}
+.chip-r{background:#fdecea;color:var(--rojo);}
+.cta-box{background:linear-gradient(135deg,#0c2d6e,#1346a0);color:#fff;border-radius:20px;padding:28px;text-align:center;}
+.cta-box h3{font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:8px;}
+.cta-box p{opacity:0.85;font-size:0.88rem;margin-bottom:18px;line-height:1.5;}
+.cta-btn{display:inline-block;background:#fff;color:var(--azul);padding:11px 26px;border-radius:25px;font-weight:700;text-decoration:none;font-size:0.88rem;}
+footer{background:#07183d;color:rgba(255,255,255,0.6);padding:20px 5%;text-align:center;font-size:0.8rem;}
+footer a{color:#7dd3fc;text-decoration:none;}
+@media(max-width:500px){.form-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="index.html">← Regresar al inicio</a><span class="logo">Dr. Ramses Castañeda</span></div>
+<div class="hero">
+  <span class="hero-emoji">🫘</span>
+  <div class="cat-badge">Herramienta · Función Renal</div>
+  <h1>Filtración Glomerular Estimada</h1>
+  <p>Calcule la tasa de filtración glomerular usando la fórmula de Cockcroft-Gault e identifique el estadio de función renal.</p>
+</div>
+
+<div class="calc-wrap">
+  <div class="card">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Edad</label>
+        <div class="input-row"><input class="form-input" type="number" id="cg-edad" placeholder="45" min="18" max="100"><span class="unidad">años</span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sexo</label>
+        <select class="form-select" id="cg-sexo">
+          <option value="">Seleccione</option>
+          <option value="m">Masculino</option>
+          <option value="f">Femenino</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Peso</label>
+        <div class="input-row"><input class="form-input" type="number" id="cg-peso" placeholder="70" step="0.1"><span class="unidad">kg</span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Creatinina sérica</label>
+        <div class="input-row"><input class="form-input" type="number" id="cg-creat" placeholder="1.0" step="0.01"><span class="unidad">mg/dL</span></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">¿Tiene diabetes?</label>
+      <select class="form-select" id="cg-diabetes">
+        <option value="no">No</option>
+        <option value="si">Sí</option>
+      </select>
+    </div>
+    <button class="btn-calc" onclick="calcularCG()">Calcular filtración glomerular →</button>
+  </div>
+
+  <div class="card resultado" id="resultado">
+    <div class="res-num" id="cg-num">—</div>
+    <div class="res-unidad">mL/min/1.73m² (TFGe)</div>
+    <div class="res-estadio" id="cg-estadio"></div>
+    <div class="barra-wrap"><div class="barra-fill" id="cg-barra"></div></div>
+    <div class="barra-labels"><span>ERC 5</span><span>ERC 4</span><span>ERC 3</span><span>ERC 2</span><span>Normal</span></div>
+    <div class="res-detalle" id="cg-detalle"></div>
+
+    <h3 style="font-family:'Playfair Display',serif;font-size:1rem;margin:20px 0 10px;">Estadios de ERC (KDIGO)</h3>
+    <table class="estadios-tabla" id="tabla-estadios">
+      <thead><tr><th>Estadio</th><th>TFGe (mL/min)</th><th>Descripción</th><th>Riesgo</th></tr></thead>
+      <tbody>
+        <tr id="e-g1"><td>G1</td><td>≥ 90</td><td>Normal o aumentada</td><td><span class="chip chip-g">Normal</span></td></tr>
+        <tr id="e-g2"><td>G2</td><td>60 – 89</td><td>Levemente disminuida</td><td><span class="chip chip-g">Leve</span></td></tr>
+        <tr id="e-g3a"><td>G3a</td><td>45 – 59</td><td>Leve a moderadamente disminuida</td><td><span class="chip chip-y">Moderado</span></td></tr>
+        <tr id="e-g3b"><td>G3b</td><td>30 – 44</td><td>Moderada a severamente disminuida</td><td><span class="chip chip-y">Alto</span></td></tr>
+        <tr id="e-g4"><td>G4</td><td>15 – 29</td><td>Severamente disminuida</td><td><span class="chip chip-r">Muy alto</span></td></tr>
+        <tr id="e-g5"><td>G5</td><td>&lt; 15</td><td>Falla renal</td><td><span class="chip chip-r">Critico</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cta-box">
+    <h3>¿Le preocupa su función renal?</h3>
+    <p>La diabetes es la principal causa de enfermedad renal crónica. Una evaluación oportuna puede prevenir complicaciones graves.</p>
+    <a href="https://wa.me/5213121355297?text=Hola%20Dr.%20Ramses%2C%20quisiera%20agendar%20una%20cita" target="_blank" class="cta-btn">📅 Agendar cita por WhatsApp</a>
+  </div>
+</div>
+<footer>© Dr. Ramses Castañeda · Colima · <a href="index.html">Inicio</a> · Fórmula Cockcroft-Gault. Herramienta orientativa.</footer>
+
+<script>
+function calcularCG(){
+  var edad=parseInt(document.getElementById('cg-edad').value)||0;
+  var sexo=document.getElementById('cg-sexo').value;
+  var peso=parseFloat(document.getElementById('cg-peso').value)||0;
+  var creat=parseFloat(document.getElementById('cg-creat').value)||0;
+  var diabetes=document.getElementById('cg-diabetes').value;
+
+  if(!edad||!sexo||!peso||!creat){alert('Por favor complete todos los campos.');return;}
+
+  // Fórmula Cockcroft-Gault
+  var tfg = ((140 - edad) * peso) / (72 * creat);
+  if(sexo === 'f') tfg = tfg * 0.85;
+  tfg = Math.round(tfg * 10) / 10;
+
+  document.getElementById('cg-num').textContent = tfg;
+
+  var estadio, color, pct, detalle, filaId;
+  if(tfg >= 90){
+    estadio='G1 — Función renal normal';color='#2e9e6b';pct=92;filaId='e-g1';
+    detalle='Su función renal está dentro del rango normal. '+
+      (diabetes==='si'?'Al vivir con diabetes, se recomienda monitoreo anual de creatinina y microalbuminuria para detección temprana de nefropatía diabética.':'Continúe con controles periódicos.');
+  } else if(tfg >= 60){
+    estadio='G2 — Función renal levemente disminuida';color='#2e9e6b';pct=72;filaId='e-g2';
+    detalle='Leve disminución de la función renal. '+(diabetes==='si'?'Con diabetes, es importante controlar glucosa, presión arterial y revisar microalbuminuria cada 6 meses.':'Se recomienda seguimiento anual con su médico.');
+  } else if(tfg >= 45){
+    estadio='G3a — Disminución leve a moderada';color='#e67e22';pct=52;filaId='e-g3a';
+    detalle='Enfermedad renal crónica estadio 3a. Se recomienda evaluación por nefrología. Evite medicamentos nefrotóxicos (AINEs). Controle presión arterial estrictamente (<130/80 mmHg).';
+  } else if(tfg >= 30){
+    estadio='G3b — Disminución moderada a severa';color='#e67e22';pct=38;filaId='e-g3b';
+    detalle='ERC estadio 3b. Requiere seguimiento estrecho con nefrología. Restricción de proteínas puede ser necesaria. Ajuste de dosis de medicamentos renalmente eliminados.';
+  } else if(tfg >= 15){
+    estadio='G4 — Función renal severamente disminuida';color='#c0392b';pct=20;filaId='e-g4';
+    detalle='ERC estadio 4. Prepare para terapia de reemplazo renal (diálisis o trasplante). Consulta urgente con nefrología. Dieta restringida en proteínas, potasio y fósforo.';
+  } else {
+    estadio='G5 — Falla renal (ERC terminal)';color='#9b1c1c';pct=6;filaId='e-g5';
+    detalle='Falla renal establecida. Requiere terapia de reemplazo renal inmediata. Atención nefrológica de urgencia.';
+  }
+
+  document.getElementById('cg-num').style.color=color;
+  document.getElementById('cg-estadio').textContent=estadio;
+  document.getElementById('cg-estadio').style.color=color;
+  document.getElementById('cg-barra').style.width=pct+'%';
+  document.getElementById('cg-barra').style.background=color;
+  document.getElementById('cg-detalle').textContent=detalle;
+
+  ['e-g1','e-g2','e-g3a','e-g3b','e-g4','e-g5'].forEach(function(id){
+    document.getElementById(id).className='';
+  });
+  document.getElementById(filaId).className='activa';
+  document.getElementById('resultado').classList.add('visible');
+  document.getElementById('resultado').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body></html>
