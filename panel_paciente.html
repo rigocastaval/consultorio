@@ -400,16 +400,18 @@ tbody tr:hover{background:var(--pale);}
       <style>
         @media print {
           nav, .sidebar, #p-dashboard, #p-registrar, #p-historial,
-          .tabs-nav, .btn-imprimir-wrap { display: none !important; }
+          .btn-imprimir-wrap, .no-print { display: none !important; }
           .app { display: block !important; }
           .main { padding: 0 !important; }
           #p-resumen { display: block !important; }
-          body { background: white !important; font-size: 11pt; }
-          .resumen-seccion { break-inside: avoid; page-break-inside: avoid; }
-          .resumen-tabla-row { break-inside: avoid; }
-          @page { size: A4; margin: 15mm 12mm; }
-          .no-print { display: none !important; }
+          body { background: white !important; font-size: 10pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .resumen-seccion { break-inside: avoid; page-break-inside: avoid; margin-bottom: 10px !important; }
+          .resumen-grafica-wrap { break-inside: avoid; page-break-inside: avoid; width: 100% !important; margin: 8px 0 !important; }
+          .resumen-grafica-wrap canvas { width: 100% !important; max-width: 100% !important; }
+          @page { size: Letter; margin: 12mm 14mm; }
           .print-header { display: block !important; }
+          .resumen-intro-box { background: #e8f0fd !important; border: 1.5px solid #c7d9f8 !important; }
+          .resumen-aviso-box { background: #fff3cd !important; }
         }
         .print-header { display: none; border-bottom: 2px solid #1346a0; padding-bottom: 14px; margin-bottom: 20px; }
       </style>
@@ -1067,70 +1069,166 @@ function renderResumen(){
   }
 
   // Canvas de curvas de glucosa integrado en el resumen
-  html += '<div style="margin-top:16px;">';
-  html += '<div style="font-size:0.85rem;font-weight:700;color:#1346a0;margin-bottom:10px;">📊 Últimas curvas de glucosa del día</div>';
-  html += '<div id="resumen-curvas-wrap" style="background:#f4f7fe;border-radius:12px;padding:16px;min-height:80px;">';
-  html += '<canvas id="resumen-curvas-chart" height="120"></canvas>';
+  // Curvas de glucosa - ancho completo
+  html += '<div class="resumen-grafica-wrap" style="margin-top:16px;width:100%;">';
+  html += '<div style="font-size:0.85rem;font-weight:700;color:#1346a0;margin-bottom:8px;">📊 Curvas de glucosa del día (últimas mediciones)</div>';
+  html += '<div id="resumen-curvas-wrap" style="background:#f4f7fe;border-radius:12px;padding:14px;width:100%;">';
+  html += '<canvas id="resumen-curvas-chart" style="width:100%;display:block;"></canvas>';
   html += '<div id="resumen-curvas-empty" style="text-align:center;color:#94a3b8;font-size:0.85rem;padding:20px;">Sin mediciones de glucosa registradas aún.</div>';
   html += '</div>';
   html += '</div>';
-  html += '</div>';
-  // Renderizar curvas después de que el DOM esté listo
-  setTimeout(function(){ renderCurvasEnResumen(); }, 100);
+  html += '</div>'; // cierre seccion glucosa
+  // Renderizar curvas después del DOM
+  setTimeout(function(){
+    renderCurvasEnResumen();
+    // Renderizar gráficas de cada marcador
+    var graficas = window._graficasResumen || {};
+    Object.keys(graficas).forEach(function(canvasId){
+      var g = graficas[canvasId];
+      var canvas = document.getElementById(canvasId);
+      if(!canvas || !g.datos.length) return;
+      if(window['_chart_'+canvasId]) window['_chart_'+canvasId].destroy();
+      var datasets = [{
+        label: canvasId,
+        data: g.datos,
+        borderColor: g.color,
+        backgroundColor: g.color.replace('0.85','0.08'),
+        borderWidth: 2.5,
+        pointRadius: g.datos.length > 10 ? 2 : 4,
+        pointHoverRadius: 6,
+        tension: 0.35,
+        fill: true,
+        spanGaps: true
+      }];
+      if(g.metaMax) datasets.push({
+        label:'Meta máx',
+        data: g.labels.map(function(){ return g.metaMax; }),
+        borderColor:'rgba(230,126,34,0.6)',
+        borderWidth:1.5, borderDash:[6,4], pointRadius:0, fill:false, tension:0
+      });
+      if(g.metaMin) datasets.push({
+        label:'Meta mín',
+        data: g.labels.map(function(){ return g.metaMin; }),
+        borderColor:'rgba(46,158,107,0.5)',
+        borderWidth:1.5, borderDash:[4,4], pointRadius:0, fill:false, tension:0
+      });
+      window['_chart_'+canvasId] = new Chart(canvas.getContext('2d'),{
+        type:'line',
+        data:{ labels: g.labels, datasets: datasets },
+        options:{
+          responsive:true,
+          maintainAspectRatio: false,
+          animation:{ duration: 0 },
+          plugins:{
+            legend:{ display: false },
+            tooltip:{ callbacks:{ label:function(ctx){ return ctx.parsed.y+' '+g.unidad; }}}
+          },
+          scales:{
+            x:{ grid:{ color:'#f0f4f8' }, ticks:{ font:{ size:9 }, maxRotation:0, maxTicksLimit:8 }},
+            y:{ beginAtZero:false, grid:{ color:'#f0f4f8' }, ticks:{ font:{ size:9 }, callback:function(v){ return v+' '+g.unidad; }}}
+          }
+        }
+      });
+    });
+  }, 150);
 
   // ── Secciones de otros marcadores ──
   var secciones = [
-    {campo:'presion_sistolica', ico:'💊', titulo:'Presión arterial', min:metas.pas.min, max:metas.pas.max, unidad:'mmHg', label:metas.pas.label,
+    {campo:'presion_sistolica', ico:'💊', titulo:'Presión arterial', color:'rgba(192,57,43,0.85)', min:metas.pas.min, max:metas.pas.max, unidad:'mmHg', label:metas.pas.label,
       textoBien:'Su presión arterial está dentro de la meta recomendada por la ADA 2026 (&lt;130 mmHg). Continúe con su estilo de vida saludable, limite el consumo de sal y mantenga su actividad física regular.',
       textoCuidado:'Su presión arterial está ligeramente por encima de la meta. La ADA 2026 recomienda mantenerla por debajo de 130/80 mmHg en personas con diabetes. Reduzca el consumo de sal, aumente la actividad física y consulte con su médico para evaluar si requiere ajuste de tratamiento.',
       textoMalo:'Su presión arterial está significativamente elevada. La hipertensión no controlada en diabetes aumenta el riesgo de infarto, evento vascular cerebral y daño renal. <strong>Se recomienda consultar al Dr. Castañeda a la brevedad para evaluar su tratamiento.</strong>'},
-    {campo:'hba1c', ico:'🔬', titulo:'HbA1c', min:0, max:metas.hba1c.max, unidad:'%', label:metas.hba1c.label,
+    {campo:'hba1c', ico:'🔬', titulo:'HbA1c', color:'rgba(124,58,237,0.85)', min:0, max:metas.hba1c.max, unidad:'%', label:metas.hba1c.label,
       textoBien:'¡Excelente! Su HbA1c está dentro de la meta recomendada por la ADA 2026. Esto significa que su glucosa ha estado bien controlada durante los últimos 2-3 meses. Continúe con su tratamiento y monitoreo actual.',
       textoCuidado:'Su HbA1c está ligeramente por encima de la meta. Según la ADA SCD 2026, una HbA1c sostenida por encima de la meta aumenta el riesgo de complicaciones a largo plazo. Revise su plan de alimentación y consulte con su médico para evaluar ajustes en el tratamiento.',
       textoMalo:'Su HbA1c está fuera de la meta de control. Niveles elevados de HbA1c se asocian con mayor riesgo de nefropatía, retinopatía y neuropatía diabética. <strong>Es importante que consulte con el Dr. Castañeda para revisar y ajustar su tratamiento.</strong>'},
-    {campo:'colesterol_ldl', ico:'🧪', titulo:'Colesterol LDL', min:0, max:100, unidad:'mg/dL', label:'Meta DM: <100 mg/dL (ADA 2026)',
+    {campo:'colesterol_ldl', ico:'🧪', titulo:'Colesterol LDL', color:'rgba(230,126,34,0.85)', min:0, max:100, unidad:'mg/dL', label:'Meta DM: <100 mg/dL (ADA 2026)',
       textoBien:'Su colesterol LDL está en meta. La ADA 2026 recomienda mantenerlo por debajo de 100 mg/dL en personas con diabetes para reducir el riesgo cardiovascular. Siga con su alimentación baja en grasas saturadas.',
       textoCuidado:'Su LDL está ligeramente elevado. La ADA 2026 recomienda &lt;100 mg/dL y considera el uso de estatinas en la mayoría de adultos con diabetes. Reduzca grasas saturadas, evite alimentos ultraprocesados y consulte con su médico.',
       textoMalo:'Su LDL está significativamente elevado. En personas con diabetes, el riesgo cardiovascular es ya de por sí mayor, por lo que el control del colesterol es esencial. <strong>Consulte al Dr. Castañeda para evaluar inicio o ajuste de tratamiento con estatinas.</strong>'},
-    {campo:'colesterol_hdl', ico:'🧪', titulo:'Colesterol HDL', min:40, max:999, unidad:'mg/dL', label:'Meta: >40 mg/dL (hombres) / >50 mg/dL (mujeres)',
+    {campo:'colesterol_hdl', ico:'🧪', titulo:'Colesterol HDL', color:'rgba(46,158,107,0.85)', min:40, max:999, unidad:'mg/dL', label:'Meta: >40 mg/dL (hombres) / >50 mg/dL (mujeres)',
       textoBien:'Su colesterol HDL (el "bueno") está en un rango saludable. Niveles altos de HDL protegen el corazón. Mantenga su actividad física que es el principal factor para elevar el HDL.',
       textoCuidado:'Su HDL está por debajo de lo deseable. Niveles bajos de HDL se asocian con mayor riesgo cardiovascular. Aumente la actividad física aeróbica, evite el tabaquismo y consulte con su médico.',
       textoMalo:'Su HDL está muy bajo. Esto representa un factor de riesgo cardiovascular importante. <strong>Consulte al Dr. Castañeda para evaluación completa de su perfil cardiovascular.</strong>'},
-    {campo:'trigliceridos', ico:'🧪', titulo:'Triglicéridos', min:0, max:150, unidad:'mg/dL', label:'Normal: <150 mg/dL',
+    {campo:'trigliceridos', ico:'🧪', titulo:'Triglicéridos', color:'rgba(217,70,239,0.85)', min:0, max:150, unidad:'mg/dL', label:'Normal: <150 mg/dL',
       textoBien:'Sus triglicéridos están dentro del rango normal. Siga evitando azúcares simples, bebidas azucaradas y alcohol en exceso para mantener este buen resultado.',
       textoCuidado:'Sus triglicéridos están ligeramente elevados. Reduzca el consumo de azúcares, refrescos, jugos, pan dulce y alcohol. Aumente la actividad física. Consulte con su médico.',
       textoMalo:'Sus triglicéridos están muy elevados (>500 mg/dL es riesgo de pancreatitis). <strong>Se recomienda consulta médica urgente para evaluar tratamiento farmacológico.</strong>'},
-    {campo:'peso', ico:'⚖️', titulo:'Peso / IMC', min:18.5, max:24.9, unidad:'kg/m²', label:'IMC saludable: 18.5-24.9',
+    {campo:'peso', ico:'⚖️', titulo:'Peso / IMC', color:'rgba(46,158,107,0.85)', min:18.5, max:24.9, unidad:'kg/m²', label:'IMC saludable: 18.5-24.9',
       textoBien:'Su IMC está dentro del rango saludable. Mantener un peso adecuado es fundamental para el control de la glucosa y la presión arterial. ¡Siga adelante!',
       textoCuidado:'Su IMC indica sobrepeso. La ADA 2026 indica que perder entre el 5-10% del peso corporal mejora significativamente el control glucémico y reduce el riesgo cardiovascular. Consulte con su médico un plan individualizado.',
       textoMalo:'Su IMC indica obesidad. La obesidad aumenta la resistencia a la insulina y el riesgo de complicaciones. <strong>Consulte al Dr. Castañeda para un plan de manejo integral que incluya alimentación, actividad física y posible tratamiento farmacológico.</strong>'},
-    {campo:'creatinina', ico:'🫘', titulo:'Creatinina', min:0.5, max:1.2, unidad:'mg/dL', label:'Normal: 0.6-1.2 mg/dL',
+    {campo:'creatinina', ico:'🫘', titulo:'Creatinina', color:'rgba(20,184,166,0.85)', min:0.5, max:1.2, unidad:'mg/dL', label:'Normal: 0.6-1.2 mg/dL',
       textoBien:'Su creatinina está dentro del rango normal, lo que indica una función renal adecuada. La diabetes es la principal causa de enfermedad renal crónica, por eso es importante mantenerla en control.',
       textoCuidado:'Su creatinina está ligeramente elevada. Esto puede indicar inicio de daño renal. Consulte con su médico para solicitar cálculo de filtración glomerular (TFGe) y microalbuminuria.',
       textoMalo:'Su creatinina está elevada. Esto sugiere daño renal que requiere evaluación. <strong>Consulte al Dr. Castañeda a la brevedad. Puede requerir ajuste de medicamentos y evaluación nefrológica.</strong>'},
   ];
 
-  secciones.forEach(function(s){
+  var graficasResumen = {};
+
+  secciones.forEach(function(s, idx){
     var dp = ultProm(s.campo);
     if(!dp.ult) return;
     var imcVal = s.campo==='peso' && perfil?.estatura ? Math.round((dp.ult/((perfil.estatura/100)**2))*10)/10 : null;
     var valMostrar = imcVal || dp.ult;
     var est = s.campo==='colesterol_hdl' ? (valMostrar >= s.min ? 'bien' : valMostrar >= s.min*0.85 ? 'cuidado' : 'malo') : estado(valMostrar, s.min, s.max);
+    var canvasId = 'resumen-chart-'+s.campo;
 
-    html += '<div style="background:white;border-radius:20px;padding:24px;box-shadow:0 2px 12px rgba(19,70,160,0.08);margin-bottom:16px;">';
-    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><span style="font-size:1.4rem;">'+s.ico+'</span><h3 style="font-family:Playfair Display,serif;font-size:1.05rem;font-weight:700;">'+s.titulo+'</h3><span style="margin-left:auto;font-size:0.8rem;background:'+bgEst(est)+';color:'+colorEst(est)+';border-radius:8px;padding:3px 10px;font-weight:700;">'+labelEst(est)+'</span></div>';
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px;">';
-    html += '<div style="background:#f4f7fe;border-radius:10px;padding:12px;text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1.5rem;font-weight:900;color:'+colorEst(est)+'">'+valMostrar+'</div><div style="font-size:0.7rem;color:#4a5568;font-weight:600;">Último valor ('+s.unidad+')</div></div>';
-    if(dp.n > 1) html += '<div style="background:#f4f7fe;border-radius:10px;padding:12px;text-align:center;"><div style="font-family:Playfair Display,serif;font-size:1.5rem;font-weight:900;color:#1346a0">'+dp.prom+'</div><div style="font-size:0.7rem;color:#4a5568;font-weight:600;">Promedio ('+dp.n+' registros)</div></div>';
-    html += '<div style="background:#f4f7fe;border-radius:10px;padding:12px;text-align:center;"><div style="font-size:0.75rem;color:#1346a0;font-weight:700;line-height:1.4;">'+s.label+'</div><div style="font-size:0.7rem;color:#94a3b8;margin-top:2px;">ADA SCD 2026</div></div>';
+    // Datos históricos para la gráfica
+    var historico = registros.filter(function(r){ return r[s.campo]; });
+    var campoGrafica = s.campo === 'peso' && perfil?.estatura ?
+      historico.map(function(r){ return Math.round((r[s.campo]/((perfil.estatura/100)**2))*10)/10; }) :
+      historico.map(function(r){ return parseFloat(r[s.campo]); });
+    var fechasGrafica = historico.map(function(r){ return r.fecha ? r.fecha.slice(5) : ''; });
+
+    html += '<div class="resumen-seccion" style="background:white;border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(19,70,160,0.07);margin-bottom:14px;border:1px solid #f0f4f8;">';
+
+    // Header
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
+    html += '<span style="font-size:1.3rem;">'+s.ico+'</span>';
+    html += '<h3 style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:#1e2a3a;">'+s.titulo+'</h3>';
+    html += '<span style="margin-left:auto;font-size:0.78rem;background:'+bgEst(est)+';color:'+colorEst(est)+';border-radius:8px;padding:3px 10px;font-weight:700;">'+labelEst(est)+'</span>';
     html += '</div>';
 
+    // Stats en fila compacta
+    html += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">';
+    html += '<div style="background:#f4f7fe;border-radius:10px;padding:10px 16px;text-align:center;min-width:90px;">';
+    html += '<div style="font-family:Playfair Display,serif;font-size:1.4rem;font-weight:900;color:'+colorEst(est)+'">'+valMostrar+'</div>';
+    html += '<div style="font-size:0.68rem;color:#4a5568;font-weight:600;">Último ('+s.unidad+')</div></div>';
+    if(dp.n > 1){
+      html += '<div style="background:#f4f7fe;border-radius:10px;padding:10px 16px;text-align:center;min-width:90px;">';
+      html += '<div style="font-family:Playfair Display,serif;font-size:1.4rem;font-weight:900;color:#1346a0">'+dp.prom+'</div>';
+      html += '<div style="font-size:0.68rem;color:#4a5568;font-weight:600;">Prom. '+dp.n+' reg.</div></div>';
+    }
+    html += '<div style="background:#f4f7fe;border-radius:10px;padding:10px 16px;display:flex;align-items:center;flex:1;min-width:120px;">';
+    html += '<div style="font-size:0.73rem;color:#1346a0;font-weight:700;line-height:1.4;">Meta: '+s.label+'</div></div>';
+    html += '</div>';
+
+    // Gráfica a ancho completo (solo si hay más de 1 registro)
+    if(campoGrafica.length > 0){
+      html += '<div class="resumen-grafica-wrap" style="width:100%;margin-bottom:12px;background:#fafbfe;border-radius:10px;padding:10px;">';
+      html += '<canvas id="'+canvasId+'" style="width:100%;display:block;" height="'+(campoGrafica.length > 5 ? 90 : 70)+'"></canvas>';
+      html += '</div>';
+      graficasResumen[canvasId] = {
+        labels: fechasGrafica,
+        datos: campoGrafica,
+        color: s.color || 'rgba(19,70,160,0.9)',
+        metaMax: s.max < 900 ? s.max : null,
+        metaMin: s.min > 0 ? s.min : null,
+        unidad: s.unidad
+      };
+    }
+
+    // Recomendación
     var textoRecom = est==='bien' ? s.textoBien : est==='cuidado' ? s.textoCuidado : s.textoMalo;
     var bgColor = est==='bien' ? '#e4f7ef' : est==='cuidado' ? '#fef3e8' : '#fdecea';
     var borderColor = est==='bien' ? '#2e9e6b' : est==='cuidado' ? '#e67e22' : '#c0392b';
-    html += '<div style="background:'+bgColor+';border-left:4px solid '+borderColor+';border-radius:0 12px 12px 0;padding:14px 16px;font-size:0.85rem;color:#1e2a3a;line-height:1.7;">'+textoRecom+'</div>';
+    html += '<div style="background:'+bgColor+';border-left:4px solid '+borderColor+';border-radius:0 10px 10px 0;padding:12px 14px;font-size:0.83rem;color:#1e2a3a;line-height:1.65;">'+textoRecom+'</div>';
     html += '</div>';
   });
+
+  // Guardar referencia de gráficas para renderizar después
+  window._graficasResumen = graficasResumen;
 
   // ── TABLA RESUMEN FINAL ──
   var tablaItems = [
@@ -1248,6 +1346,7 @@ function renderCurvasEnResumen(){
   canvasEl.style.display = 'block';
 
   if(window._resumenCurvasChart) window._resumenCurvasChart.destroy();
+  canvasEl.style.height = '180px';
   window._resumenCurvasChart = new Chart(canvasEl.getContext('2d'),{
     type:'line',
     data:{
@@ -1259,6 +1358,8 @@ function renderCurvasEnResumen(){
     },
     options:{
       responsive:true,
+      maintainAspectRatio:false,
+      animation:{duration:0},
       plugins:{legend:{display:true,position:'top',labels:{font:{size:10}}},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.y+' mg/dL';}}}},
       scales:{x:{ticks:{font:{size:9},maxRotation:0}},y:{beginAtZero:false,grid:{color:'#f0f4f8'},ticks:{callback:function(v){return v+' mg/dL';},font:{size:9}}}}
     }
