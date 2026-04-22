@@ -119,9 +119,19 @@ const SUPABASE_URL = 'https://mhejapkehcyezgndglpq.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oZWphcGtlaGN5ZXpnbmRnbHBxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MDg3NDUsImV4cCI6MjA5MjM4NDc0NX0.ycFQN-Gm6D5V6TJ0PfEReWHD55sqK-cZvYATqVTGuOk';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Redirigir si ya hay sesión
-sb.auth.getSession().then(({data:{session}})=>{
+// Redirigir si ya hay sesión activa
+(async()=>{
+  // Esperar a que Supabase inicialice completamente antes de verificar
+  await new Promise(r=>setTimeout(r,300));
+  const {data:{session}}=await sb.auth.getSession();
   if(session) redirigirSegunRol(session.user.id);
+})();
+
+// Escuchar cambios de autenticación (ej: cuando llega el token por URL)
+sb.auth.onAuthStateChange((event, session)=>{
+  if(event==='SIGNED_IN' && session){
+    redirigirSegunRol(session.user.id);
+  }
 });
 
 function cambiarTab(modo){

@@ -313,6 +313,10 @@ const CLAUDE_URL='https://api.anthropic.com/v1/messages';
 let userId=null,perfil=null,registros=[],chartRefs={};
 let diabSel=null;
 
+// Ocultar app hasta confirmar sesión
+document.querySelector('.app').style.visibility='hidden';
+document.querySelector('nav').style.visibility='hidden';
+
 // Fecha hoy
 document.getElementById('r-fecha').value=new Date().toISOString().split('T')[0];
 
@@ -352,12 +356,39 @@ function estadoVal(val,min,max){
 }
 
 async function init(){
-  const {data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='auth.html';return;}
-  userId=session.user.id;
-  const {data:p}=await sb.from('profiles').select('*').eq('id',userId).single();
+  // Esperar a que Supabase resuelva la sesión de forma confiable
+  const {data:{session}} = await sb.auth.getSession();
+  
+  if(!session){
+    // Dar un segundo intento por si el token estaba en proceso de refrescarse
+    await new Promise(r=>setTimeout(r,800));
+    const {data:{session:session2}} = await sb.auth.getSession();
+    if(!session2){
+      window.location.href='auth.html';
+      return;
+    }
+    await cargarPerfil(session2.user.id);
+    return;
+  }
+  await cargarPerfil(session.user.id);
+}
+
+async function cargarPerfil(uid){
+  userId=uid;
+  const {data:p}=await sb.from('profiles').select('*').eq('id',uid).single();
   if(!p){window.location.href='auth.html';return;}
   perfil=p;
+
+  // Mostrar la app solo cuando tengamos la sesión confirmada
+  document.querySelector('.app').style.visibility='visible';
+  document.querySelector('nav').style.visibility='visible';
+
+  // Redirigir al panel médico si corresponde
+  if(p.rol==='medico'||p.rol==='asistente'){
+    window.location.href='panel_medico.html';
+    return;
+  }
+
   const nom=p.nombre?.split(' ')[0]||'Paciente';
   document.getElementById('nav-nombre').textContent=p.nombre||'';
   document.getElementById('saludo-nombre').textContent='Hola, '+nom+' 👋';

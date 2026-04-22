@@ -151,10 +151,27 @@ let todosLosPacientes=[];let modalChart=null;
 document.getElementById('fecha-hoy').textContent=new Date().toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
 async function init(){
+  // Ocultar hasta confirmar sesión
+  document.body.style.visibility='hidden';
+
   const {data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='auth.html';return;}
+
+  if(!session){
+    await new Promise(r=>setTimeout(r,800));
+    const {data:{session:s2}}=await sb.auth.getSession();
+    if(!s2){window.location.href='auth.html';return;}
+    return verificarRol(s2);
+  }
+  verificarRol(session);
+}
+
+async function verificarRol(session){
   const {data:profile}=await sb.from('profiles').select('rol,nombre').eq('id',session.user.id).single();
-  if(!profile||!['medico','asistente'].includes(profile.rol)){window.location.href='panel_paciente.html';return;}
+  if(!profile||!['medico','asistente'].includes(profile.rol)){
+    window.location.href='panel_paciente.html';
+    return;
+  }
+  document.body.style.visibility='visible';
   document.getElementById('nav-nombre').textContent=profile.nombre||'';
   cargarPacientes();
 }
