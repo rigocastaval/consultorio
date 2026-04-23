@@ -166,6 +166,15 @@ tbody tr:hover{background:var(--pale);}
   .stats-row{grid-template-columns:1fr 1fr;}
 }
 </style>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dr. Castañeda">
+<meta name="theme-color" content="#00bfa5">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 </head>
 <body>
 
@@ -180,6 +189,7 @@ tbody tr:hover{background:var(--pale);}
   <div class="nav-r">
     <span class="nav-nombre" id="nav-nombre">Cargando...</span>
     <span class="nav-badge" id="nav-cond">—</span>
+    <button id="btn-instalar" class="btn-nav" onclick="instalarApp()" style="display:none;background:#00bfa5;border-color:#00bfa5;">📲 Instalar app</button>
     <a href="index.html" class="btn-nav">Sitio web</a>
     <button class="btn-nav" onclick="cerrarSesion()">Salir</button>
   </div>
@@ -1479,6 +1489,42 @@ document.querySelectorAll('.sidebar-item').forEach(function(item){
     if(window.innerWidth <= 768) cerrarMenuMobile();
   });
 });
+
+// PWA: capturar evento de instalación
+var deferredPrompt;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  deferredPrompt = e;
+  var btn = document.getElementById('btn-instalar');
+  if(btn) btn.style.display = 'inline-block';
+});
+
+function instalarApp(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(result){
+    if(result.outcome === 'accepted'){
+      var btn = document.getElementById('btn-instalar');
+      if(btn) btn.style.display = 'none';
+    }
+    deferredPrompt = null;
+  });
+}
+
+window.addEventListener('appinstalled', function(){
+  var btn = document.getElementById('btn-instalar');
+  if(btn) btn.style.display = 'none';
+  deferredPrompt = null;
+});
+
+// Registrar Service Worker (PWA)
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js')
+      .then(function(reg){ console.log('SW registrado:', reg.scope); })
+      .catch(function(err){ console.log('SW error:', err); });
+  });
+}
 
 init();
 </script>

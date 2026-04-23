@@ -155,7 +155,15 @@ footer a{color:#7dd3fc;text-decoration:none;}
 .red-nombre{font-weight:700;font-size:0.95rem;color:#1e2a3a;}
 .red-desc{font-size:0.8rem;color:#4a5568;line-height:1.5;}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dr. Castañeda">
+<meta name="theme-color" content="#00bfa5">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+</head>vr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -506,5 +514,6 @@ const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isI
 document.querySelectorAll('.fade-up').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(24px)';el.style.transition='opacity 0.6s ease,transform 0.6s ease';observer.observe(el);});
 </script>
 
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js");}</script>
 </body>
 </html>

@@ -1,0 +1,49 @@
+{
+  "name": "Dr. Ramses Castañeda · Portal del Paciente",
+  "short_name": "Dr. Castañeda",
+  "description": "Portal de salud personalizado con seguimiento de glucosa, presión arterial y más.",
+  "start_url": "/consultorio/panel_paciente.html",
+  "scope": "/consultorio/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a1f4a",
+  "theme_color": "#00bfa5",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "perfil_-_Ramses.jpg",
+      "sizes": "800x600",
+      "type": "image/jpeg",
+      "label": "Dashboard del paciente"
+    }
+  ],
+  "categories": ["health", "medical"],
+  "shortcuts": [
+    {
+      "name": "Registrar hoy",
+      "short_name": "Registrar",
+      "url": "/consultorio/panel_paciente.html#registrar",
+      "icons": [{"src": "icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Mi dashboard",
+      "short_name": "Dashboard",
+      "url": "/consultorio/panel_paciente.html",
+      "icons": [{"src": "icon-192.png", "sizes": "192x192"}]
+    }
+  ]
+}
