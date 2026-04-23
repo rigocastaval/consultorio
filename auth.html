@@ -239,7 +239,11 @@ async function registerUser(){
     email,password:pass,
     options:{
       emailRedirectTo:'https://rigocastaval.github.io/consultorio/auth.html',
-      data:{nombre:nombre+' '+apellido}
+      data:{
+        nombre: nombre+' '+apellido,
+        telefono: tel||null,
+        fecha_nacimiento: fecha||null
+      }
     }
   });
   if(error){mostrarError(errEl,'Error: '+error.message);btn.disabled=false;btn.textContent='Crear mi cuenta';return;}

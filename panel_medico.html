@@ -202,7 +202,7 @@ function renderTablaPacientes(pacientes,regs){
     const ultimo=pRegs.sort((a,b)=>b.fecha>a.fecha?1:-1)[0];
     const alerta=pRegs.some(r=>r.glucosa_ayuno>180||r.glucosa_postprandial>180||r.presion_sistolica>140);
     return `<tr onclick="abrirPaciente('${p.id}')">
-      <td><strong style="color:var(--gris-oscuro)">${p.nombre||'—'}</strong></td>
+      <td><strong style="color:var(--gris-oscuro)">${p.nombre||'—'}</strong>${(()=>{if(!p.fecha_nacimiento)return'';const hoy=new Date();const nac=new Date(p.fecha_nacimiento);let edad=hoy.getFullYear()-nac.getFullYear();if(hoy.getMonth()-nac.getMonth()<0||(hoy.getMonth()-nac.getMonth()===0&&hoy.getDate()<nac.getDate()))edad--;return' <span style="font-size:0.75rem;color:#94a3b8;font-weight:400;">'+edad+' años</span>';})()}</td>
       <td>${{dm1:'DM Tipo 1',dm2:'DM Tipo 2',pre:'Prediabetes',no:'Sin DM'}[p.tipo_diabetes||'no']||'—'}</td>
       <td>${p.telefono||'—'}</td>
       <td>${ultimo?`<span class="badge badge-verde">${ultimo.fecha}</span>`:'<span class="badge">Sin registros</span>'}</td>
