@@ -8,7 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
 :root{--azul:#1346a0;--teal:#00bfa5;--teal-dark:#008e76;--teal-light:#e0f7f4;--azul-med:#1a5cc8;--gris:#4a5568;--gris-oscuro:#1e2a3a;--borde:#dce6f7;--pale:#f4f7fe;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#0c2d6e 0%,#1346a0 50%,#1a73c8 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#0a1f4a 0%,#006d5b 50%,#00bfa5 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
 .logo-wrap{text-align:center;margin-bottom:28px;color:white;}
 .logo-wrap h1{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;margin-bottom:4px;}
 .logo-wrap p{font-size:0.82rem;opacity:0.8;}
@@ -41,6 +41,7 @@ body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#0c2d6e 
 </head>
 <body>
 <div class="logo-wrap">
+  <img src="logo_circulo.png" alt="Dr. Ramses Castañeda" style="height:80px;width:auto;margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;">
   <h1>Dr. Ramses Castañeda</h1>
   <p>Portal de pacientes · Colima</p>
 </div>
@@ -236,7 +237,10 @@ async function registerUser(){
   btn.disabled=true;btn.textContent='Creando cuenta...';
   const {data,error}=await sb.auth.signUp({
     email,password:pass,
-    options:{data:{nombre:nombre+' '+apellido}}
+    options:{
+      emailRedirectTo:'https://rigocastaval.github.io/consultorio/auth.html',
+      data:{nombre:nombre+' '+apellido}
+    }
   });
   if(error){mostrarError(errEl,'Error: '+error.message);btn.disabled=false;btn.textContent='Crear mi cuenta';return;}
   if(data.user){
