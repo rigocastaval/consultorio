@@ -612,18 +612,27 @@ async function init(){
     // Si no existe, crearlo (usuario recien registrado)
     if(!perfil_data){
       var meta = user.user_metadata || {};
+      var nombreBase = meta.nombre || (user.email ? user.email.split('@')[0] : 'Paciente');
       var upsertRes = await sb.from('profiles').upsert({
         id: user.id,
-        nombre: meta.nombre || (user.email ? user.email.split('@')[0] : 'Paciente'),
+        nombre: nombreBase,
         rol: 'paciente',
         perfil_completo: false
       }).select().single();
       perfil_data = upsertRes.data || {
         id: user.id,
-        nombre: user.email ? user.email.split('@')[0] : 'Paciente',
+        nombre: nombreBase,
         rol: 'paciente',
         perfil_completo: false
       };
+    }
+
+    // Proteger: si el perfil existe pero nombre es null, corregirlo
+    if(perfil_data && !perfil_data.nombre){
+      var metaFallback = user.user_metadata || {};
+      var nombreFallback = metaFallback.nombre || (user.email ? user.email.split('@')[0] : 'Paciente');
+      await sb.from('profiles').update({ nombre: nombreFallback }).eq('id', user.id);
+      perfil_data.nombre = nombreFallback;
     }
 
     perfil = perfil_data;
@@ -671,16 +680,18 @@ async function guardarOnboarding(){
   const est = parseFloat(document.getElementById('ob-estatura').value) || null;
   if(!diabSel){ toast('Seleccione una opcion de diabetes','rojo'); return; }
   
-  const datos = {
-    id: userId,
+  const camposActualizar = {
     tiene_diabetes: diabSel !== 'no',
     tipo_diabetes: diabSel,
     perfil_completo: true
   };
-  if(est) datos.estatura = est;
+  if(est) camposActualizar.estatura = est;
 
-  // Usar upsert en lugar de update — funciona aunque la fila ya exista
-  const { data, error } = await sb.from('profiles').upsert(datos).select().single();
+  // Usar UPDATE (no upsert) para no violar NOT NULL en nombre
+  const { data, error } = await sb.from('profiles')
+    .update(camposActualizar)
+    .eq('id', userId)
+    .select().single();
   
   if(error){
     console.error('Error guardando onboarding:', error);
@@ -701,14 +712,16 @@ async function guardarOnboarding(){
 async function guardarOnboardingSinEstatura(){
   if(!diabSel){ toast('Seleccione una opcion de diabetes','rojo'); return; }
   
-  const datos = {
-    id: userId,
+  const camposActualizar = {
     tiene_diabetes: diabSel !== 'no',
     tipo_diabetes: diabSel,
     perfil_completo: true
   };
 
-  const { data, error } = await sb.from('profiles').upsert(datos).select().single();
+  const { data, error } = await sb.from('profiles')
+    .update(camposActualizar)
+    .eq('id', userId)
+    .select().single();
   
   if(error){
     console.error('Error guardando perfil:', error);
